@@ -44,21 +44,17 @@ module "aks" {
     profile       = "linux"
 
     maintenance = {
-      node_os = {
-        disallowed = {
+      general = {
+        allowed = {
           w1 = {
-            start = "2023-08-01T00:00:00Z"
-            end   = "2023-08-06T00:00:00Z"
+            day   = "Saturday"
+            hours = ["1", "6"]
+          }
+          w2 = {
+            day   = "Sunday"
+            hours = ["1"]
           }
         }
-
-        frequency = "RelativeMonthly"
-        interval  = "1"
-        duration  = "6"
-        week_index  = "First"
-        day_of_week = "Tuesday"
-        start_time = "00:00"
-        utc_offset = "+00:00"
       }
     }
   }

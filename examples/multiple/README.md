@@ -43,7 +43,7 @@ locals {
 }
 ```
 
-The below output example shows how to retrieve values from this cluster configuration, enabling their easy use in other modules
+The below configuration based output shows how to retrieve values from this local variable.
 
 ```hcl
 output "clusters" {
@@ -56,9 +56,9 @@ output "clusters" {
 }
 ```
 
-From other modules this can be referenced as `module.aks.clusters.cl1.name` or `module.aks.clusters.cl2.name`
+From other modules this can be referenced like `module.aks.clusters.cl1.name` or `module.aks.clusters.cl2.name`
 
-You can also reference resource specific attributes, which are are defined at the resource level of this module. For example the below output can be used to get te cluster ids.
+The below resource level based output can be used for example to get the cluster ids.
 
 ```hcl
 output "clusters" {
@@ -68,4 +68,4 @@ output "clusters" {
 }
 ```
 
-From other module you can reference it like `module.aks.clusters.cl1.id`
+Now this can be referenced using `module.aks.clusters.cl1.id`

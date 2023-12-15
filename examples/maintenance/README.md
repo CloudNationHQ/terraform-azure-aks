@@ -35,7 +35,6 @@ module "aks" {
   }
 }
 ```
-
 maintenance_window_node_os: This block is used for managing the maintenance window for node OS upgrades. It allows you to define when the operating system of the cluster nodes can be upgraded.
 
 ```hcl
@@ -107,5 +106,3 @@ module "aks" {
   }
 }
 ```
-
-
