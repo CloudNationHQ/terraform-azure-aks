@@ -14,9 +14,9 @@ A last key goal is to separate logic from configuration in the module, thereby e
 
 ## Features
 
-- enhanced adaptability with support for multiple node pools
+- multiple node pool support compatible with both windows and linux
 - utilization of terratest for robust validation
-- providing support for integration with container registries, enhancing the efficiency of image management
+- providing support for integration with container registries
 
 ## Requirements
 
@@ -55,14 +55,16 @@ A last key goal is to separate logic from configuration in the module, thereby e
 
 | Name | Description | Type | Required |
 | :-- | :-- | :-- | :-- |
-| `cluster` | describes aks related configuration | object | yes |
-| `naming` | contains naming convention | string | yes |
+| `cluster` | contains all aks cluster config | object | yes |
+| `keyvault` | keyvault to store secrets | string | yes |
+| `location` | default azure region and can be used if location is not specified inside the object | string | no |
+| `resourcegroup` | default resource group and can be used if resourcegroup is not specified inside the object | string | no |
 
 ## Outputs
 
 | Name | Description |
 | :-- | :-- |
-| `aks` | contains all aks configuration |
+| `cluster` | contains all aks configuration |
 | `subscriptionId` | contains the current subsriptionId |
 
 ## Testing
