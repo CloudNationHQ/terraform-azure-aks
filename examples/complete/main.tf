@@ -49,7 +49,7 @@ module "network" {
   }
 }
 
-module "analitics" {
+module "analytics" {
   source  = "cloudnationhq/law/azure"
   version = "~> 0.1"
 
@@ -71,8 +71,8 @@ module "aks" {
     resourcegroup = module.rg.groups.demo.name
     depends_on    = [module.kv]
     node_pools    = local.node_pools
-    profile       = "linux"
     dns_prefix    = "demo"
+    profile       = "linux"
 
     default_node_pool = {
       vmsize         = "Standard_DS2_v2"
@@ -82,19 +82,18 @@ module "aks" {
     maintenance_auto_upgrade = {
       disallowed = {
         w1 = {
-          start = "2023-08-02T15:04:05Z"
-          end   = "2023-08-05T20:04:05Z"
+          start = "2023-08-03T00:00:00Z"
+          end   = "2023-08-06T00:00:00Z"
         }
       }
 
-      config = {
-        frequency   = "RelativeMonthly"
-        interval    = "2"
-        duration    = "5"
-        week_index  = "First"
-        day_of_week = "Tuesday"
-        start_time  = "00:00"
-      }
+      frequency   = "RelativeMonthly"
+      interval    = "3"
+      duration    = "6"
+      week_index  = "First"
+      day_of_week = "Tuesday"
+      start_time  = "00:00"
+      utc_offset  = "+00:00"
     }
 
     maintenance_node_os = {
@@ -128,22 +127,15 @@ module "aks" {
     }
 
     workspace = {
-      id = module.analytics.law.id
+      id = module.analytics.workspace.id
       enable = {
         oms_agent = true
         defender  = true
       }
     }
 
-    profile = {
-      network = {
-        plugin            = "azure"
-        load_balancer_sku = "standard"
-        load_balancer = {
-          idle_timeout_in_minutes   = 30
-          managed_outbound_ip_count = 10
-        }
-      }
+    network = {
+      plugin = "azure"
     }
   }
 }

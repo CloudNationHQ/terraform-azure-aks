@@ -31,9 +31,8 @@ module "kv" {
 }
 
 module "aks" {
-  #source  = "cloudnationhq/aks/azure"
-  #version = "~> 0.1"
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   resourcegroup = module.rg.groups.demo.name
   location      = module.rg.groups.demo.location

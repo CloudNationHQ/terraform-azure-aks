@@ -1,4 +1,4 @@
-
+This example highlights the utilization of windows node pools.
 
 ## Usage
 

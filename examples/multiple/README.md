@@ -1,6 +1,4 @@
-This example demonstrates configuration and resource based outputs, highlighting their distinct purposes.
-
-Consider the below module designed to create multiple clusters
+This example demonstrates the use of both configuration and resource based outputs, in a multiple cluster setup.
 
 ```hcl
 module "aks" {
@@ -45,7 +43,7 @@ locals {
 }
 ```
 
-This below output example utilizes configuration based values from the local variable to provide specific information. By defining the output in this manner, details from the local configuration can be easily accessed in other modules:
+The below output example shows how to retrieve values from this cluster configuration, enabling their easy use in other modules
 
 ```hcl
 output "clusters" {
@@ -58,9 +56,9 @@ output "clusters" {
 }
 ```
 
-This output allows direct referencing of specific configurations, for instance, `module.aks.clusters.cl1.name` and `module.aks.clusters.cl2.name`
+From other modules this can be referenced as `module.aks.clusters.cl1.name` or `module.aks.clusters.cl2.name`
 
-To access data from an existing resource-level output, utilize the following output structure:
+You can also reference resource specific attributes, which are are defined at the resource level of this module. For example the below output can be used to get te cluster ids.
 
 ```hcl
 output "clusters" {
@@ -70,4 +68,4 @@ output "clusters" {
 }
 ```
 
-This method enables direct reference to resource-specific attributes, such as using `module.aks.clusters.cl1.id`, based on the predefined outputs at the resource level.
+From other module you can reference it like `module.aks.clusters.cl1.id`

@@ -1,10 +1,11 @@
-
+This example demonstrates the use of multiple node pools, optimizing scalability and flexibility
 
 ## Usage
 
 ```hcl
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -26,7 +27,7 @@ module "aks" {
 }
 ```
 
-unmanaged subnets
+The below configuration establishes distinct node pools for specific workloads, effectively utilizing subnet segmentation for network optimization.
 
 ```hcl
 locals {
