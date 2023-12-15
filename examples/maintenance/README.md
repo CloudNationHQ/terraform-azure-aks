@@ -1,8 +1,11 @@
-maintenance_window_auto_upgrade: This block is specifically for configuring automatic upgrades of the Kubernetes cluster. It enables you to set preferences for when automatic upgrades should happen, helping to ensure they occur at times that minimize disruption.
+This example showcases the implementation of maintenance windows
+
+## Usage: automatic upgrades
 
 ```hcl
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -35,11 +38,13 @@ module "aks" {
   }
 }
 ```
-maintenance_window_node_os: This block is used for managing the maintenance window for node OS upgrades. It allows you to define when the operating system of the cluster nodes can be upgraded.
+
+## Usage: node os
 
 ```hcl
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -73,11 +78,12 @@ module "aks" {
 }
 ```
 
-general
+## Usage general
 
 ```hcl
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -92,14 +98,8 @@ module "aks" {
     maintenance = {
       general = {
         allowed = {
-          w1 = {
-            day   = "Saturday"
-            hours = ["1", "6"]
-          }
-          w2 = {
-            day   = "Sunday"
-            hours = ["1"]
-          }
+          w1 = { day = "Saturday", hours = ["1", "6"] }
+          w2 = { day = "Sunday", hours = ["1"] }
         }
       }
     }

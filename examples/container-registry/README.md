@@ -1,4 +1,4 @@
-
+This example highlights integrating a container registry.
 
 ## Usage
 

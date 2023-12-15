@@ -1,5 +1,7 @@
 This example demonstrates the use of both configuration and resource based outputs, in a multiple cluster setup.
 
+## Usage
+
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"

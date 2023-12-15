@@ -31,7 +31,8 @@ module "kv" {
 }
 
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -46,14 +47,8 @@ module "aks" {
     maintenance = {
       general = {
         allowed = {
-          w1 = {
-            day   = "Saturday"
-            hours = ["1", "6"]
-          }
-          w2 = {
-            day   = "Sunday"
-            hours = ["1"]
-          }
+          w1 = { day = "Saturday", hours = ["1", "6"] }
+          w2 = { day = "Sunday", hours = ["1"] }
         }
       }
     }

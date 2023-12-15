@@ -61,7 +61,8 @@ module "analytics" {
 }
 
 module "aks" {
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
 
@@ -79,49 +80,17 @@ module "aks" {
       vnet_subnet_id = module.network.subnets.db.id
     }
 
-    maintenance_auto_upgrade = {
-      disallowed = {
-        w1 = {
-          start = "2023-08-03T00:00:00Z"
-          end   = "2023-08-06T00:00:00Z"
-        }
-      }
-
-      frequency   = "RelativeMonthly"
-      interval    = "3"
-      duration    = "6"
-      week_index  = "First"
-      day_of_week = "Tuesday"
-      start_time  = "00:00"
-      utc_offset  = "+00:00"
-    }
-
-    maintenance_node_os = {
-      disallowed = {
-        w1 = {
-          start = "2023-08-02T15:04:05Z"
-          end   = "2023-08-05T20:04:05Z"
-        }
-      }
-
-      config = {
-        frequency   = "Weekly"
-        interval    = "2"
-        duration    = "5"
-        day_of_week = "Monday"
-        start_time  = "00:00"
-      }
-    }
-
     maintenance = {
-      allowed = {
-        w1 = {
-          day   = "Saturday"
-          hours = ["1", "6"]
-        }
-        w2 = {
-          day   = "Sunday"
-          hours = ["1"]
+      general = {
+        allowed = {
+          w1 = {
+            day   = "Saturday"
+            hours = ["1", "6"]
+          }
+          w2 = {
+            day   = "Sunday",
+            hours = ["1"]
+          }
         }
       }
     }
@@ -132,10 +101,6 @@ module "aks" {
         oms_agent = true
         defender  = true
       }
-    }
-
-    network = {
-      plugin = "azure"
     }
   }
 }
