@@ -178,12 +178,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "maintenance_window" {
-    for_each = try(var.cluster.maintenance, null) != null ? { "default" = var.cluster.maintenance } : {}
+    for_each = try(var.cluster.maintenance.general, null) != null ? { "default" = var.cluster.maintenance.general } : {}
 
     content {
       dynamic "allowed" {
         for_each = {
-          for k, v in try(var.cluster.maintenance.allowed, {}) : k => v
+          for k, v in try(var.cluster.maintenance.general.allowed, {}) : k => v
         }
         content {
           day   = allowed.value.day
@@ -192,7 +192,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
       dynamic "not_allowed" {
         for_each = {
-          for k, v in try(var.cluster.maintenance.disallowed, {}) : k => v
+          for k, v in try(var.cluster.maintenance.general.disallowed, {}) : k => v
         }
         content {
           end   = not_allowed.value.end
@@ -203,12 +203,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "maintenance_window_node_os" {
-    for_each = try(var.cluster.maintenance_node_os, null) != null ? { "default" = var.cluster.maintenance_node_os } : {}
+    for_each = try(var.cluster.maintenance.node_os, null) != null ? { "default" = var.cluster.maintenance.node_os } : {}
 
     content {
       dynamic "not_allowed" {
         for_each = {
-          for k, v in try(var.cluster.maintenance_node_os.disallowed, {}) : k => v
+          for k, v in try(var.cluster.maintenance.node_os.disallowed, {}) : k => v
         }
         content {
           end   = not_allowed.value.end
@@ -216,24 +216,24 @@ resource "azurerm_kubernetes_cluster" "aks" {
         }
       }
 
-      frequency   = maintenance_window_node_os.value.config.frequency
-      interval    = maintenance_window_node_os.value.config.interval
-      duration    = maintenance_window_node_os.value.config.duration
-      day_of_week = try(maintenance_window_node_os.value.config.day_of_week, null)
-      week_index  = try(maintenance_window_node_os.value.config.week_index, null)
-      start_time  = try(maintenance_window_node_os.value.config.start_time, null)
-      utc_offset  = try(maintenance_window_node_os.value.config.utc_offset, null)
-      start_date  = try(maintenance_window_node_os.value.config.start_date, null)
+      frequency   = maintenance_window_node_os.value.frequency
+      interval    = maintenance_window_node_os.value.interval
+      duration    = maintenance_window_node_os.value.duration
+      day_of_week = try(maintenance_window_node_os.value.day_of_week, null)
+      week_index  = try(maintenance_window_node_os.value.week_index, null)
+      start_time  = try(maintenance_window_node_os.value.start_time, null)
+      utc_offset  = try(maintenance_window_node_os.value.utc_offset, null)
+      start_date  = try(maintenance_window_node_os.value.start_date, null)
     }
   }
 
   dynamic "maintenance_window_auto_upgrade" {
-    for_each = try(var.cluster.maintenance_auto_upgrade, null) != null ? { "default" = var.cluster.maintenance_auto_upgrade } : {}
+    for_each = try(var.cluster.maintenance.auto_upgrade, null) != null ? { "default" = var.cluster.maintenance.auto_upgrade } : {}
 
     content {
       dynamic "not_allowed" {
         for_each = {
-          for k, v in try(var.cluster.maintenance_auto_upgrade.disallowed, {}) : k => v
+          for k, v in try(var.cluster.maintenance.auto_upgrade.disallowed, {}) : k => v
         }
         content {
           end   = not_allowed.value.end
@@ -241,14 +241,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
         }
       }
 
-      frequency   = maintenance_window_auto_upgrade.value.config.frequency
-      interval    = maintenance_window_auto_upgrade.value.config.interval
-      duration    = maintenance_window_auto_upgrade.value.config.duration
-      day_of_week = try(maintenance_window_auto_upgrade.value.config.day_of_week, null)
-      week_index  = try(maintenance_window_auto_upgrade.value.config.week_index, null)
-      start_time  = try(maintenance_window_auto_upgrade.value.config.start_time, null)
-      utc_offset  = try(maintenance_window_auto_upgrade.value.config.utc_offset, null)
-      start_date  = try(maintenance_window_auto_upgrade.value.config.start_date, null)
+      frequency   = maintenance_window_auto_upgrade.value.frequency
+      interval    = maintenance_window_auto_upgrade.value.interval
+      duration    = maintenance_window_auto_upgrade.value.duration
+      day_of_week = try(maintenance_window_auto_upgrade.value.day_of_week, null)
+      week_index  = try(maintenance_window_auto_upgrade.value.week_index, null)
+      start_time  = try(maintenance_window_auto_upgrade.value.start_time, null)
+      utc_offset  = try(maintenance_window_auto_upgrade.value.utc_offset, null)
+      start_date  = try(maintenance_window_auto_upgrade.value.start_date, null)
     }
   }
 

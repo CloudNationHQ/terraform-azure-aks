@@ -1,12 +1,13 @@
- variable "cluster" {
+variable "cluster" {
   description = "contains all aks cluster config"
   type        = any
 
   validation {
-    condition     = contains(["windows", "linux"], lookup(var.cluster, "profile", ""))
-    error_message = "The aks profile must be either 'windows' or 'linux'."
+    condition     = contains(["windows", "linux"], lookup(var.cluster, "profile", "")) && (lookup(var.cluster, "profile", "") != "windows" || try(lookup(var.cluster.network, "plugin", "") == "azure", false))
+    error_message = "The aks profile must be either 'windows' or 'linux'. If the profile is 'windows', 'var.cluster.network.plugin' must be 'azure'."
   }
 }
+
 
 variable "keyvault" {
   description = "keyvault to store secrets"
