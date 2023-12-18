@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice"
@@ -17,50 +18,58 @@ type AksDetails struct {
 	Name              string
 }
 
-type ClientSetup struct {
-	SubscriptionID string
+type AksClient struct {
+	SubscriptionId string
 	AksClient      *armcontainerservice.ManagedClustersClient
 }
 
-func (clientSetup *ClientSetup) GetAks(t *testing.T, details AksDetails) *armcontainerservice.ManagedCluster {
-	resp, err := clientSetup.AksClient.Get(context.Background(), details.ResourceGroupName, details.Name, nil)
+func NewAksClient(t *testing.T, subscriptionId string) *AksClient {
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	require.NoError(t, err, "Failed to create credential")
+
+	aksClient, err := armcontainerservice.NewManagedClustersClient(subscriptionId, cred, nil)
+	require.NoError(t, err, "Failed to create aks client")
+
+	return &AksClient{
+		SubscriptionId: subscriptionId,
+		AksClient:      aksClient,
+	}
+}
+
+func (c *AksClient) GetAks(ctx context.Context, t *testing.T, details *AksDetails) *armcontainerservice.ManagedCluster {
+	resp, err := c.AksClient.Get(ctx, details.ResourceGroupName, details.Name, nil)
 	require.NoError(t, err, "Failed to get aks cluster")
 	return &resp.ManagedCluster
 }
 
-func (setup *ClientSetup) InitializeAksClient(t *testing.T, cred *azidentity.DefaultAzureCredential) {
-	var err error
-	setup.AksClient, err = armcontainerservice.NewManagedClustersClient(setup.SubscriptionID, cred, nil)
-	require.NoError(t, err, "Failed to create aks client")
+func InitializeTerraform(t *testing.T) *terraform.Options {
+	tfOpts := shared.GetTerraformOptions("../examples/complete")
+	terraform.InitAndApply(t, tfOpts)
+	return tfOpts
+}
+
+func CLeanupTerraform(t *testing.T, tfOpts *terraform.Options) {
+	shared.Cleanup(t, tfOpts)
 }
 
 func TestAks(t *testing.T) {
-	t.Run("VerifyAks", func(t *testing.T) {
-		t.Parallel()
+	tfOpts := InitializeTerraform(t)
+	defer CLeanupTerraform(t, tfOpts)
 
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		require.NoError(t, err, "Failed to create credential")
+	subscriptionId := terraform.Output(t, tfOpts, "subscriptionId")
+	aksClient := NewAksClient(t, subscriptionId)
 
-		tfOpts := shared.GetTerraformOptions("../examples/complete")
-		defer shared.Cleanup(t, tfOpts)
-		terraform.InitAndApply(t, tfOpts)
+	aksMap := terraform.OutputMap(t, tfOpts, "cluster")
+	aksDetails := AksDetails{
+		ResourceGroupName: aksMap["resource_group_name"],
+		Name:              aksMap["name"],
+	}
 
-		aksMap := terraform.OutputMap(t, tfOpts, "aks")
-		subscriptionID := terraform.Output(t, tfOpts, "subscriptionId")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 
-		aksDetails := AksDetails{
-			ResourceGroupName: aksMap["resource_group_name"],
-			Name:              aksMap["name"],
-		}
-
-		ClientSetup := &ClientSetup{SubscriptionID: subscriptionID}
-		ClientSetup.InitializeAksClient(t, cred)
-		aks := ClientSetup.GetAks(t, aksDetails)
-
-		t.Run("VerifyAks", func(t *testing.T) {
-			verifyAks(t, &aksDetails, aks)
-		})
-	})
+	aks := aksClient.GetAks(ctx, t, &aksDetails)
+	verifyAks(t, &aksDetails, aks)
 }
 
 func verifyAks(t *testing.T, details *AksDetails, aks *armcontainerservice.ManagedCluster) {
