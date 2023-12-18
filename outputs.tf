@@ -5,8 +5,6 @@ output "subscriptionId" {
 
 output "cluster" {
   description = "contains all aks configuration"
-  value = {
-    id   = azurerm_kubernetes_cluster.aks.id
-    name = azurerm_kubernetes_cluster.aks.name
-  }
+  value       = azurerm_kubernetes_cluster.aks
+  sensitive   = true
 }
