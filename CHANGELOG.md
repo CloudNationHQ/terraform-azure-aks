@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.2.0...v0.3.0) (2023-12-22)
+
+
+### Features
+
+* **deps:** bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /tests ([#6](https://github.com/CloudNationHQ/terraform-azure-aks/issues/6)) ([f035e1b](https://github.com/CloudNationHQ/terraform-azure-aks/commit/f035e1b7fbb30d174d6ebdab0dfce946ebdfb9db))
+
 ## [0.2.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.1.0...v0.2.0) (2023-12-18)
 
 
