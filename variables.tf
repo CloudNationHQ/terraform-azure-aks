@@ -29,5 +29,5 @@ variable "resourcegroup" {
 variable "linux_admin_username" {
   description = "the username of the linux administrator"
   type        = string
-  default     = ""
+  default     = null
 }
