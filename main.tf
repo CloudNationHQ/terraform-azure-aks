@@ -160,16 +160,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  dynamic "linux_profile" {
-    for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  # dynamic "linux_profile" {
+  #   for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
 
-    content {
-      admin_username = try(var.linux_admin_username, "nodeadmin")
-      ssh_key {
-        key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
-      }
-    }
-  }
+  #   content {
+  #     admin_username = try(var.linux_admin_username, "nodeadmin")
+  #     ssh_key {
+  #       key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
+  #     }
+  #   }
+  # }
 
   dynamic "maintenance_window" {
     for_each = try(var.cluster.maintenance.general, null) != null ? { "default" = var.cluster.maintenance.general } : {}
