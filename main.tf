@@ -79,24 +79,28 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  auto_scaler_profile {
-    balance_similar_node_groups      = try(var.cluster.auto_scaler_profile.balance_similar_node_groups, false)
-    expander                         = try(var.cluster.auto_scaler_profile.expander, null)
-    max_graceful_termination_sec     = try(var.cluster.auto_scaler_profile.max_graceful_termination_sec, null)
-    max_node_provisioning_time       = try(var.cluster.auto_scaler_profile.max_node_provisioning_time, null)
-    max_unready_nodes                = try(var.cluster.auto_scaler_profile.max_unready_nodes, null)
-    max_unready_percentage           = try(var.cluster.auto_scaler_profile.max_unready_percentage, null)
-    new_pod_scale_up_delay           = try(var.cluster.auto_scaler_profile.new_pod_scale_up_delay, null)
-    scale_down_delay_after_add       = try(var.cluster.auto_scaler_profile.scale_down_delay_after_add, null)
-    scale_down_delay_after_delete    = try(var.cluster.auto_scaler_profile.scale_down_delay_after_delete, null)
-    scale_down_delay_after_failure   = try(var.cluster.auto_scaler_profile.scale_down_delay_after_failure, null)
-    scan_interval                    = try(var.cluster.auto_scaler_profile.scan_interval, null)
-    scale_down_unneeded              = try(var.cluster.auto_scaler_profile.scale_down_unneeded, null)
-    scale_down_unready               = try(var.cluster.auto_scaler_profile.scale_down_unready, null)
-    scale_down_utilization_threshold = try(var.cluster.auto_scaler_profile.scale_down_utilization_threshold, null)
-    empty_bulk_delete_max            = try(var.cluster.auto_scaler_profile.empty_bulk_delete_max, null)
-    skip_nodes_with_local_storage    = try(var.cluster.auto_scaler_profile.skip_nodes_with_local_storage, null)
-    skip_nodes_with_system_pods      = try(var.cluster.auto_scaler_profile.skip_nodes_with_system_pods, null)
+  dynamic "auto_scaler_profile" {
+    for_each = var.cluster.auto_scaler_profile != null ? [1] : []
+
+    content {
+      balance_similar_node_groups      = try(var.cluster.auto_scaler_profile.balance_similar_node_groups, false)
+      expander                         = try(var.cluster.auto_scaler_profile.expander, null)
+      max_graceful_termination_sec     = try(var.cluster.auto_scaler_profile.max_graceful_termination_sec, null)
+      max_node_provisioning_time       = try(var.cluster.auto_scaler_profile.max_node_provisioning_time, null)
+      max_unready_nodes                = try(var.cluster.auto_scaler_profile.max_unready_nodes, null)
+      max_unready_percentage           = try(var.cluster.auto_scaler_profile.max_unready_percentage, null)
+      new_pod_scale_up_delay           = try(var.cluster.auto_scaler_profile.new_pod_scale_up_delay, null)
+      scale_down_delay_after_add       = try(var.cluster.auto_scaler_profile.scale_down_delay_after_add, null)
+      scale_down_delay_after_delete    = try(var.cluster.auto_scaler_profile.scale_down_delay_after_delete, null)
+      scale_down_delay_after_failure   = try(var.cluster.auto_scaler_profile.scale_down_delay_after_failure, null)
+      scan_interval                    = try(var.cluster.auto_scaler_profile.scan_interval, null)
+      scale_down_unneeded              = try(var.cluster.auto_scaler_profile.scale_down_unneeded, null)
+      scale_down_unready               = try(var.cluster.auto_scaler_profile.scale_down_unready, null)
+      scale_down_utilization_threshold = try(var.cluster.auto_scaler_profile.scale_down_utilization_threshold, null)
+      empty_bulk_delete_max            = try(var.cluster.auto_scaler_profile.empty_bulk_delete_max, null)
+      skip_nodes_with_local_storage    = try(var.cluster.auto_scaler_profile.skip_nodes_with_local_storage, null)
+      skip_nodes_with_system_pods      = try(var.cluster.auto_scaler_profile.skip_nodes_with_system_pods, null)
+    }
   }
 
   dynamic "http_proxy_config" {
@@ -269,10 +273,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                         = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
     workload_runtime             = try(var.cluster.default_node_pool.workload_runtime, null)
 
-    kubelet_disk_type    = try(var.cluster.default_node_pool.kubelet_disk_type, "OS")
-    os_disk_type         = try(var.cluster.default_node_pool.os_disk_type, "Managed")
-    os_disk_size_gb      = try(var.cluster.default_node_pool.os_disk_size_gb, "64")
-    orchestrator_version = try(var.cluster.default_node_pool.orchestrator_version, "1.27.3")
+    kubelet_disk_type    = try(var.cluster.default_node_pool.kubelet_disk_type, null)
+    os_disk_type         = try(var.cluster.default_node_pool.os_disk_type, null)
+    os_disk_size_gb      = try(var.cluster.default_node_pool.os_disk_size_gb, null)
+    orchestrator_version = try(var.cluster.default_node_pool.orchestrator_version, null)
 
     dynamic "upgrade_settings" {
       for_each = {
