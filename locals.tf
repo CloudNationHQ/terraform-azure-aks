@@ -8,7 +8,7 @@ locals {
       max_count      = try(pools.max_count, 0)
       min_count      = try(pools.min_count, 0)
       max_surge      = try(pools.max_surge, 50)
-      poolname       = "aks${pools_key}"
+      poolname       = try(pools.name, "aks${pools_key}")
       aks_cluster_id = azurerm_kubernetes_cluster.aks.id
 
       linux_os_config = try(pools.config.linux_os, {
@@ -48,6 +48,9 @@ locals {
       enable_host_encryption = try(pools.enable.host_encryption, false)
       availability_zones     = try(pools.availability_zones, [])
       vnet_subnet_id         = try(pools.vnet_subnet_id, null)
+      os_disk_type           = try(pools.os_disk_type, null)
+      os_disk_size_gb        = try(pools.os_disk_size_gb, null)
+      orchestrator_version   = try(pools.orchestrator_version, null)
 
       custom_ca_trust = try(pools.custom_ca_trust, false)
       tags            = try(pools.tags, {})
