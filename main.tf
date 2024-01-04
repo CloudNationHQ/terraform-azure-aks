@@ -164,16 +164,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  # dynamic "linux_profile" {
-  #   for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  dynamic "linux_profile" {
+    for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
 
-  #   content {
-  #     admin_username = try(var.linux_admin_username, "nodeadmin")
-  #     ssh_key {
-  #       key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
-  #     }
-  #   }
-  # }
+    content {
+      admin_username = try(var.cluster.linux_admin_username, "nodeadmin")
+      ssh_key {
+        key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
+      }
+    }
+  }
 
   dynamic "maintenance_window" {
     for_each = try(var.cluster.maintenance.general, null) != null ? { "default" = var.cluster.maintenance.general } : {}
@@ -441,6 +441,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   snapshot_id            = each.value.snapshot_id
   workload_runtime       = each.value.workload_runtime
   vnet_subnet_id         = each.value.vnet_subnet_id
+  os_disk_type           = each.value.os_disk_type
+  os_disk_size_gb        = each.value.os_disk_size_gb
+  orchestrator_version   = each.value.orchestrator_version
 
   dynamic "windows_profile" {
     for_each = each.value.os_type == "windows" ? [1] : []
