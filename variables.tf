@@ -25,3 +25,15 @@ variable "resourcegroup" {
   type        = string
   default     = null
 }
+
+variable "ssh_public_key_provided" {
+  description = "Decide whether the user brings their pre-existing ssh key"
+  type        = bool
+  default     = false
+}
+
+variable "ssh_public_key_keyvault_secret_name" {
+  description = "The secret name of the pre-existing ssh key"
+  type        = string
+  default     = null
+}

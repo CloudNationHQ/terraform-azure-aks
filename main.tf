@@ -170,7 +170,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_username = try(var.cluster.linux_admin_username, "nodeadmin")
       ssh_key {
-        key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
+        key_data = var.ssh_public_key_provided ? data.azurerm_key_vault_secret.tls_public_key_secret["default"] : azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
       }
     }
   }
@@ -368,14 +368,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 # secrets
 resource "tls_private_key" "tls_key" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && !var.ssh_public_key_provided ? { "default" = {} } : {}
 
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "azurerm_key_vault_secret" "tls_public_key_secret" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && !var.ssh_public_key_provided ? { "default" = {} } : {}
 
   name         = format("%s-%s-%s", "kvs", var.cluster.name, "pub")
   value        = tls_private_key.tls_key[each.key].public_key_openssh
@@ -383,10 +383,17 @@ resource "azurerm_key_vault_secret" "tls_public_key_secret" {
 }
 
 resource "azurerm_key_vault_secret" "tls_private_key_secret" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && !var.ssh_public_key_provided ? { "default" = {} } : {}
 
   name         = format("%s-%s-%s", "kvs", var.cluster.name, "prv")
   value        = tls_private_key.tls_key[each.key].private_key_pem
+  key_vault_id = var.keyvault
+}
+
+data "azurerm_key_vault_secret" "tls_public_key_secret" {
+  for_each = var.cluster.profile == "linux" && var.ssh_public_key_provided ? { "default" = {} } : {}
+
+  name         = var.ssh_public_key_keyvault_secret_name
   key_vault_id = var.keyvault
 }
 
