@@ -262,18 +262,31 @@ resource "azurerm_kubernetes_cluster" "aks" {
     zones          = try(var.cluster.default_node_pool.zones, [1, 2, 3])
     vnet_subnet_id = try(var.cluster.default_node_pool.vnet_subnet_id, null)
     node_labels    = try(var.cluster.default_node_pool.node_labels, {})
-    node_taints    = try(var.cluster.default_node_pool.node_taints, [])
     tags           = try(var.cluster.default_node_pool.tags, {})
 
-    custom_ca_trust_enabled      = try(var.cluster.default_node_pool.enable.custom_ca_trust, false)
-    enable_auto_scaling          = try(var.cluster.default_node_pool.auto_scaling, false)
-    enable_host_encryption       = try(var.cluster.default_node_pool.enable.host_encryption, false)
-    enable_node_public_ip        = try(var.cluster.default_node_pool.enable.node_public_ip, false)
-    fips_enabled                 = try(var.cluster.default_node_pool.enable.fips, null)
-    only_critical_addons_enabled = try(var.cluster.default_node_pool.enable.only_critical_addons, false)
-    os_sku                       = try(var.cluster.default_node_pool.sku, null)
-    type                         = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
-    workload_runtime             = try(var.cluster.default_node_pool.workload_runtime, null)
+    custom_ca_trust_enabled       = try(var.cluster.default_node_pool.enable.custom_ca_trust, false)
+    enable_auto_scaling           = try(var.cluster.default_node_pool.auto_scaling, false)
+    enable_host_encryption        = try(var.cluster.default_node_pool.enable.host_encryption, false)
+    enable_node_public_ip         = try(var.cluster.default_node_pool.enable.node_public_ip, false)
+    fips_enabled                  = try(var.cluster.default_node_pool.enable.fips, null)
+    only_critical_addons_enabled  = try(var.cluster.default_node_pool.enable.only_critical_addons, false)
+    os_sku                        = try(var.cluster.default_node_pool.sku, null)
+    type                          = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
+    workload_runtime              = try(var.cluster.default_node_pool.workload_runtime, null)
+    capacity_reservation_group_id = try(var.cluster.default_node_pool.capacity_reservation_group_id, null)
+    proximity_placement_group_id  = try(var.cluster.default_node_pool.proximity_placement_group_id, null)
+    node_public_ip_prefix_id      = try(var.cluster.default_node_pool.node_public_ip_prefix_id, null)
+    scale_down_mode               = try(var.cluster.default_node_pool.scale_down_mode, null)
+    pod_subnet_id                 = try(var.cluster.default_node_pool.pod_subnet_id, null)
+    host_group_id                 = try(var.cluster.default_node_pool.host_group_id, null)
+    message_of_the_day            = try(var.cluster.default_node_pool.message_of_the_day, null)
+    ultra_ssd_enabled             = try(var.cluster.default_node_pool.ultra_ssd_enabled, false)
+    orchestrator_version          = try(var.cluster.default_node_pool.orchestrator_version, null)
+    os_disk_type                  = try(var.cluster.default_node_pool.os_disk_type, null)
+    os_disk_size_gb               = try(var.cluster.default_node_pool.os_disk_size_gb, null)
+    kubelet_disk_type             = try(var.cluster.default_node_pool.kubelet_disk_type, null)
+    snapshot_id                   = try(var.cluster.default_node_pool.snapshot_id, null)
+    temporary_name_for_rotation   = try(var.cluster.default_node_pool.temporary_name_for_rotation, null)
 
     dynamic "upgrade_settings" {
       for_each = {
@@ -411,23 +424,35 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   node_count              = each.value.node_count
   custom_ca_trust_enabled = each.value.custom_ca_trust
 
-  zones                  = each.value.availability_zones
-  enable_auto_scaling    = each.value.enable_auto_scaling
-  enable_host_encryption = each.value.enable_host_encryption
-  enable_node_public_ip  = each.value.enable_node_public_ip
-  fips_enabled           = each.value.enable_fips
-  eviction_policy        = each.value.eviction_policy
-  kubelet_disk_type      = each.value.kubelet_disk_type
-  max_pods               = each.value.max_pods
-  mode                   = each.value.mode
-  node_labels            = each.value.node_labels
-  node_taints            = each.value.node_taints
-  os_sku                 = each.value.os_sku
-  os_type                = each.value.os_type
-  priority               = each.value.priority
-  snapshot_id            = each.value.snapshot_id
-  workload_runtime       = each.value.workload_runtime
-  vnet_subnet_id         = each.value.vnet_subnet_id
+  zones                         = each.value.availability_zones
+  enable_auto_scaling           = each.value.enable_auto_scaling
+  enable_host_encryption        = each.value.enable_host_encryption
+  enable_node_public_ip         = each.value.enable_node_public_ip
+  fips_enabled                  = each.value.enable_fips
+  eviction_policy               = each.value.eviction_policy
+  kubelet_disk_type             = each.value.kubelet_disk_type
+  os_disk_size_gb               = each.value.os_disk_size_gb
+  os_disk_type                  = each.value.os_disk_type
+  orchestrator_version          = each.value.orchestrator_version
+  ultra_ssd_enabled             = each.value.ultra_ssd_enabled
+  message_of_the_day            = each.value.message_of_the_day
+  host_group_id                 = each.value.host_group_id
+  pod_subnet_id                 = each.value.pod_subnet_id
+  spot_max_price                = each.value.spot_max_price
+  scale_down_mode               = each.value.scale_down_mode
+  node_public_ip_prefix_id      = each.value.node_public_ip_prefix_id
+  proximity_placement_group_id  = each.value.proximity_placement_group_id
+  capacity_reservation_group_id = each.value.capacity_reservation_group_id
+  max_pods                      = each.value.max_pods
+  mode                          = each.value.mode
+  node_labels                   = each.value.node_labels
+  node_taints                   = each.value.node_taints
+  os_sku                        = each.value.os_sku
+  os_type                       = each.value.os_type
+  priority                      = each.value.priority
+  snapshot_id                   = each.value.snapshot_id
+  workload_runtime              = each.value.workload_runtime
+  vnet_subnet_id                = each.value.vnet_subnet_id
 
   dynamic "windows_profile" {
     for_each = each.value.os_type == "windows" ? [1] : []
