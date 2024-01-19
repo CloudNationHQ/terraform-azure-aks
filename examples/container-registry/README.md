@@ -5,7 +5,7 @@ This example highlights integrating a container registry.
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.2"
+  version = "~> 0.3"
 
   keyvault = module.kv.vault.id
 
