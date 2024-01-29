@@ -80,9 +80,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "auto_scaler_profile" {
-    for_each = {
-      for k, v in try(var.cluster.auto_scaler_profile, {}) : k => v
-    }
+    for_each = lookup(var.cluster, "auto_scaler_profile", null) != null ? [var.cluster.auto_scaler_profile] : []
 
     content {
       balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, false)
