@@ -253,7 +253,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name           = try(var.cluster.default_node_pool.name, "default")
     vm_size        = try(var.cluster.default_node_pool.vmsize, "Standard_DS2_v2")
-    node_count     = try(var.cluster.default_node_pool.node_count, 2)
+    node_count     = lookup(var.cluster, "auto_scaler_profile", null) != null ? null : lookup(var.cluster.default_node_pool, "node_count", 2)
     max_count      = try(var.cluster.default_node_pool.max_count, null)
     max_pods       = try(var.cluster.default_node_pool.max_pods, 30)
     min_count      = try(var.cluster.default_node_pool.min_count, null)
