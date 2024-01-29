@@ -8,8 +8,12 @@ locals {
       max_count      = try(pools.max_count, 0)
       min_count      = try(pools.min_count, 0)
       max_surge      = try(pools.max_surge, 50)
-      poolname       = "aks${pools_key}"
       aks_cluster_id = azurerm_kubernetes_cluster.aks.id
+
+      poolname = try(
+        pools.name,
+        pools.os_type == "Linux" ? "npl${pools_key}" : "npw${pools_key}"
+      )
 
       linux_os_config = try(pools.config.linux_os, {
         swap_file_size_mb             = "none"
@@ -33,7 +37,7 @@ locals {
       workload_runtime              = try(pools.workload_runtime, null)
       snapshot_id                   = try(pools.snapshot_id, null)
       priority                      = try(pools.priority, null)
-      os_type                       = try(pools.os_type, null)
+      os_type                       = try(pools.os_type, "Linux")
       os_sku                        = try(pools.os_sku, null)
       node_labels                   = try(pools.node_labels, {})
       node_taints                   = try(pools.node_taints, [])

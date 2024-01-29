@@ -15,6 +15,7 @@ locals {
       node_count     = 2
       zones          = [1, 2]
       mode           = "User"
+      os_type        = "Linux"
       node_labels = {
         "workload" = "database"
       }
@@ -24,6 +25,7 @@ locals {
       vnet_subnet_id = module.network.subnets.cache.id
       node_count     = 2
       zones          = [1]
+      os_type        = "Linux"
       node_labels = {
         "workload" = "cache"
       }
