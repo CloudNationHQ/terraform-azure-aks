@@ -26,6 +26,9 @@ variable "resourcegroup" {
   default     = null
 }
 variable "monitor_metrics" {
-  type    = map(string)
+  type = map(object({
+    annotations_allowed = string
+    labels_allowed      = string
+  }))
   default = null
 }
