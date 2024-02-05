@@ -121,14 +121,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
       msi_auth_for_monitoring_enabled = try(oms_agent.value.enable.msi_auth_for_monitoring, false)
     }
   }
-
-  dynamic "monitor_metrics" {
-    for_each = var.monitor_metrics
-    content {
-      annotations_allowed = try(each.value.annotations_allowed, null)
-      labels_allowed      = try(each.value.labels_allowed, null)
-    }
+  monitor_metrics {
+    annotations_allowed = try(var.cluster.annotations_allowed, {})
+    labels_allowed      = try(var.cluster.labels_allowed, {})
   }
+
 
   dynamic "microsoft_defender" {
     for_each = (try(var.cluster.workspace.enable.defender, false)) ? { "defender" = true } : {}
