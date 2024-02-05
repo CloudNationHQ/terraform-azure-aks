@@ -115,11 +115,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "oms_agent" {
-    for_each = (try(var.cluster.workspace.enable.oms_agent, false)) ? { "oms_agent" = true } : {}
-
+    for_each = (try(var.cluster.workspace.enable.oms_agent, false)) ? [var.cluster.workspace] : []
     content {
-      log_analytics_workspace_id      = try(var.cluster.workspace.id, null)
-      msi_auth_for_monitoring_enabled = try(oms_agent.value.msi_auth_for_monitoring_enabled, false)
+      log_analytics_workspace_id      = try(oms_agent.value.id, null)
+      msi_auth_for_monitoring_enabled = try(oms_agent.value.enable.msi_auth_for_monitoring, false)
     }
   }
 
@@ -253,7 +252,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name           = try(var.cluster.default_node_pool.name, "default")
     vm_size        = try(var.cluster.default_node_pool.vmsize, "Standard_DS2_v2")
-    node_count     = lookup(var.cluster, "auto_scaler_profile", null) != null ? null : lookup(var.cluster.default_node_pool, "node_count", 2)
+    node_count     = try(var.cluster.auto_scaler_profile, null) != null ? null : try(var.cluster.default_node_pool.node_count, 2)
     max_count      = try(var.cluster.default_node_pool.max_count, null)
     max_pods       = try(var.cluster.default_node_pool.max_pods, 30)
     min_count      = try(var.cluster.default_node_pool.min_count, null)

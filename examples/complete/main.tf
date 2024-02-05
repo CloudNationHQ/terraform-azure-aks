@@ -32,7 +32,7 @@ module "kv" {
 
 module "network" {
   source  = "cloudnationhq/vnet/azure"
-  version = "~> 0.1"
+  version = "~> 1.0"
 
   naming = local.naming
 
@@ -97,9 +97,11 @@ module "aks" {
 
     workspace = {
       id = module.analytics.workspace.id
+
       enable = {
-        oms_agent = true
-        defender  = true
+        oms_agent               = true
+        defender                = true
+        msi_auth_for_monitoring = true
       }
     }
   }
