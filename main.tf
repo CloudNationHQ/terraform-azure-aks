@@ -125,8 +125,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "monitor_metrics" {
     for_each = var.cluster.monitor_metrics
     content {
-      annotations_allowed = try(each.annotations_allowed, null)
-      labels_allowed      = try(each.labels_allowed, null)
+      annotations_allowed = try(each.value.annotations_allowed, null)
+      labels_allowed      = try(each.value.labels_allowed, null)
     }
   }
 
