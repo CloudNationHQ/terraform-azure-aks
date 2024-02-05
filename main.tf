@@ -125,8 +125,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dynamic "monitor_metrics" {
     for_each = (try(var.cluster.workspace.enable.oms_agent, false)) ? [var.cluster.workspace] : []
     content {
-      annotations_allowed = try(oms_agent.enable.annotations_allowed, null)
-      labels_allowed      = try(oms_agent.enable.labels_allowed, null)
+      annotations_allowed = try(oms_agent.value.enable.annotations_allowed, null)
+      labels_allowed      = try(oms_agent.value.enable.labels_allowed, null)
     }
   }
 
