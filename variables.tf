@@ -25,3 +25,7 @@ variable "resourcegroup" {
   type        = string
   default     = null
 }
+variable "monitor_metrics" {
+  type    = map(string)
+  default = null
+}

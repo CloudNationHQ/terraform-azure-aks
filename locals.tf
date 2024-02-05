@@ -1,4 +1,5 @@
 locals {
+
   aks_pools = length(lookup(var.cluster, "node_pools", [])) > 0 ? flatten([
     for pools_key, pools in lookup(var.cluster, "node_pools", {}) : {
 
