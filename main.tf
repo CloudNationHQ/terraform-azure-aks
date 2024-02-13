@@ -123,7 +123,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "key_vault_secrets_provider" {
-    for_each = try(var.cluster.key_vault_secrets_provider.secret_rotation_enabled, false) ? [1] : []
+    for_each = try(var.cluster.key_vault_secrets_provider != null) ? [1] : []
     content {
       secret_rotation_enabled  = try(var.cluster.key_vault_secrets_provider.secret_rotation_enabled, false)
       secret_rotation_interval = try(var.cluster.key_vault_secrets_provider.secret_rotation_interval, "2m")
