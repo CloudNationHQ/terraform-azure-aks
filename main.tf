@@ -121,11 +121,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
       msi_auth_for_monitoring_enabled = try(oms_agent.value.enable.msi_auth_for_monitoring, false)
     }
   }
-  monitor_metrics {
-    annotations_allowed = try(var.cluster.annotations_allowed, {})
-    labels_allowed      = try(var.cluster.labels_allowed, {})
-  }
 
+  dynamic "key_vault_secrets_provider" {
+    for_each = try(var.cluster.key_vault_secrets_provider.secret_rotation_enabled, false) ? [1] : []
+    content {
+      secret_rotation_enabled  = try(var.cluster.key_vault_secrets_provider.secret_rotation_enabled, false)
+      secret_rotation_interval = try(var.cluster.key_vault_secrets_provider.secret_rotation_interval, "2m")
+    }
+  }
 
   dynamic "microsoft_defender" {
     for_each = (try(var.cluster.workspace.enable.defender, false)) ? { "defender" = true } : {}
