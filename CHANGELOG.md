@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.4.1...v0.4.2) (2024-02-13)
+
+
+### Bug Fixes
+
+* added key vault secrets provider ([#34](https://github.com/CloudNationHQ/terraform-azure-aks/issues/34)) ([091210d](https://github.com/CloudNationHQ/terraform-azure-aks/commit/091210d512e86c8646c0d69a14012354c5e3354e))
+
 ## [0.4.1](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.4.0...v0.4.1) (2024-02-05)
 
 
