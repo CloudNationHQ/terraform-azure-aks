@@ -64,6 +64,7 @@ locals {
       proximity_placement_group_id  = try(pools.proximity_placement_group_id, null)
       capacity_reservation_group_id = try(pools.capacity_reservation_group_id, null)
       ultra_ssd_enabled             = try(pools.ultra_ssd_enabled, false)
+      tags                          = try(pools.tags, null)
 
       custom_ca_trust = try(pools.custom_ca_trust, false)
       tags            = try(pools.tags, {})

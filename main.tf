@@ -24,6 +24,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   http_application_routing_enabled    = try(var.cluster.enable.http_application_routing, false)
   workload_identity_enabled           = try(var.cluster.enable.workload_identity, false)
   custom_ca_trust_certificates_base64 = try(var.cluster.custom_ca_trust_certificates_base64, [])
+  support_plan                        = try(var.cluster.support_plan, "KubernetesOfficial")
+  private_cluster_public_fqdn_enabled = try(var.cluster.private_cluster_public_fqdn_enabled, false)
+  node_os_channel_upgrade             = try(var.cluster.node_os_channel_upgrade, null)
+  disk_encryption_set_id              = try(var.cluster.disk_encryption_set_id, null)
+  private_dns_zone_id                 = try(var.cluster.private_dns_zone_id, null)
+  tags                                = try(var.cluster.tags, null)
 
   local_account_disabled = try(var.cluster.rbac.local_account, true)
 
@@ -52,17 +58,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "network_profile" {
-    for_each = try(var.cluster.network, null) != null ? { "default" = var.cluster.network } : {}
+    for_each = try(var.cluster.network_profile, null) != null ? { "default" = var.cluster.network_profile } : {}
 
     content {
-      network_plugin    = try(network_profile.value.plugin, null)
-      network_mode      = try(network_profile.value.mode, null)
-      network_policy    = try(network_profile.value.policy, null)
-      dns_service_ip    = try(network_profile.value.dns_service_ip, null)
-      outbound_type     = try(network_profile.value.outbound_type, null)
-      pod_cidr          = try(network_profile.value.pod_cidr, null)
-      service_cidr      = try(network_profile.value.service_cidr, null)
-      load_balancer_sku = try(network_profile.value.load_balancer_sku, null)
+      network_plugin      = try(network_profile.value.network_plugin, null)
+      network_mode        = try(network_profile.value.network_mode, null)
+      network_policy      = try(network_profile.value.network_policy, null)
+      dns_service_ip      = try(network_profile.value.dns_service_ip, null)
+      outbound_type       = try(network_profile.value.outbound_type, null)
+      pod_cidr            = try(network_profile.value.pod_cidr, null)
+      service_cidr        = try(network_profile.value.service_cidr, null)
+      load_balancer_sku   = try(network_profile.value.load_balancer_sku, null)
+      pod_cidrs           = try(network_profile.value.pod_cidrs, null)
+      ip_versions         = try(network_profile.value.ip_versions, null)
+      ebpf_data_plane     = try(network_profile.value.ebpf_data_plane, null)
+      service_cidrs       = try(network_profile.value.service_cidrs, null)
+      network_plugin_mode = try(network_profile.value.network_plugin_mode, null)
 
       dynamic "load_balancer_profile" {
         for_each = try(network_profile.value.load_balancer, null) != null ? { "default" = network_profile.value.load_balancer } : {}
@@ -467,6 +478,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   snapshot_id                   = each.value.snapshot_id
   workload_runtime              = each.value.workload_runtime
   vnet_subnet_id                = each.value.vnet_subnet_id
+  tags                          = each.value.tags
 
   dynamic "windows_profile" {
     for_each = each.value.os_type == "windows" ? [1] : []
