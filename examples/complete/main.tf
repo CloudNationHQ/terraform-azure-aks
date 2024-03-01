@@ -114,5 +114,10 @@ module "aks" {
       secret_rotation_enabled  = true
       secret_rotation_interval = "2m"
     }
+
+    network_profile = {
+      network_plugin      = "azure"
+      network_plugin_mode = "overlay"
+    }
   }
 }
