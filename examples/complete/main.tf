@@ -80,6 +80,11 @@ module "aks" {
       vnet_subnet_id = module.network.subnets.db.id
     }
 
+    monitor_metrics = {
+      labels_allowed      = "app,component,release"
+      annotations_allowed = "kubernetes.io/ingress.class"
+    }
+
     maintenance = {
       general = {
         allowed = {

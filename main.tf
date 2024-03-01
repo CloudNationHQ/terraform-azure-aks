@@ -138,6 +138,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  dynamic "monitor_metrics" {
+    for_each = try(var.cluster.monitor_metrics, null) != null ? { "default" = var.cluster.monitor_metrics } : {}
+
+    content {
+      labels_allowed      = try(monitor_metrics.value.labels_allowed, null)
+      annotations_allowed = try(monitor_metrics.value.annotations_allowed, null)
+    }
+  }
+
   dynamic "service_mesh_profile" {
     for_each = try(var.cluster.profile.service_mesh, null) != null ? { "default" = var.cluster.profile.service_mesh } : {}
 
