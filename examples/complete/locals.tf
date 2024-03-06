@@ -67,7 +67,7 @@ locals {
 locals {
   node_pools = {
     db = {
-      vmsize         = "Standard_F4s_v2"
+      vm_size        = "Standard_F4s_v2"
       vnet_subnet_id = module.network.subnets.db.id
       node_count     = 2
       zones          = [1, 2]
@@ -78,7 +78,7 @@ locals {
       }
     }
     cache = {
-      vmsize         = "Standard_F4s_v2"
+      vm_size        = "Standard_F4s_v2"
       vnet_subnet_id = module.network.subnets.cache.id
       node_count     = 2
       zones          = [1]
