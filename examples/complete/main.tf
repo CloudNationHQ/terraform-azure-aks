@@ -67,9 +67,8 @@ module "analytics" {
 }
 
 module "aks" {
-  #source  = "cloudnationhq/aks/azure"
-  #version = "~> 0.1"
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
 
   keyvault = module.kv.vault.id
   cluster  = local.cluster
