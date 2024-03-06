@@ -2,7 +2,7 @@ module "naming" {
   source  = "cloudnationhq/naming/azure"
   version = "~> 0.1"
 
-  suffix = ["demo", "dev"]
+  suffix = ["demo", "prd"]
 }
 
 module "rg" {
@@ -12,7 +12,7 @@ module "rg" {
   groups = {
     demo = {
       name   = module.naming.resource_group.name
-      region = "westeurope"
+      region = "northeurope"
     }
   }
 }
@@ -32,7 +32,7 @@ module "kv" {
 
 module "network" {
   source  = "cloudnationhq/vnet/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   naming = local.naming
 
@@ -43,8 +43,14 @@ module "network" {
     cidr          = ["10.18.0.0/16"]
 
     subnets = {
-      db    = { cidr = ["10.18.1.0/24"] }
-      cache = { cidr = ["10.18.2.0/24"] }
+      db = {
+        nsg  = {}
+        cidr = ["10.18.1.0/24"]
+      }
+      cache = {
+        nsg  = {}
+        cidr = ["10.18.2.0/24"]
+      }
     }
   }
 }
@@ -65,59 +71,5 @@ module "aks" {
   version = "~> 0.1"
 
   keyvault = module.kv.vault.id
-
-  cluster = {
-    name          = module.naming.kubernetes_cluster.name_unique
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
-    depends_on    = [module.kv]
-    node_pools    = local.node_pools
-    dns_prefix    = "demo"
-    profile       = "linux"
-
-    default_node_pool = {
-      vmsize         = "Standard_DS2_v2"
-      vnet_subnet_id = module.network.subnets.db.id
-    }
-
-    monitor_metrics = {
-      labels_allowed      = "app,component,release"
-      annotations_allowed = "kubernetes.io/ingress.class"
-    }
-
-    maintenance = {
-      general = {
-        allowed = {
-          w1 = {
-            day   = "Saturday"
-            hours = ["1", "6"]
-          }
-          w2 = {
-            day   = "Sunday",
-            hours = ["1"]
-          }
-        }
-      }
-    }
-
-    workspace = {
-      id = module.analytics.workspace.id
-
-      enable = {
-        oms_agent               = true
-        defender                = true
-        msi_auth_for_monitoring = true
-      }
-    }
-
-    key_vault_secrets_provider = {
-      secret_rotation_enabled  = true
-      secret_rotation_interval = "2m"
-    }
-
-    network_profile = {
-      network_plugin      = "azure"
-      network_plugin_mode = "overlay"
-    }
-  }
+  cluster  = local.cluster
 }

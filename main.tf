@@ -29,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   node_os_channel_upgrade             = try(var.cluster.node_os_channel_upgrade, null)
   disk_encryption_set_id              = try(var.cluster.disk_encryption_set_id, null)
   private_dns_zone_id                 = try(var.cluster.private_dns_zone_id, null)
-  tags                                = try(var.cluster.tags, null)
+  tags                                = try(var.cluster.tags, var.tags, null)
 
   local_account_disabled = try(var.cluster.rbac.local_account, true)
 
@@ -287,7 +287,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     zones          = try(var.cluster.default_node_pool.zones, [1, 2, 3])
     vnet_subnet_id = try(var.cluster.default_node_pool.vnet_subnet_id, null)
     node_labels    = try(var.cluster.default_node_pool.node_labels, {})
-    tags           = try(var.cluster.default_node_pool.tags, {})
+    tags           = try(var.cluster.default_node_pool.tags, var.tags, null)
 
     custom_ca_trust_enabled       = try(var.cluster.default_node_pool.enable.custom_ca_trust, false)
     enable_auto_scaling           = try(var.cluster.default_node_pool.auto_scaling, false)
