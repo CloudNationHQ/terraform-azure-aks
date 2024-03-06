@@ -18,7 +18,7 @@ locals {
     profile       = "linux"
 
     default_node_pool = {
-      vmsize         = "Standard_DS2_v2"
+      vm_size        = "Standard_DS2_v2"
       vnet_subnet_id = module.network.subnets.db.id
     }
 

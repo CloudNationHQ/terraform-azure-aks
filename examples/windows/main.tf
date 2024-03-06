@@ -46,7 +46,7 @@ module "aks" {
 
     node_pools = {
       cache = {
-        vmsize     = "Standard_DS2_v2"
+        vm_size    = "Standard_DS2_v2"
         node_count = 2
         os_type    = "Windows"
       }

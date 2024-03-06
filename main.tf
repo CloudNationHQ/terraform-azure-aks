@@ -7,22 +7,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = coalesce(lookup(var.cluster, "resourcegroup", null), var.resourcegroup)
   location            = coalesce(lookup(var.cluster, "location", null), var.location)
 
-  kubernetes_version                  = try(var.cluster.version, null)
-  sku_tier                            = try(var.cluster.sku, "Free")
+  kubernetes_version                  = try(var.cluster.kubernetes_version, null)
+  sku_tier                            = try(var.cluster.sku_tier, "Free")
   node_resource_group                 = try(var.cluster.node_resourcegroup, "${var.cluster.resourcegroup}-node")
   azure_policy_enabled                = try(var.cluster.enable.azure_policy, false)
   dns_prefix                          = try(var.cluster.dns_prefix, null)
   dns_prefix_private_cluster          = try(var.cluster.dns_prefix_private_cluster, null)
-  automatic_channel_upgrade           = try(var.cluster.channel_upgrade, null)
+  automatic_channel_upgrade           = try(var.cluster.automatic_channel_upgrade, null)
   edge_zone                           = try(var.cluster.edge_zone, null)
-  oidc_issuer_enabled                 = try(var.cluster.enable.oidc_issuer, false)
-  private_cluster_enabled             = try(var.cluster.enable_private_cluster, false)
-  open_service_mesh_enabled           = try(var.cluster.enable.service_mesh, false)
-  run_command_enabled                 = try(var.cluster.enable.run_command, false)
-  image_cleaner_enabled               = try(var.cluster.enable.image_cleaner, false)
+  oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, false)
+  private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
+  open_service_mesh_enabled           = try(var.cluster.open_service_mesh_enabled, false)
+  run_command_enabled                 = try(var.cluster.run_command_enabled, false)
+  image_cleaner_enabled               = try(var.cluster.image_cleaner_enabled, false)
   image_cleaner_interval_hours        = try(var.cluster.image_cleaner_interval_hours, 48)
-  http_application_routing_enabled    = try(var.cluster.enable.http_application_routing, false)
-  workload_identity_enabled           = try(var.cluster.enable.workload_identity, false)
+  http_application_routing_enabled    = try(var.cluster.http_application_routing_enabled, false)
+  workload_identity_enabled           = try(var.cluster.workload_identity_enabled, false)
   custom_ca_trust_certificates_base64 = try(var.cluster.custom_ca_trust_certificates_base64, [])
   support_plan                        = try(var.cluster.support_plan, "KubernetesOfficial")
   private_cluster_public_fqdn_enabled = try(var.cluster.private_cluster_public_fqdn_enabled, false)
@@ -279,7 +279,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   default_node_pool {
     name           = try(var.cluster.default_node_pool.name, "default")
-    vm_size        = try(var.cluster.default_node_pool.vmsize, "Standard_DS2_v2")
+    vm_size        = try(var.cluster.default_node_pool.vm_size, "Standard_DS2_v2")
     node_count     = try(var.cluster.auto_scaler_profile, null) != null ? null : try(var.cluster.default_node_pool.node_count, 2)
     max_count      = try(var.cluster.default_node_pool.max_count, null)
     max_pods       = try(var.cluster.default_node_pool.max_pods, 30)
@@ -289,13 +289,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_labels    = try(var.cluster.default_node_pool.node_labels, {})
     tags           = try(var.cluster.default_node_pool.tags, var.tags, null)
 
-    custom_ca_trust_enabled       = try(var.cluster.default_node_pool.enable.custom_ca_trust, false)
-    enable_auto_scaling           = try(var.cluster.default_node_pool.auto_scaling, false)
-    enable_host_encryption        = try(var.cluster.default_node_pool.enable.host_encryption, false)
-    enable_node_public_ip         = try(var.cluster.default_node_pool.enable.node_public_ip, false)
-    fips_enabled                  = try(var.cluster.default_node_pool.enable.fips, null)
-    only_critical_addons_enabled  = try(var.cluster.default_node_pool.enable.only_critical_addons, false)
-    os_sku                        = try(var.cluster.default_node_pool.sku, null)
+    custom_ca_trust_enabled       = try(var.cluster.default_node_pool.custom_ca_trust_enabled, false)
+    enable_auto_scaling           = try(var.cluster.default_node_pool.enable_auto_scaling, false)
+    enable_host_encryption        = try(var.cluster.default_node_pool.enable_host_encryption, false)
+    enable_node_public_ip         = try(var.cluster.default_node_pool.enable_node_public_ip, false)
+    fips_enabled                  = try(var.cluster.default_node_pool.fips_enabled, null)
+    only_critical_addons_enabled  = try(var.cluster.default_node_pool.only_critical_addons_enabled, false)
+    os_sku                        = try(var.cluster.default_node_pool.os_sku, null)
     type                          = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
     workload_runtime              = try(var.cluster.default_node_pool.workload_runtime, null)
     capacity_reservation_group_id = try(var.cluster.default_node_pool.capacity_reservation_group_id, null)
@@ -443,13 +443,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
   name                    = each.value.poolname
   kubernetes_cluster_id   = each.value.aks_cluster_id
-  vm_size                 = each.value.vmsize
+  vm_size                 = each.value.vm_size
   max_count               = each.value.max_count
   min_count               = each.value.min_count
   node_count              = each.value.node_count
   custom_ca_trust_enabled = each.value.custom_ca_trust
 
-  zones                         = each.value.availability_zones
+  zones                         = each.value.zones
   enable_auto_scaling           = each.value.enable_auto_scaling
   enable_host_encryption        = each.value.enable_host_encryption
   enable_node_public_ip         = each.value.enable_node_public_ip
