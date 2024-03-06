@@ -58,8 +58,9 @@ A last key goal is to separate logic from configuration in the module, thereby e
 | :-- | :-- | :-- | :-- |
 | `cluster` | contains all aks cluster config | object | yes |
 | `keyvault` | keyvault to store secrets | string | yes |
-| `location` | default azure region and can be used if location is not specified inside the object | string | no |
-| `resourcegroup` | default resource group and can be used if resourcegroup is not specified inside the object | string | no |
+| `location` | default azure region tho be used | string | no |
+| `resourcegroup` | default resource group to be used | string | no |
+| `tags` | tags to be added to the resources | map(string) | no |
 
 ## Outputs
 

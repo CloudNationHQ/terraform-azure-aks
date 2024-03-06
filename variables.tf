@@ -15,13 +15,19 @@ variable "keyvault" {
 }
 
 variable "location" {
-  description = "default azure region and can be used if location is not specified inside the object."
+  description = "default azure region to be used."
   type        = string
   default     = null
 }
 
 variable "resourcegroup" {
-  description = "default resource group and can be used if resourcegroup is not specified inside the object."
+  description = "default resource group to be used."
   type        = string
   default     = null
+}
+
+variable "tags" {
+  description = "tags to be added to the resources"
+  type        = map(string)
+  default     = {}
 }

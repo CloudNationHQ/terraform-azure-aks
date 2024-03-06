@@ -1,12 +1,20 @@
-locals {
-  naming = {
-    # lookup outputs to have consistent naming
-    for type in local.naming_types : type => lookup(module.naming, type).name
-  }
+This example highlights the complete usage.
 
-  naming_types = ["key_vault_secret", "subnet", "network_security_group"]
+## Usage
+
+```hcl
+module "aks" {
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 0.1"
+
+  keyvault = module.kv.vault.id
+  cluster  = local.cluster
 }
+```
 
+The module uses the below locals for configuration:
+
+```hcl
 locals {
   cluster = {
     name          = module.naming.kubernetes_cluster.name_unique
@@ -63,7 +71,9 @@ locals {
     }
   }
 }
+```
 
+```hcl
 locals {
   node_pools = {
     db = {
@@ -89,3 +99,4 @@ locals {
     }
   }
 }
+```
