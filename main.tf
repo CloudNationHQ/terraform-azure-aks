@@ -387,20 +387,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "identity" {
-    for_each = contains(keys(var.cluster), "identity") ? [var.cluster.identity] : []
+    for_each = contains(keys(var.cluster), "identity") ? [var.cluster.identity] : [{
+      type = "SystemAssigned"
+    }]
 
     content {
       type = identity.value.type
-      identity_ids = contains(["UserAssigned"], identity.value.type) ? concat(
+      identity_ids = identity.value.type == "UserAssigned" ? concat(
         try([azurerm_user_assigned_identity.identity["identity"].id], []),
         try(lookup(identity.value, "identity_ids", []), [])
       ) : []
     }
   }
-
-  #identity {
-  #type = "SystemAssigned"
-  #}
 }
 
 # secrets
