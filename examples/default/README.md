@@ -5,7 +5,7 @@ This example illustrates the default azure kubernetes service setup, in its simp
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.6"
+  version = "~> 0.7"
 
   keyvault = module.kv.vault.id
 
