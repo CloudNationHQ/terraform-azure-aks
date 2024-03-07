@@ -42,6 +42,10 @@ locals {
       }
     }
 
+    identity = {
+      type = "SystemAssigned, UserAssigned"
+    }
+
     workspace = {
       id = module.analytics.workspace.id
 

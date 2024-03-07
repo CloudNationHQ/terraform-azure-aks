@@ -386,9 +386,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
-  identity {
-    type = "SystemAssigned"
+  dynamic "identity" {
+    for_each = contains(keys(var.cluster), "identity") ? [var.cluster.identity] : []
+
+    content {
+      type = identity.value.type
+      identity_ids = contains(["UserAssigned", "SystemAssigned, UserAssigned"], identity.value.type) ? concat(
+        try([azurerm_user_assigned_identity.identity["identity"].id], []),
+        try(lookup(identity.value, "identity_ids", []), [])
+      ) : []
+    }
   }
+
+  #identity {
+  #type = "SystemAssigned"
+  #}
 }
 
 # secrets
@@ -595,4 +607,13 @@ resource "azurerm_role_assignment" "role" {
   role_definition_name             = "AcrPull"
   scope                            = var.cluster.registry.role_assignment_scope
   skip_service_principal_aad_check = true
+}
+
+resource "azurerm_user_assigned_identity" "identity" {
+  for_each = contains(["UserAssigned", "SystemAssigned, UserAssigned"], try(var.cluster.identity.type, "")) ? { "identity" = var.cluster.identity } : {}
+
+  name                = try(each.value.name, "uai-${var.cluster.name}")
+  resource_group_name = coalesce(lookup(var.cluster, "resourcegroup", null), var.resourcegroup)
+  location            = coalesce(lookup(var.cluster, "location", null), var.location)
+  tags                = try(each.value.tags, var.tags, null)
 }
