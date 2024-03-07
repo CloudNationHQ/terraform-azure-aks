@@ -43,7 +43,7 @@ locals {
     }
 
     identity = {
-      type = "SystemAssigned, UserAssigned"
+      type = "UserAssigned"
     }
 
     workspace = {

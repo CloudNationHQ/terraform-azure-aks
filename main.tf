@@ -391,7 +391,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
     content {
       type = identity.value.type
-      identity_ids = contains(["UserAssigned", "SystemAssigned, UserAssigned"], identity.value.type) ? concat(
+      identity_ids = contains(["UserAssigned"], identity.value.type) ? concat(
         try([azurerm_user_assigned_identity.identity["identity"].id], []),
         try(lookup(identity.value, "identity_ids", []), [])
       ) : []
@@ -610,7 +610,7 @@ resource "azurerm_role_assignment" "role" {
 }
 
 resource "azurerm_user_assigned_identity" "identity" {
-  for_each = contains(["UserAssigned", "SystemAssigned, UserAssigned"], try(var.cluster.identity.type, "")) ? { "identity" = var.cluster.identity } : {}
+  for_each = contains(["UserAssigned"], try(var.cluster.identity.type, "")) ? { "identity" = var.cluster.identity } : {}
 
   name                = try(each.value.name, "uai-${var.cluster.name}")
   resource_group_name = coalesce(lookup(var.cluster, "resourcegroup", null), var.resourcegroup)
