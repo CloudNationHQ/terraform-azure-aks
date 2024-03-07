@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.6.0...v0.7.0) (2024-03-07)
+
+
+### Features
+
+* improve alignment properties ([#42](https://github.com/CloudNationHQ/terraform-azure-aks/issues/42)) ([16eee92](https://github.com/CloudNationHQ/terraform-azure-aks/commit/16eee925e757e444e647a8132cb396059d43205d))
+* optimized dynamic identity blocks ([#44](https://github.com/CloudNationHQ/terraform-azure-aks/issues/44)) ([d4eeaaa](https://github.com/CloudNationHQ/terraform-azure-aks/commit/d4eeaaadcd857b70b42cb37338e1101133463108))
+
 ## [0.6.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.5.0...v0.6.0) (2024-03-06)
 
 
