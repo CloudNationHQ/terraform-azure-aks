@@ -3,7 +3,7 @@ locals {
     for pools_key, pools in lookup(var.cluster, "node_pools", {}) : {
 
       pools_key      = pools_key
-      vmsize         = pools.vmsize
+      vm_size        = pools.vm_size
       node_count     = try(pools.node_count, 1)
       max_count      = try(pools.max_count, 0)
       min_count      = try(pools.min_count, 0)
@@ -47,10 +47,9 @@ locals {
       eviction_policy               = try(pools.eviction_policy, null)
       enable_fips                   = try(pools.enable.fips, false)
       zones                         = try(pools.zones, null)
-      enable_node_public_ip         = try(pools.enable.node_public_ip, false)
-      enable_auto_scaling           = try(pools.enable.auto_scaling, false)
-      enable_host_encryption        = try(pools.enable.host_encryption, false)
-      availability_zones            = try(pools.availability_zones, [])
+      enable_node_public_ip         = try(pools.enable_node_public_ip, false)
+      enable_auto_scaling           = try(pools.enable_auto_scaling, false)
+      enable_host_encryption        = try(pools.enable_host_encryption, false)
       vnet_subnet_id                = try(pools.vnet_subnet_id, null)
       os_disk_size_gb               = try(pools.os_disk_size_gb, null)
       os_disk_type                  = try(pools.os_disk_type, null)
@@ -64,10 +63,9 @@ locals {
       proximity_placement_group_id  = try(pools.proximity_placement_group_id, null)
       capacity_reservation_group_id = try(pools.capacity_reservation_group_id, null)
       ultra_ssd_enabled             = try(pools.ultra_ssd_enabled, false)
-      tags                          = try(pools.tags, null)
+      tags                          = try(pools.tags, var.cluster.tags, null)
 
       custom_ca_trust = try(pools.custom_ca_trust, false)
-      tags            = try(pools.tags, {})
       zones           = try(pools.zones, [])
     }
   ]) : []
