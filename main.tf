@@ -314,12 +314,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     temporary_name_for_rotation   = try(var.cluster.default_node_pool.temporary_name_for_rotation, null)
 
     dynamic "upgrade_settings" {
-      for_each = {
-        for k, v in try(var.cluster.node_pools.upgrade_settings, {}) : k => v
-      }
+      for_each = try(var.cluster.default_node_pool.upgrade_settings, null) != null ? { "default" = var.cluster.default_node_pool.upgrade_settings } : {}
 
       content {
-        max_surge = upgrade_settings.value.default_node_pool.max_surge
+        max_surge = upgrade_settings.value.max_surge
       }
     }
 

@@ -20,6 +20,9 @@ locals {
     default_node_pool = {
       vm_size        = "Standard_DS2_v2"
       vnet_subnet_id = module.network.subnets.db.id
+      upgrade_settings = {
+        max_surge = 50
+      }
     }
 
     monitor_metrics = {
