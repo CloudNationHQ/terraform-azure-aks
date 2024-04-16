@@ -5,7 +5,7 @@ This example demonstrates the use of both configuration and resource based outpu
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.7"
+  version = "~> 0.8"
 
   resourcegroup = module.rg.groups.demo.name
   location      = module.rg.groups.demo.location
