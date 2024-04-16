@@ -3,7 +3,7 @@ locals {
     for pools_key, pools in lookup(var.cluster, "node_pools", {}) : {
 
       pools_key      = pools_key
-      vm_size        = pools.vm_size
+      vm_size        = try(pools.vm_size, "Standard_D2as_v5")
       node_count     = try(pools.node_count, 1)
       max_count      = try(pools.max_count, 0)
       min_count      = try(pools.min_count, 0)
