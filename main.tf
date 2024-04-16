@@ -31,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id                 = try(var.cluster.private_dns_zone_id, null)
   tags                                = try(var.cluster.tags, var.tags, null)
 
-  local_account_disabled = try(var.cluster.rbac.local_account, true)
+  local_account_disabled = try(var.cluster.rbac.local_account_disabled, true)
 
   # This defaults to Azure RBAC. The current user is set to admin by default
   dynamic "azure_active_directory_role_based_access_control" {
