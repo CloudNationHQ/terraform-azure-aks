@@ -69,7 +69,6 @@ module "aks" {
     profile       = "linux"
 
     default_node_pool = {
-      vm_size        = "Standard_DS2_v2"
       vnet_subnet_id = module.network.subnets.db.id
     }
   }
