@@ -5,7 +5,7 @@ This example highlights the complete usage.
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.8"
+  version = "~> 0.9"
 
   keyvault = module.kv.vault.id
   cluster  = local.cluster
