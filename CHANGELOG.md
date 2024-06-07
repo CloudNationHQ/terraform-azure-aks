@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.8.0...v0.9.0) (2024-06-07)
+
+
+### Features
+
+* add pull request template ([#62](https://github.com/CloudNationHQ/terraform-azure-aks/issues/62)) ([c2a7b0b](https://github.com/CloudNationHQ/terraform-azure-aks/commit/c2a7b0b5a69d3b2b17d1d6169ef2a59957babe40))
+* **deps:** bump github.com/gruntwork-io/terratest in /tests ([#61](https://github.com/CloudNationHQ/terraform-azure-aks/issues/61)) ([bde67eb](https://github.com/CloudNationHQ/terraform-azure-aks/commit/bde67eb9bbfac826073f389cd19b94ba12e78d49))
+* **deps:** bump github.com/hashicorp/go-getter in /tests ([#59](https://github.com/CloudNationHQ/terraform-azure-aks/issues/59)) ([350cce4](https://github.com/CloudNationHQ/terraform-azure-aks/commit/350cce4624153b586d66efde75783e89b5eae08f))
+* **deps:** bump golang.org/x/net from 0.22.0 to 0.23.0 in /tests ([#56](https://github.com/CloudNationHQ/terraform-azure-aks/issues/56)) ([cde241b](https://github.com/CloudNationHQ/terraform-azure-aks/commit/cde241b2be90509ed4d277916e9895f1b7ce7f6b))
+
 ## [0.8.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.7.0...v0.8.0) (2024-04-16)
 
 
