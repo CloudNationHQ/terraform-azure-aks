@@ -33,6 +33,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   local_account_disabled = try(var.cluster.rbac.local_account_disabled, true)
 
+  dynamic "web_app_routing" {
+    for_each = try(var.cluster.web_app_routing, null) != null ? { "default" = var.cluster.web_app_routing } : {}
+
+    content {
+      dns_zone_ids = web_app_routing.value.dns_zone_ids
+    }
+  }
+
   # This defaults to Azure RBAC. The current user is set to admin by default
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = local.role_based_access_control_enabled && local.rbac_aad_managed ? ["rbac"] : []
