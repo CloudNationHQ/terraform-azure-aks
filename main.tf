@@ -191,21 +191,25 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "windows_profile" {
-    for_each = var.cluster.profile == "windows" ? { "default" = {} } : {}
+    for_each = var.cluster.profile == "windows" && lookup(var.cluster, "password", {}) == {} ? {
+      "default" = var.cluster.name
+    } : {}
 
     content {
-      admin_username = try(windows_profile.value.username, "nodeadmin")
-      admin_password = azurerm_key_vault_secret.secret[windows_profile.key].value
+      admin_username = try(var.cluster.username, "nodeadmin")
+      admin_password = try(var.cluster.password, azurerm_key_vault_secret.secret[windows_profile.key].value)
     }
   }
 
   dynamic "linux_profile" {
-    for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+    for_each = var.cluster.profile == "linux" && lookup(var.cluster, "public_key", {}) == {} ? {
+      (var.cluster.name) = true
+    } : {}
 
     content {
-      admin_username = try(linux_profile.value.username, "nodeadmin")
+      admin_username = try(var.cluster.username, "nodeadmin")
       ssh_key {
-        key_data = azurerm_key_vault_secret.tls_public_key_secret[linux_profile.key].value
+        key_data = try(var.cluster.public_key, tls_private_key.tls_key[var.cluster.name].public_key_openssh)
       }
     }
   }
@@ -409,14 +413,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 # secrets
 resource "tls_private_key" "tls_key" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && lookup(var.cluster, "public_key", {}) == {} ? {
+    "default" = var.cluster.name
+  } : {}
 
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  algorithm = try(var.cluster.encryption.algorithm, "RSA")
+  rsa_bits  = try(var.cluster.encryption.rsa_bits, 4096)
 }
 
 resource "azurerm_key_vault_secret" "tls_public_key_secret" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && lookup(var.cluster, "public_key", {}) == {} ? {
+    "default" = var.cluster.name
+  } : {}
 
   name         = format("%s-%s-%s", "kvs", var.cluster.name, "pub")
   value        = tls_private_key.tls_key[each.key].public_key_openssh
@@ -424,7 +432,9 @@ resource "azurerm_key_vault_secret" "tls_public_key_secret" {
 }
 
 resource "azurerm_key_vault_secret" "tls_private_key_secret" {
-  for_each = var.cluster.profile == "linux" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "linux" && lookup(var.cluster, "public_key", {}) == {} ? {
+    "default" = var.cluster.name
+  } : {}
 
   name         = format("%s-%s-%s", "kvs", var.cluster.name, "prv")
   value        = tls_private_key.tls_key[each.key].private_key_pem
@@ -433,7 +443,9 @@ resource "azurerm_key_vault_secret" "tls_private_key_secret" {
 
 # random password
 resource "random_password" "password" {
-  for_each = var.cluster.profile == "windows" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "windows" && lookup(var.cluster, "password", {}) == {} ? {
+    "default" = var.cluster.name
+  } : {}
 
   length      = 24
   special     = true
@@ -444,7 +456,9 @@ resource "random_password" "password" {
 }
 
 resource "azurerm_key_vault_secret" "secret" {
-  for_each = var.cluster.profile == "windows" ? { "default" = {} } : {}
+  for_each = var.cluster.profile == "windows" && lookup(var.cluster, "password", {}) == {} ? {
+    "default" = var.cluster.name
+  } : {}
 
   name         = format("%s-%s", "kvs", var.cluster.name)
   value        = random_password.password[each.key].result
