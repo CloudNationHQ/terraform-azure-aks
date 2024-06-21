@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.9.0...v0.10.0) (2024-06-21)
+
+
+### Features
+
+* add support for bring you own ssh keys or passwords ([#67](https://github.com/CloudNationHQ/terraform-azure-aks/issues/67)) ([789f594](https://github.com/CloudNationHQ/terraform-azure-aks/commit/789f59407c8e047c8c33533b281b9e71a788d1b0))
+* add web app routing support ([#66](https://github.com/CloudNationHQ/terraform-azure-aks/issues/66)) ([5b49223](https://github.com/CloudNationHQ/terraform-azure-aks/commit/5b49223e7cf907f164f6953857d58ca9f1956f39))
+* **deps:** bump github.com/Azure/azure-sdk-for-go/sdk/azidentity ([#64](https://github.com/CloudNationHQ/terraform-azure-aks/issues/64)) ([eff1ce9](https://github.com/CloudNationHQ/terraform-azure-aks/commit/eff1ce99a6df2dab095da509d14726c2fa39078a))
+
 ## [0.9.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.8.0...v0.9.0) (2024-06-07)
 
 
