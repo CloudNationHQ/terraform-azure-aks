@@ -3,7 +3,7 @@ variable "cluster" {
   type        = any
 
   validation {
-    condition     = contains(["windows", "linux"], lookup(var.cluster, "profile", "")) && (lookup(var.cluster, "profile", "") != "windows" || try(lookup(var.cluster.network, "plugin", "") == "azure", false))
+    condition     = contains(["windows", "linux"], lookup(var.cluster, "profile", "")) && (lookup(var.cluster, "profile", "") != "windows" || try(lookup(var.cluster.network_profile, "network_plugin", "") == "azure", false))
     error_message = "The aks profile must be either 'windows' or 'linux'. If the profile is 'windows', 'var.cluster.network.plugin' must be 'azure'."
   }
 }

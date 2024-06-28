@@ -52,8 +52,8 @@ module "aks" {
       }
     }
 
-    network = {
-      plugin = "azure"
+    network_profile = {
+      network_plugin = "azure"
     }
   }
 }
