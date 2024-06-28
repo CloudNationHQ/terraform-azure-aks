@@ -197,7 +197,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
     content {
       admin_username = try(var.cluster.username, "nodeadmin")
-      admin_password = try(var.cluster.password, azurerm_key_vault_secret.secret[windows_profile.key].value)
+      admin_password = try(var.cluster.password, null) != null ? var.cluster.password : azurerm_key_vault_secret.secret["default"].value
     }
   }
 
@@ -209,7 +209,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_username = try(var.cluster.username, "nodeadmin")
       ssh_key {
-        key_data = try(var.cluster.public_key, tls_private_key.tls_key[var.cluster.name].public_key_openssh)
+        key_data = try(var.cluster.public_key, null) != null ? var.cluster.public_key : tls_private_key.tls_key["default"].public_key_openssh
       }
     }
   }
