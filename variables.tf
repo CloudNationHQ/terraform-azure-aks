@@ -12,6 +12,7 @@ variable "cluster" {
 variable "keyvault" {
   description = "keyvault to store secrets"
   type        = string
+  default     = null
 }
 
 variable "location" {
