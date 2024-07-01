@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.11.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.10.0...v0.11.0) (2024-07-01)
+
+
+### Features
+
+* add issue templates ([#78](https://github.com/CloudNationHQ/terraform-azure-aks/issues/78)) ([488ab5c](https://github.com/CloudNationHQ/terraform-azure-aks/commit/488ab5c456be70321953faa3514304a029a145e5))
+* **deps:** bump github.com/Azure/azure-sdk-for-go/sdk/azidentity ([#69](https://github.com/CloudNationHQ/terraform-azure-aks/issues/69)) ([9184644](https://github.com/CloudNationHQ/terraform-azure-aks/commit/91846448a1ddcba007cf5f86e17b94361cdb8f5f))
+* **deps:** bump github.com/gruntwork-io/terratest in /tests ([#77](https://github.com/CloudNationHQ/terraform-azure-aks/issues/77)) ([32016da](https://github.com/CloudNationHQ/terraform-azure-aks/commit/32016da5fc1d7c587b5b9d5990fc2e88a3fb57d7))
+* **deps:** bump github.com/hashicorp/go-getter in /tests ([#70](https://github.com/CloudNationHQ/terraform-azure-aks/issues/70)) ([5d98ee7](https://github.com/CloudNationHQ/terraform-azure-aks/commit/5d98ee77316ab24c5a905d075221f80f62817f26))
+
+
+### Bug Fixes
+
+* explicitly set fallback values for ssh key and admin password ([#72](https://github.com/CloudNationHQ/terraform-azure-aks/issues/72)) ([a6f7c6e](https://github.com/CloudNationHQ/terraform-azure-aks/commit/a6f7c6e8df5790c15e47af3054a8dc5875b0c341))
+* fix validation error when deploying windows cluster with azure network plugin ([#74](https://github.com/CloudNationHQ/terraform-azure-aks/issues/74)) ([706f180](https://github.com/CloudNationHQ/terraform-azure-aks/commit/706f180f095762560d1d9da05e930ed52ba90d1c))
+
 ## [0.10.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.9.0...v0.10.0) (2024-06-21)
 
 
