@@ -7,7 +7,7 @@ To utilize the generated password or ssh key, simply specify the key vault id in
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.11"
+  version = "~> 0.12"
 
   keyvault = module.kv.vault.id
 
