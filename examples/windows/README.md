@@ -5,7 +5,7 @@ This example highlights the utilization of windows node pools.
 ```hcl
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 0.11"
+  version = "~> 0.12"
 
   keyvault = module.kv.vault.id
 

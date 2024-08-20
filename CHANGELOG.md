@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.11.0...v0.12.0) (2024-08-20)
+
+
+### Features
+
+* **deps:** bump github.com/gruntwork-io/terratest in /tests ([#83](https://github.com/CloudNationHQ/terraform-azure-aks/issues/83)) ([fe80dbe](https://github.com/CloudNationHQ/terraform-azure-aks/commit/fe80dbe81c1051582c15299dfc62b74705831ec1))
+* update contribution docs ([#80](https://github.com/CloudNationHQ/terraform-azure-aks/issues/80)) ([22734ee](https://github.com/CloudNationHQ/terraform-azure-aks/commit/22734ee710b1dcb7f985fb7fba031620c7b50247))
+
 ## [0.11.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.10.0...v0.11.0) (2024-07-01)
 
 
