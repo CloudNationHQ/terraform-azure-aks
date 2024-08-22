@@ -3,6 +3,6 @@ output "cluster" {
   sensitive = true
 }
 
-output "subscriptionId" {
-  value = module.aks.subscriptionId
+output "subscription_id" {
+  value = module.aks.subscription_id
 }

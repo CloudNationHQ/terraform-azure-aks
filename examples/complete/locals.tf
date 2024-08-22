@@ -9,13 +9,12 @@ locals {
 
 locals {
   cluster = {
-    name          = module.naming.kubernetes_cluster.name_unique
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
-    depends_on    = [module.kv]
-    node_pools    = local.node_pools
-    dns_prefix    = "demo"
-    profile       = "linux"
+    name           = module.naming.kubernetes_cluster.name_unique
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
+    depends_on     = [module.kv]
+    dns_prefix     = "demo"
+    profile        = "linux"
 
     default_node_pool = {
       vm_size        = "Standard_DS2_v2"
@@ -30,33 +29,36 @@ locals {
       annotations_allowed = "kubernetes.io/ingress.class"
     }
 
-    maintenance = {
-      general = {
-        allowed = {
-          w1 = {
-            day   = "Saturday"
-            hours = ["1", "6"]
-          }
-          w2 = {
-            day   = "Sunday",
-            hours = ["1"]
-          }
+    maintenance_window = {
+      allowed = {
+        w1 = {
+          day   = "Saturday"
+          hours = ["1", "6"]
+        }
+        w2 = {
+          day   = "Sunday",
+          hours = ["1"]
         }
       }
     }
 
     identity = {
       type = "UserAssigned"
+      #identity_ids = [azurerm_user_assigned_identity.ua.id]
     }
 
-    workspace = {
-      id = module.analytics.workspace.id
+    #kubelet_identity = {
+    #user_assigned_identity_id = azurerm_user_assigned_identity.uakube.id
+    #client_id                 = azurerm_user_assigned_identity.uakube.client_id
+    #object_id                 = azurerm_user_assigned_identity.uakube.principal_id
+    #}
 
-      enable = {
-        oms_agent               = true
-        defender                = true
-        msi_auth_for_monitoring = true
-      }
+    oms_agent = {
+      log_analytics_workspace_id = module.analytics.workspace.id
+    }
+
+    microsoft_defender_atp = {
+      log_analytics_workspace_id = module.analytics.workspace.id
     }
 
     key_vault_secrets_provider = {
@@ -67,32 +69,50 @@ locals {
     network_profile = {
       network_plugin      = "azure"
       network_plugin_mode = "overlay"
+      load_balancer_profile = {
+        managed_outbound_ip_count = 2
+      }
+    }
+    node_pools = {
+      db = {
+        vm_size        = "Standard_F4s_v2"
+        vnet_subnet_id = module.network.subnets.db.id
+        node_count     = 2
+        zones          = [1, 2]
+        mode           = "User"
+        os_type        = "Linux"
+        node_labels = {
+          "workload" = "database"
+        }
+      }
+      cache = {
+        vm_size        = "Standard_F4s_v2"
+        vnet_subnet_id = module.network.subnets.cache.id
+        node_count     = 2
+        zones          = [1]
+        os_type        = "Linux"
+        node_labels = {
+          "workload" = "cache"
+        }
+      }
     }
   }
 }
 
-locals {
-  node_pools = {
-    db = {
-      vm_size        = "Standard_F4s_v2"
-      vnet_subnet_id = module.network.subnets.db.id
-      node_count     = 2
-      zones          = [1, 2]
-      mode           = "User"
-      os_type        = "Linux"
-      node_labels = {
-        "workload" = "database"
-      }
-    }
-    cache = {
-      vm_size        = "Standard_F4s_v2"
-      vnet_subnet_id = module.network.subnets.cache.id
-      node_count     = 2
-      zones          = [1]
-      os_type        = "Linux"
-      node_labels = {
-        "workload" = "cache"
-      }
-    }
-  }
-}
+#resource "azurerm_user_assigned_identity" "ua" {
+#name                = "uai-external"
+#resource_group_name = module.rg.groups.demo.name
+#location            = module.rg.groups.demo.location
+#}
+
+#resource "azurerm_user_assigned_identity" "uakube" {
+#name                = "uai-kube"
+#resource_group_name = module.rg.groups.demo.name
+#location            = module.rg.groups.demo.location
+#}
+
+#resource "azurerm_role_assignment" "kubelet_identity_operator" {
+#scope                = azurerm_user_assigned_identity.uakube.id
+#role_definition_name = "Managed Identity Operator"
+#principal_id         = azurerm_user_assigned_identity.ua.principal_id
+#}

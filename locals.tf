@@ -8,9 +8,8 @@ locals {
       max_count      = try(pools.max_count, 0)
       min_count      = try(pools.min_count, 0)
       max_surge      = try(pools.max_surge, 50)
-      aks_cluster_id = azurerm_kubernetes_cluster.aks.id
 
-      poolname = try(
+      name = try(
         pools.name,
         pools.os_type == "Linux" ? "npl${pools_key}" : "npw${pools_key}"
       )
@@ -69,18 +68,4 @@ locals {
       zones           = try(pools.zones, [])
     }
   ]) : []
-}
-
-locals {
-  # Managed RBAC
-  role_based_access_control_enabled = try(var.cluster.rbac.rbac_enabled, true)
-  rbac_aad_managed                  = try(var.cluster.rbac.aad_managed, true)
-  rbac_aad_admin_group_object_ids   = try(var.cluster.rbac.admin_object_id, [data.azurerm_client_config.current.object_id])
-  rbac_aad_azure_rbac_enabled       = try(var.cluster.rbac.use_rbac_for_cluster_roles, true)
-  tenant_id                         = try(var.cluster.tenant_id, data.azurerm_subscription.current.tenant_id)
-
-  # Unmanaged RBAC
-  rbac_aad_client_app_id     = try(var.cluster.rbac.client_app_id, "")
-  rbac_aad_server_app_id     = try(var.cluster.rbac.server_app_id, "")
-  rbac_aad_server_app_secret = try(var.cluster.rbac.server_app_secret, "")
 }
