@@ -1,13 +1,4 @@
 locals {
-  naming = {
-    # lookup outputs to have consistent naming
-    for type in local.naming_types : type => lookup(module.naming, type).name
-  }
-
-  naming_types = ["key_vault_secret", "subnet", "network_security_group"]
-}
-
-locals {
   cluster = {
     name           = module.naming.kubernetes_cluster.name_unique
     location       = module.rg.groups.demo.location
@@ -44,14 +35,7 @@ locals {
 
     identity = {
       type = "UserAssigned"
-      #identity_ids = [azurerm_user_assigned_identity.ua.id]
     }
-
-    #kubelet_identity = {
-    #user_assigned_identity_id = azurerm_user_assigned_identity.uakube.id
-    #client_id                 = azurerm_user_assigned_identity.uakube.client_id
-    #object_id                 = azurerm_user_assigned_identity.uakube.principal_id
-    #}
 
     oms_agent = {
       log_analytics_workspace_id = module.analytics.workspace.id
@@ -98,21 +82,3 @@ locals {
     }
   }
 }
-
-#resource "azurerm_user_assigned_identity" "ua" {
-#name                = "uai-external"
-#resource_group_name = module.rg.groups.demo.name
-#location            = module.rg.groups.demo.location
-#}
-
-#resource "azurerm_user_assigned_identity" "uakube" {
-#name                = "uai-kube"
-#resource_group_name = module.rg.groups.demo.name
-#location            = module.rg.groups.demo.location
-#}
-
-#resource "azurerm_role_assignment" "kubelet_identity_operator" {
-#scope                = azurerm_user_assigned_identity.uakube.id
-#role_definition_name = "Managed Identity Operator"
-#principal_id         = azurerm_user_assigned_identity.ua.principal_id
-#}
