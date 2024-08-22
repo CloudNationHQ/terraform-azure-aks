@@ -103,7 +103,7 @@ Full examples detailing all usages, along with integrations with dependency modu
 
 We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or submitting a pull request, your input is highly valued.
 
-For more information, please see our contribution [guidelines](https://github.com/CloudNationHQ/terraform-azure-aks/blob/main/CONTRIBUTING.md).
+For more information, please see our contribution [guidelines](./CONTRIBUTING.md).
 
 ## Authors
 
