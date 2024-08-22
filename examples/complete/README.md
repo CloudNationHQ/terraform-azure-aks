@@ -49,7 +49,7 @@ cluster = object({
     secret_rotation_interval = optional(string)
   }))
   network_profile = optional(object({
-    network_plugin      = string  # This is now required
+    network_plugin      = string
     network_plugin_mode = optional(string)
     load_balancer_profile = optional(object({
       managed_outbound_ip_count = optional(number)
