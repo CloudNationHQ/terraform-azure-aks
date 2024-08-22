@@ -1,5 +1,4 @@
 data "azurerm_subscription" "current" {}
-data "azurerm_client_config" "current" {}
 
 # aks cluster
 resource "azurerm_kubernetes_cluster" "aks" {
