@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.12.0...v1.0.0) (2024-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* * data structure has changed due to renaming of properties and output variables.
+
+### Features
+
+* aligned several properties ([#85](https://github.com/CloudNationHQ/terraform-azure-aks/issues/85)) ([b46f077](https://github.com/CloudNationHQ/terraform-azure-aks/commit/b46f077a03cad4bc4d18c9daeb3af40a92ea4bdc))
+
 ## [0.12.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.11.0...v0.12.0) (2024-07-04)
 
 
