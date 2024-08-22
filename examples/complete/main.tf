@@ -2,7 +2,7 @@ module "naming" {
   source  = "cloudnationhq/naming/azure"
   version = "~> 0.1"
 
-  suffix = ["demo", "dev"]
+  suffix = ["demo", "prd"]
 }
 
 module "rg" {
@@ -11,36 +11,36 @@ module "rg" {
 
   groups = {
     demo = {
-      name   = module.naming.resource_group.name
-      region = "northeurope"
+      name   = module.naming.resource_group.name_unique
+      region = "germanywestcentral"
     }
   }
 }
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 0.1"
+  version = "~> 1.0"
 
   naming = local.naming
 
   vault = {
-    name          = module.naming.key_vault.name_unique
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
+    name           = module.naming.key_vault.name_unique
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
   }
 }
 
 module "network" {
   source  = "cloudnationhq/vnet/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   naming = local.naming
 
   vnet = {
-    name          = module.naming.virtual_network.name
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
-    cidr          = ["10.18.0.0/16"]
+    name           = module.naming.virtual_network.name
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
+    cidr           = ["10.18.0.0/16"]
 
     subnets = {
       db = {
@@ -57,19 +57,18 @@ module "network" {
 
 module "analytics" {
   source  = "cloudnationhq/law/azure"
-  version = "~> 0.1"
+  version = "~> 1.0"
 
-  law = {
-    name          = module.naming.log_analytics_workspace.name
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
+  workspace = {
+    name           = module.naming.log_analytics_workspace.name
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
   }
 }
 
 module "aks" {
-  #source  = "cloudnationhq/aks/azure"
-  #version = "~> 0.1"
-  source = "../../"
+  source  = "cloudnationhq/aks/azure"
+  version = "~> 1.0"
 
   keyvault = module.kv.vault.id
   cluster  = local.cluster

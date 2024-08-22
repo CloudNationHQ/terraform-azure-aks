@@ -56,7 +56,7 @@ func TestAks(t *testing.T) {
 	tfOpts := InitializeTerraform(t)
 	defer CLeanupTerraform(t, tfOpts)
 
-	subscriptionId := terraform.Output(t, tfOpts, "subscriptionId")
+	subscriptionId := terraform.Output(t, tfOpts, "subscription_id")
 	aksClient := NewAksClient(t, subscriptionId)
 
 	aksMap := terraform.OutputMap(t, tfOpts, "cluster")

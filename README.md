@@ -1,4 +1,4 @@
-# Kubernetes Service
+# Kubernetes
 
 This terraform module simplifies the creation and management of kubernetes resources on Azure, offering customizable options for cluster, node pool, network settings, and add-ons to ensure efficient deployment of kubernetes clusters.
 
@@ -11,6 +11,16 @@ The structure of the module promotes reusability. It's intended to be a repeatab
 A primary goal is to utilize keys and values in the object that correspond to the REST API's structure. This enables us to carry out iterations, increasing its practical value as time goes on.
 
 A last key goal is to separate logic from configuration in the module, thereby enhancing its scalability, ease of customization, and manageability.
+
+## Non-Goals
+
+These modules are not intended to be complete, ready-to-use solutions; they are designed as components for creating your own patterns.
+
+They are not tailored for a single use case but are meant to be versatile and applicable to a range of scenarios.
+
+Security standardization is applied at the pattern level, while the modules include default values based on best practices but do not enforce specific security standards.
+
+End-to-end testing is not conducted on these modules, as they are individual components and do not undergo the extensive testing reserved for complete patterns or solutions.
 
 ## Features
 
@@ -49,7 +59,6 @@ A last key goal is to separate logic from configuration in the module, thereby e
 | [azurerm_role_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [random_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [tls_private_key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
-| [azurerm_client_config](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 | [azurerm_subscription](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 | [azurerm_user_assigned_identity](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
 
@@ -60,7 +69,7 @@ A last key goal is to separate logic from configuration in the module, thereby e
 | `cluster` | contains all aks cluster config | object | yes |
 | `keyvault` | keyvault to store secrets | string | yes |
 | `location` | default azure region tho be used | string | no |
-| `resourcegroup` | default resource group to be used | string | no |
+| `resource_group` | default resource group to be used | string | no |
 | `tags` | tags to be added to the resources | map(string) | no |
 
 ## Outputs
@@ -68,7 +77,7 @@ A last key goal is to separate logic from configuration in the module, thereby e
 | Name | Description |
 | :-- | :-- |
 | `cluster` | contains all aks configuration |
-| `subscriptionId` | contains the current subsriptionId |
+| `subscription_id` | contains the current subsriptionId |
 
 ## Testing
 
@@ -90,13 +99,19 @@ Using a dedicated module, we've developed a naming convention for resources that
 
 Full examples detailing all usages, along with integrations with dependency modules, are located in the examples directory
 
+## Contributing
+
+We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or submitting a pull request, your input is highly valued.
+
+For more information, please see our contribution [guidelines](./CONTRIBUTING.md).
+
 ## Authors
 
 Module is maintained by [these awesome contributors](https://github.com/cloudnationhq/terraform-azure-aks/graphs/contributors).
 
 ## License
 
-MIT Licensed. See [LICENSE](https://github.com/cloudnationhq/terraform-azure-aks/blob/main/LICENSE) for full details.
+MIT Licensed. See [LICENSE](./LICENSE) for full details.
 
 ## References
 

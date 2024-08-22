@@ -1,71 +1,33 @@
-This module enables flexible kubernetes cluster setup by supporting both auto generated and user supplied (bring your own) ssh keys and passwords for tailored access.
+# Authentication
 
-## Usage: generated password or ssh key
+This displays authentication settings available for deployment.
 
-To utilize the generated password or ssh key, simply specify the key vault id in your configuration:
-
-```hcl
-module "aks" {
-  source  = "cloudnationhq/aks/azure"
-  version = "~> 0.12"
-
-  keyvault = module.kv.vault.id
-
-  cluster = {
-    name          = module.naming.kubernetes_cluster.name_unique
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
-    depends_on    = [module.kv]
-    profile       = "linux"
-    dns_prefix    = "demo"
-  }
-}
-```
-
-## Usage: bringing your own password or ssh key
-
-To use your own password or SSH key, use the below properties in your configuration:
+## Types
 
 ```hcl
-module "aks-linux" {
-  source  = "cloudnationhq/aks/azure"
-  version = "~> 0.1"
-
-  cluster = {
-    name               = "${module.naming.kubernetes_cluster.name}-02"
-    location           = module.rg.groups.demo.location
-    resourcegroup      = module.rg.groups.demo.name
-    node_resourcegroup = "${module.rg.groups.demo.name}-node02"
-    depends_on         = [module.kv]
-    profile            = "linux"
-    dns_prefix         = "demo2"
-    sku_tier           = "Standard"
-
-    public_key = module.kv.tls_public_keys.tls.value
-  }
-}
+cluster = object({
+  name               = string
+  location           = string
+  resourcegroup      = string
+  node_resourcegroup = optional(string)
+  depends_on         = optional(list(any))
+  profile            = optional(string)
+  dns_prefix         = optional(string)
+  sku_tier           = optional(string)
+  public_key         = optional(string)
+  identity = optional(object({
+    type = string
+  }))
+  default_node_pool = optional(object({
+    upgrade_settings = optional(object({
+      max_surge = optional(string)
+    }))
+  }))
+})
 ```
 
-```hcl
-module "aks-windows" {
-  source  = "cloudnationhq/aks/azure"
-  version = "~> 0.1"
+## Notes
 
-  cluster = {
-    name               = "${module.naming.kubernetes_cluster.name}-01"
-    location           = module.rg.groups.demo.location
-    resourcegroup      = module.rg.groups.demo.name
-    node_resourcegroup = "${module.rg.groups.demo.name}-node01"
-    depends_on         = [module.kv]
-    profile            = "windows"
-    dns_prefix         = "demo1"
-    sku_tier           = "Standard"
+In a bring your own configuration, public_key is used for Linux clusters, while password is used for Windows clusters.
 
-    network_profile = {
-      network_plugin = "azure"
-    }
-
-    password = module.kv.secrets.password.value
-  }
-}
-```
+Both are optional; if omitted, the necessary credentials will be automatically generated.
