@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v2.0.0...v2.1.0) (2024-09-25)
+
+
+### Features
+
+* add node soak duration and drain timout in minutes support ([#92](https://github.com/CloudNationHQ/terraform-azure-aks/issues/92)) ([63f7fa5](https://github.com/CloudNationHQ/terraform-azure-aks/commit/63f7fa59486dbaa8601baddf6e5e98053aea958b))
+
 ## [2.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v1.0.0...v2.0.0) (2024-09-25)
 
 
