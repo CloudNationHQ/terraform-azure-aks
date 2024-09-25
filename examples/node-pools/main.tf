@@ -2,24 +2,24 @@ module "naming" {
   source  = "cloudnationhq/naming/azure"
   version = "~> 0.1"
 
-  suffix = ["demo", "devn"]
+  suffix = ["demo", "dev"]
 }
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 0.1"
+  version = "~> 2.0"
 
   groups = {
     demo = {
-      name   = module.naming.resource_group.name_unique
-      region = "germanywestcentral"
+      name     = module.naming.resource_group.name_unique
+      location = "germanywestcentral"
     }
   }
 }
 
 module "network" {
   source  = "cloudnationhq/vnet/azure"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   naming = local.naming
 
@@ -42,7 +42,7 @@ module "network" {
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   naming = local.naming
 
@@ -55,7 +55,7 @@ module "kv" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   keyvault = module.kv.vault.id
 

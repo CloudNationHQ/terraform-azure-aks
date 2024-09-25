@@ -7,19 +7,19 @@ module "naming" {
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 0.1"
+  version = "~> 2.0"
 
   groups = {
     demo = {
-      name   = module.naming.resource_group.name
-      region = "germanywestcentral"
+      name     = module.naming.resource_group.name
+      location = "germanywestcentral"
     }
   }
 }
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   naming = local.naming
 
@@ -47,7 +47,7 @@ module "kv" {
 
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   cluster = {
     name               = "${module.naming.kubernetes_cluster.name}1"
@@ -78,7 +78,7 @@ module "aks-windows" {
 
 module "aks-linux" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"

@@ -18,7 +18,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   azure_policy_enabled                = try(var.cluster.azure_policy_enabled, false)
   dns_prefix                          = try(var.cluster.dns_prefix, null)
   dns_prefix_private_cluster          = try(var.cluster.dns_prefix_private_cluster, null)
-  automatic_channel_upgrade           = try(var.cluster.automatic_channel_upgrade, null)
+  automatic_upgrade_channel           = try(var.cluster.automatic_upgrade_channel, null)
   edge_zone                           = try(var.cluster.edge_zone, null)
   oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, false)
   private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
@@ -31,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   cost_analysis_enabled               = try(var.cluster.cost_analysis_enabled, false)
   support_plan                        = try(var.cluster.support_plan, "KubernetesOfficial")
   private_cluster_public_fqdn_enabled = try(var.cluster.private_cluster_public_fqdn_enabled, false)
-  node_os_channel_upgrade             = try(var.cluster.node_os_channel_upgrade, null)
+  node_os_upgrade_channel             = try(var.cluster.node_os_upgrade_channel, null)
   disk_encryption_set_id              = try(var.cluster.disk_encryption_set_id, null)
   private_dns_zone_id                 = try(var.cluster.private_dns_zone_id, null)
   tags                                = try(var.cluster.tags, var.tags, null)
@@ -53,7 +53,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_group_object_ids = try(azure_active_directory_role_based_access_control.value.admin_group_object_ids, null)
       azure_rbac_enabled     = try(azure_active_directory_role_based_access_control.value.azure_rbac_enabled, true)
-      managed                = try(azure_active_directory_role_based_access_control.value.managed, true)
       tenant_id              = try(azure_active_directory_role_based_access_control.value.tenant_id, data.azurerm_subscription.current.tenant_id, null)
     }
   }
@@ -62,21 +61,19 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = lookup(var.cluster, "network_profile", null) != null ? { "default" = var.cluster.network_profile } : {}
 
     content {
-      network_plugin          = try(network_profile.value.network_plugin, null)
-      network_mode            = try(network_profile.value.network_mode, null)
-      network_policy          = try(network_profile.value.network_policy, null)
-      dns_service_ip          = try(network_profile.value.dns_service_ip, null)
-      outbound_type           = try(network_profile.value.outbound_type, null)
-      pod_cidr                = try(network_profile.value.pod_cidr, null)
-      service_cidr            = try(network_profile.value.service_cidr, null)
-      load_balancer_sku       = try(network_profile.value.load_balancer_sku, null)
-      pod_cidrs               = try(network_profile.value.pod_cidrs, null)
-      ip_versions             = try(network_profile.value.ip_versions, null)
-      network_data_plane      = try(network_profile.value.network_data_plane, null)
-      outbound_ip_prefix_ids  = try(network_profile.value.outbound_ip_prefix_ids, null)
-      outbound_ip_address_ids = try(network_profile.value.outbound_ip_address_ids, null)
-      service_cidrs           = try(network_profile.value.service_cidrs, null)
-      network_plugin_mode     = try(network_profile.value.network_plugin_mode, null)
+      network_plugin      = try(network_profile.value.network_plugin, null)
+      network_mode        = try(network_profile.value.network_mode, null)
+      network_policy      = try(network_profile.value.network_policy, null)
+      dns_service_ip      = try(network_profile.value.dns_service_ip, null)
+      outbound_type       = try(network_profile.value.outbound_type, null)
+      pod_cidr            = try(network_profile.value.pod_cidr, null)
+      service_cidr        = try(network_profile.value.service_cidr, null)
+      load_balancer_sku   = try(network_profile.value.load_balancer_sku, null)
+      pod_cidrs           = try(network_profile.value.pod_cidrs, null)
+      ip_versions         = try(network_profile.value.ip_versions, null)
+      network_data_plane  = try(network_profile.value.network_data_plane, null)
+      service_cidrs       = try(network_profile.value.service_cidrs, null)
+      network_plugin_mode = try(network_profile.value.network_plugin_mode, null)
 
       dynamic "load_balancer_profile" {
         for_each = lookup(network_profile.value, "load_balancer_profile", null) != null ? { "default" = lookup(network_profile.value, "load_balancer_profile", null) } : {}
@@ -167,6 +164,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = lookup(var.cluster, "service_mesh_profile", null) != null ? { "default" = var.cluster.service_mesh_profile } : {}
 
     content {
+      revisions                        = try(service_mesh_profile.value.revisions, null)
       mode                             = try(service_mesh_profile.value.mode, false)
       internal_ingress_gateway_enabled = try(service_mesh_profile.value.internal_ingress_gateway_enabled, false)
       external_ingress_gateway_enabled = try(service_mesh_profile.value.external_ingress_gateway_enabled, false)
@@ -295,9 +293,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vnet_subnet_id                = try(var.cluster.default_node_pool.vnet_subnet_id, null)
     node_labels                   = try(var.cluster.default_node_pool.node_labels, {})
     tags                          = try(var.cluster.default_node_pool.tags, var.tags, null)
-    enable_auto_scaling           = try(var.cluster.default_node_pool.enable_auto_scaling, false)
-    enable_host_encryption        = try(var.cluster.default_node_pool.enable_host_encryption, false)
-    enable_node_public_ip         = try(var.cluster.default_node_pool.enable_node_public_ip, false)
+    auto_scaling_enabled          = try(var.cluster.default_node_pool.auto_scaling_enabled, true)
+    host_encryption_enabled       = try(var.cluster.default_node_pool.host_encryption_enabled, false)
+    node_public_ip_enabled        = try(var.cluster.default_node_pool.node_public_ip_enabled, false)
     fips_enabled                  = try(var.cluster.default_node_pool.fips_enabled, null)
     only_critical_addons_enabled  = try(var.cluster.default_node_pool.only_critical_addons_enabled, false)
     os_sku                        = try(var.cluster.default_node_pool.os_sku, null)
@@ -487,9 +485,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   min_count                     = each.value.min_count
   node_count                    = each.value.node_count
   zones                         = each.value.zones
-  enable_auto_scaling           = each.value.enable_auto_scaling
-  enable_host_encryption        = each.value.enable_host_encryption
-  enable_node_public_ip         = each.value.enable_node_public_ip
+  auto_scaling_enabled          = each.value.auto_scaling_enabled
+  host_encryption_enabled       = each.value.host_encryption_enabled
+  node_public_ip_enabled        = each.value.node_public_ip_enabled
   fips_enabled                  = each.value.enable_fips
   eviction_policy               = each.value.eviction_policy
   kubelet_disk_type             = each.value.kubelet_disk_type

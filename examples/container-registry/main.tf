@@ -7,19 +7,19 @@ module "naming" {
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 0.1"
+  version = "~> 2.0"
 
   groups = {
     demo = {
-      name   = module.naming.resource_group.name
-      region = "germanywestcentral"
+      name     = module.naming.resource_group.name
+      location = "germanywestcentral"
     }
   }
 }
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   naming = local.naming
 
@@ -32,19 +32,19 @@ module "kv" {
 
 module "registry" {
   source  = "cloudnationhq/acr/azure"
-  version = "~> 1.0"
+  version = "~> 3.0"
 
   registry = {
-    name          = module.naming.container_registry.name_unique
-    location      = module.rg.groups.demo.location
-    resourcegroup = module.rg.groups.demo.name
-    sku           = "Premium"
+    name           = module.naming.container_registry.name_unique
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
+    sku            = "Premium"
   }
 }
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   keyvault = module.kv.vault.id
 
