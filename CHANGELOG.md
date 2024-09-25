@@ -5,11 +5,24 @@
 
 ### ⚠ BREAKING CHANGES
 
-* * Version 4 of the azurerm provider includes breaking changes.
+* Version 4 of the azurerm provider includes breaking changes.
 
 ### Features
 
 * upgrade azurerm provider to v4 ([#89](https://github.com/CloudNationHQ/terraform-azure-aks/issues/89)) ([b003a3a](https://github.com/CloudNationHQ/terraform-azure-aks/commit/b003a3a29cf4b5c6a775fac8c438c23f7c646c12))
+
+### Upgrade from v1.0.0 to v2.0.0:
+
+- Update module reference to: `version = "~> 2.0"`
+- Changed properties in cluster object:
+  - automatic_channel_upgrade -> automatic_upgrade_channel
+  - node_os_channel_upgrade -> node_os_upgrade_channel
+  - azure_active_directory_role_based_access_control.managed -> removed
+  - network_profile.outbound_ip_prefix_ids -> removed
+  - network_profile.outbound_ip_address_ids -> removed
+  - enable_auto_scaling -> auto_scaling_enabled
+  - enable_host_encryption -> host_encryption_enabled
+  - enable_node_public_ip -> node_public_ip_enabled
 
 ## [1.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v0.12.0...v1.0.0) (2024-08-22)
 
