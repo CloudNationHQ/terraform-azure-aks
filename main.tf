@@ -530,7 +530,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   }
 
   dynamic "linux_os_config" {
-    for_each = each.value.os_type == "linux" && each.value.linux_os_config != null ? { "config" = each.value.linux_os_config } : {}
+    for_each = each.value.os_type == "Linux" && each.value.linux_os_config != null ? { "config" = each.value.linux_os_config } : {}
 
     content {
       swap_file_size_mb = try(linux_os_config.value.allowed_unsafe_sysctls, null)
@@ -578,7 +578,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   dynamic "kubelet_config" {
     # https://github.com/hashicorp/terraform-provider-azurerm/issues/22194
     # az feature register --namespace "Microsoft.ContainerService" --name "WindowsCustomKubeletConfigPreview"
-    for_each = each.value.os_type == "linux" && each.value.kubelet_config != null ? { "config" = each.value.kubelet_config } : {}
+    for_each = each.value.os_type == "Linux" && each.value.kubelet_config != null ? { "config" = each.value.kubelet_config } : {}
 
     content {
       allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls

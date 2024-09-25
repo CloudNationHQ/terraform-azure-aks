@@ -54,8 +54,7 @@ module "kv" {
 }
 
 module "aks" {
-  source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  source = "../.."
 
   keyvault = module.kv.vault.id
 
