@@ -324,8 +324,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
       )
 
       content {
-        max_surge = upgrade_settings.value.max_surge
-
+        max_surge                     = upgrade_settings.value.max_surge
+        drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+        node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
       }
     }
 
@@ -525,7 +526,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
     for_each = lookup(each.value, "upgrade_settings", null) != null ? { "default" = lookup(each.value, "upgrade_settings", null) } : {}
 
     content {
-      max_surge = upgrade_settings.value.max_surge
+      max_surge                     = upgrade_settings.value.max_surge
+      node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
+      drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
     }
   }
 
