@@ -6,6 +6,11 @@ locals {
       zones          = [1, 2]
       mode           = "User"
       os_type        = "Linux"
+
+      kubelet_config = {
+        pod_max_pid = 110
+      }
+
       node_labels = {
         "workload" = "database"
       }

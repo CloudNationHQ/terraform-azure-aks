@@ -476,76 +476,71 @@ resource "azurerm_key_vault_secret" "secret" {
 # node pools
 resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   for_each = {
-    for pools in local.aks_pools : pools.pools_key => pools
+    for pools_key, pools in lookup(var.cluster, "node_pools", {}) : pools_key => pools
   }
 
-  name                          = each.value.name
+  name                          = try(each.value.name, each.value.os_type == "Linux" ? "npl${each.key}" : "npw${each.key}")
   kubernetes_cluster_id         = azurerm_kubernetes_cluster.aks.id
-  vm_size                       = each.value.vm_size
-  max_count                     = each.value.max_count
-  min_count                     = each.value.min_count
-  node_count                    = each.value.node_count
-  zones                         = each.value.zones
-  auto_scaling_enabled          = each.value.auto_scaling_enabled
-  host_encryption_enabled       = each.value.host_encryption_enabled
-  node_public_ip_enabled        = each.value.node_public_ip_enabled
-  fips_enabled                  = each.value.enable_fips
-  eviction_policy               = each.value.eviction_policy
-  kubelet_disk_type             = each.value.kubelet_disk_type
-  os_disk_size_gb               = each.value.os_disk_size_gb
-  os_disk_type                  = each.value.os_disk_type
-  orchestrator_version          = each.value.orchestrator_version
-  ultra_ssd_enabled             = each.value.ultra_ssd_enabled
-  host_group_id                 = each.value.host_group_id
-  pod_subnet_id                 = each.value.pod_subnet_id
-  spot_max_price                = each.value.spot_max_price
-  scale_down_mode               = each.value.scale_down_mode
-  node_public_ip_prefix_id      = each.value.node_public_ip_prefix_id
-  proximity_placement_group_id  = each.value.proximity_placement_group_id
-  capacity_reservation_group_id = each.value.capacity_reservation_group_id
-  max_pods                      = each.value.max_pods
-  mode                          = each.value.mode
-  node_labels                   = each.value.node_labels
-  node_taints                   = each.value.node_taints
-  os_sku                        = each.value.os_sku
-  os_type                       = each.value.os_type
-  priority                      = each.value.priority
-  snapshot_id                   = each.value.snapshot_id
-  workload_runtime              = each.value.workload_runtime
-  vnet_subnet_id                = each.value.vnet_subnet_id
-  tags                          = each.value.tags
+  vm_size                       = try(each.value.vm_size, "Standard_D2as_v5")
+  node_count                    = try(each.value.node_count, 1)
+  max_count                     = try(each.value.max_count, 0)
+  min_count                     = try(each.value.min_count, 0)
+  zones                         = try(each.value.zones, null)
+  auto_scaling_enabled          = try(each.value.auto_scaling_enabled, false)
+  host_encryption_enabled       = try(each.value.host_encryption_enabled, false)
+  node_public_ip_enabled        = try(each.value.node_public_ip_enabled, false)
+  fips_enabled                  = try(each.value.enable.fips, false)
+  eviction_policy               = try(each.value.eviction_policy, null)
+  kubelet_disk_type             = try(each.value.kubelet_disk_type, null)
+  os_disk_size_gb               = try(each.value.os_disk_size_gb, null)
+  os_disk_type                  = try(each.value.os_disk_type, null)
+  orchestrator_version          = try(each.value.orchestrator_version, null)
+  ultra_ssd_enabled             = try(each.value.ultra_ssd_enabled, false)
+  host_group_id                 = try(each.value.host_group_id, null)
+  pod_subnet_id                 = try(each.value.pod_subnet_id, null)
+  spot_max_price                = try(each.value.spot_max_price, null)
+  scale_down_mode               = try(each.value.scale_down_mode, null)
+  node_public_ip_prefix_id      = try(each.value.node_public_ip_prefix_id, null)
+  proximity_placement_group_id  = try(each.value.proximity_placement_group_id, null)
+  capacity_reservation_group_id = try(each.value.capacity_reservation_group_id, null)
+  max_pods                      = try(each.value.max_pods, 30)
+  mode                          = try(each.value.mode, "User")
+  node_labels                   = try(each.value.node_labels, {})
+  node_taints                   = try(each.value.node_taints, [])
+  os_sku                        = try(each.value.os_sku, null)
+  os_type                       = try(each.value.os_type, "Linux")
+  priority                      = try(each.value.priority, null)
+  snapshot_id                   = try(each.value.snapshot_id, null)
+  workload_runtime              = try(each.value.workload_runtime, null)
+  vnet_subnet_id                = try(each.value.vnet_subnet_id, null)
+  tags                          = try(each.value.tags, var.cluster.tags, null)
 
-  dynamic "windows_profile" {
-    for_each = lookup(each.value, "windows_profile", null) != null ? { "default" = lookup(each.value, "windows_profile", null) } : {}
-    content {
-      outbound_nat_enabled = try(each.value.windows_profile.outbound_nat_enabled, true)
-    }
-  }
 
   dynamic "upgrade_settings" {
-    for_each = lookup(each.value, "upgrade_settings", null) != null ? { "default" = lookup(each.value, "upgrade_settings", null) } : {}
+    for_each = try(each.value.upgrade_settings, null) != null ? [each.value.upgrade_settings] : []
 
     content {
       max_surge                     = upgrade_settings.value.max_surge
-      node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
-      drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
+      drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+      node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
     }
   }
 
   dynamic "linux_os_config" {
-    for_each = each.value.os_type == "linux" && each.value.linux_os_config != null ? { "config" = each.value.linux_os_config } : {}
+    for_each = try(each.value.os_type, "Linux") == "Linux" && try(each.value.linux_os_config, null) != null ? [each.value.linux_os_config] : []
 
     content {
-      swap_file_size_mb = try(linux_os_config.value.allowed_unsafe_sysctls, null)
+      swap_file_size_mb             = try(linux_os_config.value.swap_file_size_mb, null)
+      transparent_huge_page_defrag  = try(linux_os_config.value.transparent_huge_page_defrag, "madvise")
+      transparent_huge_page_enabled = try(linux_os_config.value.transparent_huge_page_enabled, "always")
 
       dynamic "sysctl_config" {
-        for_each = lookup(linux_os_config.value, "sysctl_config", null) != null ? { "default" = linux_os_config.value.sysctl_config } : {}
-
+        for_each = try(linux_os_config.value.sysctl_config, null) != null ? [linux_os_config.value.sysctl_config] : []
         content {
           fs_aio_max_nr                      = try(sysctl_config.value.fs_aio_max_nr, null)
           fs_file_max                        = try(sysctl_config.value.fs_file_max, null)
-          fs_nr_open                         = try(sysctl_config.value.fs_nr_open, null)
           fs_inotify_max_user_watches        = try(sysctl_config.value.fs_inotify_max_user_watches, null)
+          fs_nr_open                         = try(sysctl_config.value.fs_nr_open, null)
           kernel_threads_max                 = try(sysctl_config.value.kernel_threads_max, null)
           net_core_netdev_max_backlog        = try(sysctl_config.value.net_core_netdev_max_backlog, null)
           net_core_optmem_max                = try(sysctl_config.value.net_core_optmem_max, null)
@@ -554,8 +549,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
           net_core_somaxconn                 = try(sysctl_config.value.net_core_somaxconn, null)
           net_core_wmem_default              = try(sysctl_config.value.net_core_wmem_default, null)
           net_core_wmem_max                  = try(sysctl_config.value.net_core_wmem_max, null)
-          net_ipv4_ip_local_port_range_max   = try(sysctl_config.value.net_ipv4_ip_local_port_range_max, null)
           net_ipv4_ip_local_port_range_min   = try(sysctl_config.value.net_ipv4_ip_local_port_range_min, null)
+          net_ipv4_ip_local_port_range_max   = try(sysctl_config.value.net_ipv4_ip_local_port_range_max, null)
           net_ipv4_neigh_default_gc_thresh1  = try(sysctl_config.value.net_ipv4_neigh_default_gc_thresh1, null)
           net_ipv4_neigh_default_gc_thresh2  = try(sysctl_config.value.net_ipv4_neigh_default_gc_thresh2, null)
           net_ipv4_neigh_default_gc_thresh3  = try(sysctl_config.value.net_ipv4_neigh_default_gc_thresh3, null)
@@ -573,27 +568,31 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
           vm_vfs_cache_pressure              = try(sysctl_config.value.vm_vfs_cache_pressure, null)
         }
       }
-      transparent_huge_page_defrag  = try(linux_os_config.value.transparent_huge_page_defrag, null)
-      transparent_huge_page_enabled = try(linux_os_config.value.transparent_huge_page_enabled, null)
     }
   }
 
   dynamic "kubelet_config" {
-    # https://github.com/hashicorp/terraform-provider-azurerm/issues/22194
-    # az feature register --namespace "Microsoft.ContainerService" --name "WindowsCustomKubeletConfigPreview"
-    for_each = each.value.os_type == "linux" && each.value.kubelet_config != null ? { "config" = each.value.kubelet_config } : {}
+    for_each = try(each.value.os_type, "Linux") == "Linux" && try(each.value.kubelet_config, null) != null ? [each.value.kubelet_config] : []
 
     content {
-      allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
-      container_log_max_line    = kubelet_config.value.container_log_max_line
-      container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
-      cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
-      cpu_cfs_quota_period      = kubelet_config.value.cpu_cfs_quota_period
-      cpu_manager_policy        = kubelet_config.value.cpu_manager_policy
-      image_gc_high_threshold   = kubelet_config.value.image_gc_high_threshold
-      image_gc_low_threshold    = kubelet_config.value.image_gc_low_threshold
-      pod_max_pid               = kubelet_config.value.pod_max_pid
-      topology_manager_policy   = kubelet_config.value.topology_manager_policy
+      allowed_unsafe_sysctls    = try(kubelet_config.value.allowed_unsafe_sysctls, null)
+      container_log_max_line    = try(kubelet_config.value.container_log_max_line, null)
+      container_log_max_size_mb = try(kubelet_config.value.container_log_max_size_mb, null)
+      cpu_cfs_quota_enabled     = try(kubelet_config.value.cpu_cfs_quota_enabled, null)
+      cpu_cfs_quota_period      = try(kubelet_config.value.cpu_cfs_quota_period, null)
+      cpu_manager_policy        = try(kubelet_config.value.cpu_manager_policy, null)
+      image_gc_high_threshold   = try(kubelet_config.value.image_gc_high_threshold, null)
+      image_gc_low_threshold    = try(kubelet_config.value.image_gc_low_threshold, null)
+      pod_max_pid               = try(kubelet_config.value.pod_max_pid, null)
+      topology_manager_policy   = try(kubelet_config.value.topology_manager_policy, null)
+    }
+  }
+
+  dynamic "windows_profile" {
+    for_each = try(each.value.os_type, "Linux") == "Windows" && try(each.value.windows_profile, null) != null ? [each.value.windows_profile] : []
+
+    content {
+      outbound_nat_enabled = try(windows_profile.value.outbound_nat_enabled, true)
     }
   }
 }
@@ -601,7 +600,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 # az feature register --namespace "Microsoft.ContainerService" --name "AKS-Dapr"
 # ExtensionTypeRegistrationGetFailed Message="Extension type 'microsoft_dapr' is not supported in region.
 resource "azurerm_kubernetes_cluster_extension" "ext" {
-  for_each = try(var.cluster.extensions, {})
+  for_each = try(
+    var.cluster.extensions, {}
+  )
 
   name                             = "ext-${each.key}"
   cluster_id                       = azurerm_kubernetes_cluster.aks.id
