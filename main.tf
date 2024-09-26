@@ -518,6 +518,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
   dynamic "upgrade_settings" {
     for_each = try(each.value.upgrade_settings, null) != null ? [each.value.upgrade_settings] : []
+
     content {
       max_surge                     = upgrade_settings.value.max_surge
       drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
@@ -527,6 +528,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
   dynamic "linux_os_config" {
     for_each = try(each.value.os_type, "Linux") == "Linux" && try(each.value.linux_os_config, null) != null ? [each.value.linux_os_config] : []
+
     content {
       swap_file_size_mb             = try(linux_os_config.value.swap_file_size_mb, null)
       transparent_huge_page_defrag  = try(linux_os_config.value.transparent_huge_page_defrag, "madvise")
@@ -571,6 +573,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
   dynamic "kubelet_config" {
     for_each = try(each.value.os_type, "Linux") == "Linux" && try(each.value.kubelet_config, null) != null ? [each.value.kubelet_config] : []
+
     content {
       allowed_unsafe_sysctls    = try(kubelet_config.value.allowed_unsafe_sysctls, null)
       container_log_max_line    = try(kubelet_config.value.container_log_max_line, null)
@@ -587,6 +590,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
   dynamic "windows_profile" {
     for_each = try(each.value.os_type, "Linux") == "Windows" && try(each.value.windows_profile, null) != null ? [each.value.windows_profile] : []
+
     content {
       outbound_nat_enabled = try(windows_profile.value.outbound_nat_enabled, true)
     }
@@ -596,7 +600,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 # az feature register --namespace "Microsoft.ContainerService" --name "AKS-Dapr"
 # ExtensionTypeRegistrationGetFailed Message="Extension type 'microsoft_dapr' is not supported in region.
 resource "azurerm_kubernetes_cluster_extension" "ext" {
-  for_each = try(var.cluster.extensions, {})
+  for_each = try(
+    var.cluster.extensions, {}
+  )
 
   name                             = "ext-${each.key}"
   cluster_id                       = azurerm_kubernetes_cluster.aks.id
