@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v2.1.0...v3.0.0) (2024-09-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* * data structure has changed due to renaming of properties.
+
+### Features
+
+* aligned several properties in kubernetes pools ([#96](https://github.com/CloudNationHQ/terraform-azure-aks/issues/96)) ([84d097b](https://github.com/CloudNationHQ/terraform-azure-aks/commit/84d097b05edf3071964c3632801f0c011c601329))
+
 ## [2.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v2.0.0...v2.1.0) (2024-09-25)
 
 
