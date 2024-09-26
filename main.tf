@@ -519,13 +519,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   dynamic "upgrade_settings" {
     for_each = try(each.value.upgrade_settings, null) != null ? [each.value.upgrade_settings] : []
     content {
-<<<<<<< HEAD
-      max_surge = try(upgrade_settings.value.max_surge, null)
-=======
       max_surge                     = upgrade_settings.value.max_surge
-      node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
-      drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
->>>>>>> main
+      drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+      node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
     }
   }
 

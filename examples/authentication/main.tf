@@ -47,7 +47,7 @@ module "kv" {
 
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   cluster = {
     name               = "${module.naming.kubernetes_cluster.name}1"

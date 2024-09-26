@@ -44,7 +44,7 @@ module "registry" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   keyvault = module.kv.vault.id
 
