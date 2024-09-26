@@ -7,10 +7,8 @@ locals {
       mode           = "User"
       os_type        = "Linux"
 
-      config = {
-        kubelet = {
-          pod_max_pid = 110
-        }
+      kubelet_config = {
+        pod_max_pid = 110
       }
 
       node_labels = {
