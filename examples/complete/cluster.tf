@@ -41,7 +41,7 @@ locals {
       log_analytics_workspace_id = module.analytics.workspace.id
     }
 
-    microsoft_defender_atp = {
+    microsoft_defender = {
       log_analytics_workspace_id = module.analytics.workspace.id
     }
 

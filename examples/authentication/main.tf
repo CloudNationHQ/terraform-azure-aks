@@ -48,7 +48,6 @@ module "kv" {
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
   version = "~> 2.0"
-
   cluster = {
     name               = "${module.naming.kubernetes_cluster.name}1"
     location           = module.rg.groups.demo.location
@@ -62,10 +61,6 @@ module "aks-windows" {
 
     identity = {
       type = "UserAssigned"
-    }
-
-    network_profile = {
-      network_plugin = "azure"
     }
 
     default_node_pool = {
