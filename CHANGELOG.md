@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.0.0...v3.1.0) (2024-10-07)
+
+
+### Features
+
+* small refactor ([#99](https://github.com/CloudNationHQ/terraform-azure-aks/issues/99)) ([9a27b69](https://github.com/CloudNationHQ/terraform-azure-aks/commit/9a27b699a6cb7211c9cb4e4a78c760cdd94d7da0))
+
 ## [3.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v2.1.0...v3.0.0) (2024-09-26)
 
 
