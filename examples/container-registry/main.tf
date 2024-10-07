@@ -44,7 +44,7 @@ module "acr" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 2.1"
 
   keyvault = module.kv.vault.id
 
