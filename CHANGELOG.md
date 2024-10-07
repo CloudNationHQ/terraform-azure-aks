@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.1](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.1.0...v3.1.1) (2024-10-07)
+
+
+### Bug Fixes
+
+* increment versioning in usages ([#101](https://github.com/CloudNationHQ/terraform-azure-aks/issues/101)) ([62604fe](https://github.com/CloudNationHQ/terraform-azure-aks/commit/62604fed8f5412f031705aae8c768c5401cb0469))
+
 ## [3.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.0.0...v3.1.0) (2024-10-07)
 
 
