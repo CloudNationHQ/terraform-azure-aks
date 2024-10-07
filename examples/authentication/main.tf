@@ -47,7 +47,7 @@ module "kv" {
 
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.1"
+  version = "~> 3.1"
   cluster = {
     name               = "${module.naming.kubernetes_cluster.name}1"
     location           = module.rg.groups.demo.location
@@ -73,7 +73,7 @@ module "aks-windows" {
 
 module "aks-linux" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.1"
+  version = "~> 3.1"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"
