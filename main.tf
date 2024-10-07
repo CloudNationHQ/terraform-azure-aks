@@ -3,330 +3,87 @@ data "azurerm_subscription" "current" {}
 # aks cluster
 resource "azurerm_kubernetes_cluster" "aks" {
 
-  resource_group_name = coalesce(
-    lookup(var.cluster, "resource_group", null), var.resource_group
-  )
-
-  location = coalesce(
-    lookup(var.cluster, "location", null), var.location
-  )
-
   name                                = var.cluster.name
-  kubernetes_version                  = try(var.cluster.kubernetes_version, null)
-  sku_tier                            = try(var.cluster.sku_tier, "Free")
-  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group}-node")
-  azure_policy_enabled                = try(var.cluster.azure_policy_enabled, false)
+  location                            = coalesce(lookup(var.cluster, "location", null), var.location)
+  resource_group_name                 = coalesce(lookup(var.cluster, "resource_group", null), var.resource_group)
   dns_prefix                          = try(var.cluster.dns_prefix, null)
   dns_prefix_private_cluster          = try(var.cluster.dns_prefix_private_cluster, null)
   automatic_upgrade_channel           = try(var.cluster.automatic_upgrade_channel, null)
-  edge_zone                           = try(var.cluster.edge_zone, null)
-  oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, false)
-  private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
-  open_service_mesh_enabled           = try(var.cluster.open_service_mesh_enabled, false)
-  run_command_enabled                 = try(var.cluster.run_command_enabled, false)
-  image_cleaner_enabled               = try(var.cluster.image_cleaner_enabled, false)
-  image_cleaner_interval_hours        = try(var.cluster.image_cleaner_interval_hours, 48)
-  http_application_routing_enabled    = try(var.cluster.http_application_routing_enabled, false)
-  workload_identity_enabled           = try(var.cluster.workload_identity_enabled, false)
+  azure_policy_enabled                = try(var.cluster.azure_policy_enabled, false)
   cost_analysis_enabled               = try(var.cluster.cost_analysis_enabled, false)
-  support_plan                        = try(var.cluster.support_plan, "KubernetesOfficial")
-  private_cluster_public_fqdn_enabled = try(var.cluster.private_cluster_public_fqdn_enabled, false)
-  node_os_upgrade_channel             = try(var.cluster.node_os_upgrade_channel, null)
   disk_encryption_set_id              = try(var.cluster.disk_encryption_set_id, null)
+  edge_zone                           = try(var.cluster.edge_zone, null)
+  http_application_routing_enabled    = try(var.cluster.http_application_routing_enabled, null)
+  image_cleaner_enabled               = try(var.cluster.image_cleaner_enabled, null)
+  image_cleaner_interval_hours        = try(var.cluster.image_cleaner_interval_hours, null)
+  kubernetes_version                  = try(var.cluster.kubernetes_version, null)
+  local_account_disabled              = try(var.cluster.local_account_disabled, null)
+  node_os_upgrade_channel             = try(var.cluster.node_os_upgrade_channel, null)
+  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group}-nodepool")
+  oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, null)
+  open_service_mesh_enabled           = try(var.cluster.open_service_mesh_enabled, null)
+  private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
   private_dns_zone_id                 = try(var.cluster.private_dns_zone_id, null)
+  private_cluster_public_fqdn_enabled = try(var.cluster.private_cluster_public_fqdn_enabled, false)
+  workload_identity_enabled           = try(var.cluster.workload_identity_enabled, false)
+  role_based_access_control_enabled   = try(var.cluster.role_based_access_control_enabled, true)
+  run_command_enabled                 = try(var.cluster.run_command_enabled, true)
+  sku_tier                            = try(var.cluster.sku_tier, "Free")
+  support_plan                        = try(var.cluster.support_plan, "KubernetesOfficial")
   tags                                = try(var.cluster.tags, var.tags, null)
-  role_based_access_control_enabled   = try(var.cluster.rbac.rbac_enabled, true)
-
-  local_account_disabled = try(var.cluster.rbac.local_account_disabled, false)
-
-
-  dynamic "web_app_routing" {
-    for_each = lookup(var.cluster, "web_app_routing", null) != null ? { "default" = var.cluster.web_app_routing } : {}
-    content {
-      dns_zone_ids = web_app_routing.value.dns_zone_ids
-    }
-  }
-
-  dynamic "azure_active_directory_role_based_access_control" {
-    for_each = lookup(var.cluster, "azure_active_directory_role_based_access_control", null) != null ? { "default" = var.cluster.azure_active_directory_role_based_access_control } : {}
-
-    content {
-      admin_group_object_ids = try(azure_active_directory_role_based_access_control.value.admin_group_object_ids, null)
-      azure_rbac_enabled     = try(azure_active_directory_role_based_access_control.value.azure_rbac_enabled, true)
-      tenant_id              = try(azure_active_directory_role_based_access_control.value.tenant_id, data.azurerm_subscription.current.tenant_id, null)
-    }
-  }
-
-  dynamic "network_profile" {
-    for_each = lookup(var.cluster, "network_profile", null) != null ? { "default" = var.cluster.network_profile } : {}
-
-    content {
-      network_plugin      = try(network_profile.value.network_plugin, null)
-      network_mode        = try(network_profile.value.network_mode, null)
-      network_policy      = try(network_profile.value.network_policy, null)
-      dns_service_ip      = try(network_profile.value.dns_service_ip, null)
-      outbound_type       = try(network_profile.value.outbound_type, null)
-      pod_cidr            = try(network_profile.value.pod_cidr, null)
-      service_cidr        = try(network_profile.value.service_cidr, null)
-      load_balancer_sku   = try(network_profile.value.load_balancer_sku, null)
-      pod_cidrs           = try(network_profile.value.pod_cidrs, null)
-      ip_versions         = try(network_profile.value.ip_versions, null)
-      network_data_plane  = try(network_profile.value.network_data_plane, null)
-      service_cidrs       = try(network_profile.value.service_cidrs, null)
-      network_plugin_mode = try(network_profile.value.network_plugin_mode, null)
-
-      dynamic "load_balancer_profile" {
-        for_each = lookup(network_profile.value, "load_balancer_profile", null) != null ? { "default" = lookup(network_profile.value, "load_balancer_profile", null) } : {}
-
-        content {
-          managed_outbound_ip_count   = try(load_balancer_profile.value.managed_outbound_ip_count, null)
-          outbound_ip_prefix_ids      = try(load_balancer_profile.value.outbound_ip_prefix_ids, null)
-          outbound_ip_address_ids     = try(load_balancer_profile.value.outbound_ip_address_ids, null)
-          outbound_ports_allocated    = try(load_balancer_profile.value.outbound_ports_allocated, null)
-          idle_timeout_in_minutes     = try(load_balancer_profile.value.idle_timeout_in_minutes, null)
-          managed_outbound_ipv6_count = try(load_balancer_profile.value.managed_outbound_ipv6_count, null)
-        }
-      }
-    }
-  }
-
-  dynamic "auto_scaler_profile" {
-    for_each = lookup(var.cluster, "auto_scaler_profile", null) != null ? { "default" = var.cluster.auto_scaler_profile } : {}
-
-    content {
-      balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, false)
-      expander                         = try(auto_scaler_profile.value.expander, null)
-      max_graceful_termination_sec     = try(auto_scaler_profile.value.max_graceful_termination_sec, null)
-      max_node_provisioning_time       = try(auto_scaler_profile.value.max_node_provisioning_time, null)
-      max_unready_nodes                = try(auto_scaler_profile.value.max_unready_nodes, null)
-      max_unready_percentage           = try(auto_scaler_profile.value.max_unready_percentage, null)
-      new_pod_scale_up_delay           = try(auto_scaler_profile.value.new_pod_scale_up_delay, null)
-      scale_down_delay_after_add       = try(auto_scaler_profile.value.scale_down_delay_after_add, null)
-      scale_down_delay_after_delete    = try(auto_scaler_profile.value.scale_down_delay_after_delete, null)
-      scale_down_delay_after_failure   = try(auto_scaler_profile.value.scale_down_delay_after_failure, null)
-      scan_interval                    = try(auto_scaler_profile.value.scan_interval, null)
-      scale_down_unneeded              = try(auto_scaler_profile.value.scale_down_unneeded, null)
-      scale_down_unready               = try(auto_scaler_profile.value.scale_down_unready, null)
-      scale_down_utilization_threshold = try(auto_scaler_profile.value.scale_down_utilization_threshold, null)
-      empty_bulk_delete_max            = try(auto_scaler_profile.value.empty_bulk_delete_max, null)
-      skip_nodes_with_local_storage    = try(auto_scaler_profile.value.skip_nodes_with_local_storage, null)
-      skip_nodes_with_system_pods      = try(auto_scaler_profile.value.skip_nodes_with_system_pods, null)
-    }
-  }
-
-  dynamic "http_proxy_config" {
-    for_each = lookup(var.cluster, "http_proxy_config", null) != null ? { "default" = var.cluster.http_proxy_config } : {}
-
-    content {
-      http_proxy  = try(http_proxy_config.value.http, null)
-      https_proxy = try(http_proxy_config.value.https, null)
-      no_proxy    = try(http_proxy_config.value.exceptions, [])
-      trusted_ca  = try(http_proxy_config.value.trusted_ca, null)
-    }
-  }
-
-  dynamic "oms_agent" {
-    for_each = lookup(var.cluster, "oms_agent", null) != null ? { "default" = var.cluster.oms_agent } : {}
-
-    content {
-      log_analytics_workspace_id      = try(oms_agent.value.log_analytics_workspace_id, null)
-      msi_auth_for_monitoring_enabled = try(oms_agent.value.enable.msi_auth_for_monitoring, false)
-    }
-  }
-
-  dynamic "microsoft_defender" {
-    for_each = lookup(var.cluster, "microsoft_defender", null) != null ? { "default" = var.cluster.microsoft_defender } : {}
-
-    content {
-      log_analytics_workspace_id = try(var.cluster.log_analytics_workspace.id, null)
-    }
-  }
-
-  dynamic "key_vault_secrets_provider" {
-    for_each = lookup(var.cluster, "key_vault_secrets_provider", null) != null ? { "default" = var.cluster.key_vault_secrets_provider } : {}
-
-    content {
-      secret_rotation_enabled  = try(var.cluster.key_vault_secrets_provider.secret_rotation_enabled, false)
-      secret_rotation_interval = try(var.cluster.key_vault_secrets_provider.secret_rotation_interval, "2m")
-    }
-  }
-
-  dynamic "monitor_metrics" {
-    for_each = lookup(var.cluster, "monitor_metrics", null) != null ? { "default" = var.cluster.monitor_metrics } : {}
-
-    content {
-      labels_allowed      = try(monitor_metrics.value.labels_allowed, null)
-      annotations_allowed = try(monitor_metrics.value.annotations_allowed, null)
-    }
-  }
-
-  dynamic "service_mesh_profile" {
-    for_each = lookup(var.cluster, "service_mesh_profile", null) != null ? { "default" = var.cluster.service_mesh_profile } : {}
-
-    content {
-      revisions                        = try(service_mesh_profile.value.revisions, null)
-      mode                             = try(service_mesh_profile.value.mode, false)
-      internal_ingress_gateway_enabled = try(service_mesh_profile.value.internal_ingress_gateway_enabled, false)
-      external_ingress_gateway_enabled = try(service_mesh_profile.value.external_ingress_gateway_enabled, false)
-    }
-  }
-
-  dynamic "workload_autoscaler_profile" {
-    for_each = lookup(var.cluster, "workload_autoscaler_profile", null) != null ? { default = var.cluster.workload_autoscaler_profile } : {}
-
-    content {
-      # https://learn.microsoft.com/en-gb/azure/aks/keda-deploy-add-on-arm#register-the-aks-kedapreview-feature-flag
-      # https://learn.microsoft.com/en-us/azure/aks/vertical-pod-autoscaler#register-the-aks-vpapreview-feature-flag
-
-      keda_enabled                    = try(workload_autoscaler_profile.value.keda_enabled, false)
-      vertical_pod_autoscaler_enabled = try(workload_autoscaler_profile.value.vertical_pod_autoscaler_enabled, false)
-    }
-  }
-
-  dynamic "windows_profile" {
-    for_each = var.cluster.profile == "windows" && lookup(var.cluster, "password", {}) == {} ? {
-      "default" = var.cluster.name
-    } : {}
-
-    content {
-      admin_username = try(var.cluster.username, "nodeadmin")
-      admin_password = try(var.cluster.password, null) != null ? var.cluster.password : azurerm_key_vault_secret.secret["default"].value
-    }
-  }
-
-  dynamic "linux_profile" {
-    for_each = var.cluster.profile == "linux" && lookup(var.cluster, "public_key", {}) == {} ? {
-      (var.cluster.name) = true
-    } : {}
-
-    content {
-      admin_username = try(var.cluster.username, "nodeadmin")
-      ssh_key {
-        key_data = try(var.cluster.public_key, null) != null ? var.cluster.public_key : tls_private_key.tls_key["default"].public_key_openssh
-      }
-    }
-  }
-
-  dynamic "maintenance_window" {
-    for_each = lookup(var.cluster, "maintenance_window", null) != null ? { "default" = var.cluster.maintenance_window } : {}
-
-    content {
-      dynamic "allowed" {
-        for_each = {
-          for k, v in try(var.cluster.maintenance_window.allowed, {}) : k => v
-        }
-        content {
-          day   = allowed.value.day
-          hours = allowed.value.hours
-        }
-      }
-      dynamic "not_allowed" {
-        for_each = {
-          for k, v in try(var.cluster.maintenance_window.not_allowed, {}) : k => v
-        }
-        content {
-          end   = not_allowed.value.end
-          start = not_allowed.value.start
-        }
-      }
-    }
-  }
-
-  dynamic "maintenance_window_node_os" {
-    for_each = lookup(var.cluster, "maintenance_window_node_os", null) != null ? { "default" = var.cluster.maintenance_window_node_os } : {}
-
-    content {
-      dynamic "not_allowed" {
-        for_each = {
-          for k, v in try(var.cluster.maintenance_window_node_os.not_allowed, {}) : k => v
-        }
-        content {
-          end   = not_allowed.value.end
-          start = not_allowed.value.start
-        }
-      }
-
-      frequency   = maintenance_window_node_os.value.frequency
-      interval    = maintenance_window_node_os.value.interval
-      duration    = maintenance_window_node_os.value.duration
-      day_of_week = try(maintenance_window_node_os.value.day_of_week, null)
-      week_index  = try(maintenance_window_node_os.value.week_index, null)
-      start_time  = try(maintenance_window_node_os.value.start_time, null)
-      utc_offset  = try(maintenance_window_node_os.value.utc_offset, null)
-      start_date  = try(maintenance_window_node_os.value.start_date, null)
-    }
-  }
-
-  dynamic "maintenance_window_auto_upgrade" {
-    for_each = lookup(var.cluster, "maintenance_window_auto_upgrade", null) != null ? { "default" = var.cluster.maintenance_window_auto_upgrade } : {}
-
-    content {
-      dynamic "not_allowed" {
-        for_each = {
-          for k, v in try(var.cluster.maintenance_window_auto_upgrade.not_allowed, {}) : k => v
-        }
-        content {
-          end   = not_allowed.value.end
-          start = not_allowed.value.start
-        }
-      }
-
-      frequency   = maintenance_window_auto_upgrade.value.frequency
-      interval    = maintenance_window_auto_upgrade.value.interval
-      duration    = maintenance_window_auto_upgrade.value.duration
-      day_of_week = try(maintenance_window_auto_upgrade.value.day_of_week, null)
-      week_index  = try(maintenance_window_auto_upgrade.value.week_index, null)
-      start_time  = try(maintenance_window_auto_upgrade.value.start_time, null)
-      utc_offset  = try(maintenance_window_auto_upgrade.value.utc_offset, null)
-      start_date  = try(maintenance_window_auto_upgrade.value.start_date, null)
-    }
-  }
 
   default_node_pool {
     name                          = try(var.cluster.default_node_pool.name, "default")
     vm_size                       = try(var.cluster.default_node_pool.vm_size, "Standard_D2as_v5")
-    node_count                    = try(var.cluster.auto_scaler_profile, null) != null ? null : try(var.cluster.default_node_pool.node_count, 2)
-    max_count                     = try(var.cluster.default_node_pool.max_count, null)
-    max_pods                      = try(var.cluster.default_node_pool.max_pods, 30)
-    min_count                     = try(var.cluster.default_node_pool.min_count, null)
-    zones                         = try(var.cluster.default_node_pool.zones, [1, 2, 3])
-    vnet_subnet_id                = try(var.cluster.default_node_pool.vnet_subnet_id, null)
-    node_labels                   = try(var.cluster.default_node_pool.node_labels, {})
-    tags                          = try(var.cluster.default_node_pool.tags, var.tags, null)
-    auto_scaling_enabled          = try(var.cluster.default_node_pool.auto_scaling_enabled, true)
-    host_encryption_enabled       = try(var.cluster.default_node_pool.host_encryption_enabled, false)
-    node_public_ip_enabled        = try(var.cluster.default_node_pool.node_public_ip_enabled, false)
-    fips_enabled                  = try(var.cluster.default_node_pool.fips_enabled, null)
-    only_critical_addons_enabled  = try(var.cluster.default_node_pool.only_critical_addons_enabled, false)
-    os_sku                        = try(var.cluster.default_node_pool.os_sku, null)
-    type                          = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
-    workload_runtime              = try(var.cluster.default_node_pool.workload_runtime, null)
     capacity_reservation_group_id = try(var.cluster.default_node_pool.capacity_reservation_group_id, null)
-    proximity_placement_group_id  = try(var.cluster.default_node_pool.proximity_placement_group_id, null)
-    node_public_ip_prefix_id      = try(var.cluster.default_node_pool.node_public_ip_prefix_id, null)
-    scale_down_mode               = try(var.cluster.default_node_pool.scale_down_mode, null)
-    pod_subnet_id                 = try(var.cluster.default_node_pool.pod_subnet_id, null)
+    auto_scaling_enabled          = try(var.cluster.default_node_pool.auto_scaling_enabled, null)
+    node_count                    = try(var.cluster.default_node_pool.auto_scaling_enabled, null) != null ? null : try(var.cluster.default_node_pool.node_count, 2)
+    min_count                     = try(var.cluster.default_node_pool.min_count, null)
+    max_count                     = try(var.cluster.default_node_pool.max_count, null)
+    host_encryption_enabled       = try(var.cluster.default_node_pool.host_encryption_enabled, null)
+    node_public_ip_enabled        = try(var.cluster.default_node_pool.node_public_ip_enabled, false)
+    gpu_instance                  = try(var.cluster.default_node_pool.gpu_instance, null)
     host_group_id                 = try(var.cluster.default_node_pool.host_group_id, null)
-    ultra_ssd_enabled             = try(var.cluster.default_node_pool.ultra_ssd_enabled, false)
-    orchestrator_version          = try(var.cluster.default_node_pool.orchestrator_version, null)
-    os_disk_type                  = try(var.cluster.default_node_pool.os_disk_type, null)
-    os_disk_size_gb               = try(var.cluster.default_node_pool.os_disk_size_gb, null)
+    fips_enabled                  = try(var.cluster.default_node_pool.fips_enabled, null)
     kubelet_disk_type             = try(var.cluster.default_node_pool.kubelet_disk_type, null)
+    max_pods                      = try(var.cluster.default_node_pool.max_pods, null)
+    node_public_ip_prefix_id      = try(var.cluster.default_node_pool.node_public_ip_prefix_id, null)
+    node_labels                   = try(var.cluster.default_node_pool.node_labels, {})
+    only_critical_addons_enabled  = try(var.cluster.default_node_pool.only_critical_addons_enabled, false)
+    orchestrator_version          = try(var.cluster.default_node_pool.orchestrator_version, null)
+    os_disk_size_gb               = try(var.cluster.default_node_pool.os_disk_size_gb, null)
+    os_disk_type                  = try(var.cluster.default_node_pool.os_disk_type, null)
+    os_sku                        = try(var.cluster.default_node_pool.os_sku, null)
+    pod_subnet_id                 = try(var.cluster.default_node_pool.pod_subnet_id, null)
+    proximity_placement_group_id  = try(var.cluster.default_node_pool.proximity_placement_group_id, null)
+    scale_down_mode               = try(var.cluster.default_node_pool.scale_down_mode, "Delete")
     snapshot_id                   = try(var.cluster.default_node_pool.snapshot_id, null)
     temporary_name_for_rotation   = try(var.cluster.default_node_pool.temporary_name_for_rotation, null)
-    gpu_instance                  = try(var.cluster.default_node_pool.gpu_instance, null)
+    type                          = try(var.cluster.default_node_pool.type, "VirtualMachineScaleSets")
+    tags                          = try(var.cluster.default_node_pool.tags, var.tags, null)
+    ultra_ssd_enabled             = try(var.cluster.default_node_pool.ultra_ssd_enabled, false)
+    vnet_subnet_id                = try(var.cluster.default_node_pool.vnet_subnet_id, null)
+    workload_runtime              = try(var.cluster.default_node_pool.workload_runtime, null)
+    zones                         = try(var.cluster.default_node_pool.zones, [1, 2, 3])
 
-    dynamic "upgrade_settings" {
+    dynamic "kubelet_config" {
       for_each = (
-        lookup(lookup(var.cluster, "default_node_pool", {}), "upgrade_settings", null) != null
-        ? { "default" = lookup(lookup(var.cluster, "default_node_pool", {}), "upgrade_settings", null) }
+        lookup(lookup(var.cluster, "default_node_pool", {}), "kubelet_config", null) != null
+        ? { "default" = lookup(lookup(var.cluster, "default_node_pool", {}), "kubelet_config", null) }
         : {}
       )
 
       content {
-        max_surge                     = upgrade_settings.value.max_surge
-        drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
-        node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
+        allowed_unsafe_sysctls    = try(kubelet_config.value.allowed_unsafe_sysctls, null)
+        container_log_max_line    = try(kubelet_config.value.container_log_max_line, null)
+        container_log_max_size_mb = try(kubelet_config.value.container_log_max_size_mb, null)
+        cpu_cfs_quota_enabled     = try(kubelet_config.value.cpu_cfs_quota_enabled, null)
+        cpu_cfs_quota_period      = try(kubelet_config.value.cpu_cfs_quota_period, null)
+        cpu_manager_policy        = try(kubelet_config.value.cpu_manager_policy, "none")
+        image_gc_high_threshold   = try(kubelet_config.value.image_gc_high_threshold, null)
+        image_gc_low_threshold    = try(kubelet_config.value.image_gc_low_threshold, null)
+        pod_max_pid               = try(kubelet_config.value.pod_max_pid, null)
+        topology_manager_policy   = try(kubelet_config.value.topology_manager_policy, null)
       }
     }
 
@@ -379,25 +136,105 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
     }
 
-    dynamic "kubelet_config" {
+    dynamic "node_network_profile" {
       for_each = (
-        lookup(lookup(var.cluster, "default_node_pool", {}), "kubelet_config", null) != null
-        ? { "default" = lookup(lookup(var.cluster, "default_node_pool", {}), "kubelet_config", null) }
+        lookup(lookup(var.cluster, "default_node_pool", {}), "node_network_profile", null) != null
+        ? { "default" = lookup(lookup(var.cluster, "default_node_pool", {}), "node_network_profile", null) }
         : {}
       )
 
       content {
-        allowed_unsafe_sysctls    = try(kubelet_config.value.allowed_unsafe_sysctls, null)
-        container_log_max_line    = try(kubelet_config.value.container_log_max_line, null)
-        container_log_max_size_mb = try(kubelet_config.value.container_log_max_size_mb, null)
-        cpu_cfs_quota_enabled     = try(kubelet_config.value.cpu_cfs_quota_enabled, null)
-        cpu_cfs_quota_period      = try(kubelet_config.value.cpu_cfs_quota_period, null)
-        cpu_manager_policy        = try(kubelet_config.value.cpu_manager_policy, "none")
-        image_gc_high_threshold   = try(kubelet_config.value.image_gc_high_threshold, null)
-        image_gc_low_threshold    = try(kubelet_config.value.image_gc_low_threshold, null)
-        pod_max_pid               = try(kubelet_config.value.pod_max_pid, null)
-        topology_manager_policy   = try(kubelet_config.value.topology_manager_policy, null)
+        dynamic "allowed_host_ports" {
+          for_each = lookup(node_network_profile.value, "allowed_host_ports", null) != null ? { "default" = lookup(node_network_profile.value, "allowed_host_ports", null) } : {}
+
+          content {
+            port_start = try(allowed_host_ports.value.port_start, null)
+            port_end   = try(allowed_host_ports.value.port_end, null)
+            protocol   = try(allowed_host_ports.value.protocol, null)
+          }
+        }
+        application_security_group_ids = try(node_network_profile.value.application_security_group_ids, [])
+        node_public_ip_tags            = try(node_network_profile.value.node_public_ip_tags, null)
       }
+    }
+
+    dynamic "upgrade_settings" {
+      for_each = (
+        lookup(lookup(var.cluster, "default_node_pool", {}), "upgrade_settings", null) != null
+        ? { "default" = lookup(lookup(var.cluster, "default_node_pool", {}), "upgrade_settings", null) }
+        : {}
+      )
+
+      content {
+        max_surge                     = upgrade_settings.value.max_surge
+        drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+        node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
+      }
+    }
+  }
+
+  dynamic "aci_connector_linux" {
+    for_each = lookup(var.cluster.default_node_pool, "aci_connector_linux", null) != null ? { "default" = var.cluster.default_node_pool.aci_connector_linux } : {}
+    content {
+      subnet_name = aci_connector_linux.value.subnet_name
+    }
+  }
+
+  dynamic "api_server_access_profile" {
+    for_each = lookup(var.cluster, "api_server_access_profile", null) != null ? { "default" = var.cluster.api_server_access_profile } : {}
+    content {
+      authorized_ip_ranges = api_server_access_profile.value.authorized_ip_ranges
+    }
+  }
+
+  dynamic "auto_scaler_profile" {
+    for_each = lookup(var.cluster, "auto_scaler_profile", null) != null ? { "default" = var.cluster.auto_scaler_profile } : {}
+
+    content {
+      balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, false)
+      expander                         = try(auto_scaler_profile.value.expander, "random")
+      max_graceful_termination_sec     = try(auto_scaler_profile.value.max_graceful_termination_sec, "600")
+      max_node_provisioning_time       = try(auto_scaler_profile.value.max_node_provisioning_time, "15m")
+      max_unready_nodes                = try(auto_scaler_profile.value.max_unready_nodes, "3")
+      max_unready_percentage           = try(auto_scaler_profile.value.max_unready_percentage, "45")
+      new_pod_scale_up_delay           = try(auto_scaler_profile.value.new_pod_scale_up_delay, "10s")
+      scale_down_delay_after_add       = try(auto_scaler_profile.value.scale_down_delay_after_add, "10m")
+      scale_down_delay_after_delete    = try(auto_scaler_profile.value.scale_down_delay_after_delete, "10s")
+      scale_down_delay_after_failure   = try(auto_scaler_profile.value.scale_down_delay_after_failure, "3m")
+      scan_interval                    = try(auto_scaler_profile.value.scan_interval, "10s")
+      scale_down_unneeded              = try(auto_scaler_profile.value.scale_down_unneeded, "10m")
+      scale_down_unready               = try(auto_scaler_profile.value.scale_down_unready, "20m")
+      scale_down_utilization_threshold = try(auto_scaler_profile.value.scale_down_utilization_threshold, "0.5")
+      empty_bulk_delete_max            = try(auto_scaler_profile.value.empty_bulk_delete_max, "10")
+      skip_nodes_with_local_storage    = try(auto_scaler_profile.value.skip_nodes_with_local_storage, true)
+      skip_nodes_with_system_pods      = try(auto_scaler_profile.value.skip_nodes_with_system_pods, true)
+    }
+  }
+
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = lookup(var.cluster, "azure_active_directory_role_based_access_control", null) != null ? { "default" = var.cluster.azure_active_directory_role_based_access_control } : {}
+    content {
+      tenant_id              = try(azure_active_directory_role_based_access_control.value.tenant_id, data.azurerm_subscription.current.tenant_id, null)
+      admin_group_object_ids = try(azure_active_directory_role_based_access_control.value.admin_group_object_ids, null)
+      azure_rbac_enabled     = try(azure_active_directory_role_based_access_control.value.azure_rbac_enabled, true)
+    }
+  }
+
+  dynamic "confidential_computing" {
+    for_each = lookup(var.cluster, "confidential_computing", null) != null ? { "default" = var.cluster.confidential_computing } : {}
+    content {
+      sgx_quote_helper_enabled = confidential_computing.value.sgx_quote_helper_enabled
+    }
+  }
+
+  dynamic "http_proxy_config" {
+    for_each = lookup(var.cluster, "http_proxy_config", null) != null ? { "default" = var.cluster.http_proxy_config } : {}
+
+    content {
+      http_proxy  = try(http_proxy_config.value.http, null)
+      https_proxy = try(http_proxy_config.value.https, null)
+      no_proxy    = try(http_proxy_config.value.exceptions, [])
+      trusted_ca  = try(http_proxy_config.value.trusted_ca, null)
     }
   }
 
@@ -409,12 +246,250 @@ resource "azurerm_kubernetes_cluster" "aks" {
     ) : null
   }
 
+  dynamic "ingress_application_gateway" {
+    for_each = lookup(var.cluster, "ingress_application_gateway", null) != null ? { "default" = var.cluster.ingress_application_gateway } : {}
+
+    content {
+      gateway_id   = try(ingress_application_gateway.value.gateway_id, null)
+      gateway_name = try(ingress_application_gateway.value.gateway_name, null)
+      subnet_cidr  = try(ingress_application_gateway.value.subnet_cidr, null)
+      subnet_id    = try(ingress_application_gateway.value.subnet_id, null)
+    }
+  }
+
+  dynamic "key_management_service" {
+    for_each = lookup(var.cluster, "key_management_service", null) != null ? { "default" = var.cluster.key_management_service } : {}
+    content {
+      key_vault_key_id         = key_management_service.value.key_vault_key_id
+      key_vault_network_access = try(key_management_service.value.key_vault_network_access, "Public")
+    }
+  }
+
+  dynamic "key_vault_secrets_provider" {
+    for_each = lookup(var.cluster, "key_vault_secrets_provider", null) != null ? { "default" = var.cluster.key_vault_secrets_provider } : {}
+
+    content {
+      secret_rotation_enabled  = try(key_vault_secrets_provider.value.secret_rotation_enabled, false)
+      secret_rotation_interval = try(key_vault_secrets_provider.value.secret_rotation_interval, "2m")
+    }
+  }
+
   dynamic "kubelet_identity" {
     for_each = lookup(var.cluster, "kubelet_identity", null) != null ? [var.cluster.kubelet_identity] : []
     content {
       user_assigned_identity_id = kubelet_identity.value.user_assigned_identity_id
       client_id                 = kubelet_identity.value.client_id
       object_id                 = kubelet_identity.value.object_id
+    }
+  }
+
+  dynamic "linux_profile" {
+    for_each = lookup(var.cluster, "linux_profile", null) != null ? { "default" = var.cluster.linux_profile } : {}
+    content {
+      admin_username = try(var.cluster.username, linux_profile.value.admin_username, "nodeadmin")
+      ssh_key {
+        key_data = try(var.cluster.public_key, linux_profile.value.ssh_key.key_data, null) != null ? try(var.cluster.public_key, linux_profile.value.ssh_key.key_data) : tls_private_key.tls_key["default"].public_key_openssh
+      }
+    }
+  }
+
+  dynamic "maintenance_window" {
+    for_each = lookup(var.cluster, "maintenance_window", null) != null ? { "default" = var.cluster.maintenance_window } : {}
+
+    content {
+      dynamic "allowed" {
+        for_each = {
+          for k, v in try(var.cluster.maintenance_window.allowed, {}) : k => v
+        }
+        content {
+          day   = allowed.value.day
+          hours = allowed.value.hours
+        }
+      }
+      dynamic "not_allowed" {
+        for_each = {
+          for k, v in try(var.cluster.maintenance_window.not_allowed, {}) : k => v
+        }
+        content {
+          end   = not_allowed.value.end
+          start = not_allowed.value.start
+        }
+      }
+    }
+  }
+
+  dynamic "maintenance_window_auto_upgrade" {
+    for_each = lookup(var.cluster, "maintenance_window_auto_upgrade", null) != null ? { "default" = var.cluster.maintenance_window_auto_upgrade } : {}
+
+    content {
+      dynamic "not_allowed" {
+        for_each = {
+          for k, v in try(var.cluster.maintenance_window_auto_upgrade.not_allowed, {}) : k => v
+        }
+        content {
+          end   = not_allowed.value.end
+          start = not_allowed.value.start
+        }
+      }
+
+      frequency   = maintenance_window_auto_upgrade.value.frequency
+      interval    = maintenance_window_auto_upgrade.value.interval
+      duration    = maintenance_window_auto_upgrade.value.duration
+      day_of_week = try(maintenance_window_auto_upgrade.value.day_of_week, null)
+      week_index  = try(maintenance_window_auto_upgrade.value.week_index, null)
+      start_time  = try(maintenance_window_auto_upgrade.value.start_time, null)
+      utc_offset  = try(maintenance_window_auto_upgrade.value.utc_offset, null)
+      start_date  = try(maintenance_window_auto_upgrade.value.start_date, null)
+    }
+  }
+
+  dynamic "maintenance_window_node_os" {
+    for_each = lookup(var.cluster, "maintenance_window_node_os", null) != null ? { "default" = var.cluster.maintenance_window_node_os } : {}
+
+    content {
+      dynamic "not_allowed" {
+        for_each = {
+          for k, v in try(var.cluster.maintenance_window_node_os.not_allowed, {}) : k => v
+        }
+        content {
+          end   = not_allowed.value.end
+          start = not_allowed.value.start
+        }
+      }
+
+      frequency   = maintenance_window_node_os.value.frequency
+      interval    = maintenance_window_node_os.value.interval
+      duration    = maintenance_window_node_os.value.duration
+      day_of_week = try(maintenance_window_node_os.value.day_of_week, null)
+      week_index  = try(maintenance_window_node_os.value.week_index, null)
+      start_time  = try(maintenance_window_node_os.value.start_time, null)
+      utc_offset  = try(maintenance_window_node_os.value.utc_offset, null)
+      start_date  = try(maintenance_window_node_os.value.start_date, null)
+    }
+  }
+
+  dynamic "microsoft_defender" {
+    for_each = lookup(var.cluster, "microsoft_defender", null) != null ? { "default" = var.cluster.microsoft_defender } : {}
+
+    content {
+      log_analytics_workspace_id = try(microsoft_defender.value.log_analytics_workspace_id, null)
+    }
+  }
+
+  dynamic "monitor_metrics" {
+    for_each = lookup(var.cluster, "monitor_metrics", null) != null ? { "default" = var.cluster.monitor_metrics } : {}
+
+    content {
+      annotations_allowed = try(monitor_metrics.value.annotations_allowed, null)
+      labels_allowed      = try(monitor_metrics.value.labels_allowed, null)
+    }
+  }
+
+  dynamic "network_profile" {
+    for_each = lookup(var.cluster, "network_profile", null) != null ? { "default" = var.cluster.network_profile } : {}
+
+    content {
+      network_plugin      = try(network_profile.value.network_plugin, "azure")
+      network_mode        = try(network_profile.value.network_mode, null)
+      network_policy      = try(network_profile.value.network_policy, null)
+      dns_service_ip      = try(network_profile.value.dns_service_ip, null)
+      outbound_type       = try(network_profile.value.outbound_type, null)
+      pod_cidr            = try(network_profile.value.pod_cidr, null)
+      service_cidr        = try(network_profile.value.service_cidr, null)
+      load_balancer_sku   = try(network_profile.value.load_balancer_sku, "standard")
+      pod_cidrs           = try(network_profile.value.pod_cidrs, null)
+      ip_versions         = try(network_profile.value.ip_versions, null)
+      network_data_plane  = try(network_profile.value.network_data_plane, null)
+      service_cidrs       = try(network_profile.value.service_cidrs, null)
+      network_plugin_mode = try(network_profile.value.network_plugin_mode, "overlay")
+
+      dynamic "load_balancer_profile" {
+        for_each = lookup(network_profile.value, "load_balancer_profile", null) != null ? { "default" = lookup(network_profile.value, "load_balancer_profile", null) } : {}
+
+        content {
+          managed_outbound_ip_count   = try(load_balancer_profile.value.managed_outbound_ip_count, null)
+          outbound_ip_prefix_ids      = try(load_balancer_profile.value.outbound_ip_prefix_ids, null)
+          outbound_ip_address_ids     = try(load_balancer_profile.value.outbound_ip_address_ids, null)
+          outbound_ports_allocated    = try(load_balancer_profile.value.outbound_ports_allocated, null)
+          idle_timeout_in_minutes     = try(load_balancer_profile.value.idle_timeout_in_minutes, null)
+          managed_outbound_ipv6_count = try(load_balancer_profile.value.managed_outbound_ipv6_count, null)
+        }
+      }
+
+      dynamic "nat_gateway_profile" {
+        for_each = lookup(network_profile.value, "nat_gateway_profile", null) != null ? { "default" = lookup(network_profile.value, "nat_gateway_profile", null) } : {}
+
+        content {
+          idle_timeout_in_minutes   = try(nat_gateway_profile.value.idle_timeout_in_minutes, "4")
+          managed_outbound_ip_count = try(nat_gateway_profile.value.managed_outbound_ip_count, null)
+        }
+      }
+    }
+  }
+
+  dynamic "oms_agent" {
+    for_each = lookup(var.cluster, "oms_agent", null) != null ? { "default" = var.cluster.oms_agent } : {}
+
+    content {
+      log_analytics_workspace_id      = try(oms_agent.value.log_analytics_workspace_id, null)
+      msi_auth_for_monitoring_enabled = try(oms_agent.value.enable.msi_auth_for_monitoring, false)
+    }
+  }
+
+  dynamic "service_mesh_profile" {
+    for_each = lookup(var.cluster, "service_mesh_profile", null) != null ? { "default" = var.cluster.service_mesh_profile } : {}
+
+    content {
+      revisions                        = try(service_mesh_profile.value.revisions, null)
+      mode                             = try(service_mesh_profile.value.mode, false)
+      internal_ingress_gateway_enabled = try(service_mesh_profile.value.internal_ingress_gateway_enabled, false)
+      external_ingress_gateway_enabled = try(service_mesh_profile.value.external_ingress_gateway_enabled, false)
+    }
+  }
+
+  dynamic "workload_autoscaler_profile" {
+    for_each = lookup(var.cluster, "workload_autoscaler_profile", null) != null ? { default = var.cluster.workload_autoscaler_profile } : {}
+
+    content {
+      # https://learn.microsoft.com/en-gb/azure/aks/keda-deploy-add-on-arm#register-the-aks-kedapreview-feature-flag
+      # https://learn.microsoft.com/en-us/azure/aks/vertical-pod-autoscaler#register-the-aks-vpapreview-feature-flag
+
+      keda_enabled                    = try(workload_autoscaler_profile.value.keda_enabled, null)
+      vertical_pod_autoscaler_enabled = try(workload_autoscaler_profile.value.vertical_pod_autoscaler_enabled, null)
+    }
+  }
+
+  dynamic "storage_profile" {
+    for_each = lookup(var.cluster, "storage_profile", null) != null ? { "default" = var.cluster.storage_profile } : {}
+
+    content {
+      blob_driver_enabled         = try(storage_profile.value.blob_driver_enabled, false)
+      disk_driver_enabled         = try(storage_profile.value.disk_driver_enabled, true)
+      file_driver_enabled         = try(storage_profile.value.file_driver_enabled, true)
+      snapshot_controller_enabled = try(storage_profile.value.snapshot_controller_enabled, true)
+    }
+  }
+
+  dynamic "web_app_routing" {
+    for_each = lookup(var.cluster, "web_app_routing", null) != null ? { "default" = var.cluster.web_app_routing } : {}
+    content {
+      dns_zone_ids = web_app_routing.value.dns_zone_ids
+    }
+  }
+
+  dynamic "windows_profile" {
+    for_each = lookup(var.cluster, "windows_profile", null) != null ? { "default" = var.cluster.windows_profile } : {}
+    content {
+      admin_username = try(var.cluster.username, windows_profile.value.admin_username, "nodeadmin")
+      admin_password = try(var.cluster.password, windows_profile.value.admin_username, null) != null ? try(var.cluster.password, windows_profile.value.admin_username) : azurerm_key_vault_secret.secret["default"].value
+      license        = try(windows_profile.value.license, null)
+      dynamic "gmsa" {
+        for_each = lookup(windows_profile.value, "gmsa", null) != null ? { "default" = lookup(windows_profile.value, "gmsa", null) } : {}
+        content {
+          dns_server  = gmsa.value.dns_server
+          root_domain = gmsa.value.root_domain
+        }
+      }
     }
   }
 }

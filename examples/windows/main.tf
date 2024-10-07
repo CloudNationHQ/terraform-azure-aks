@@ -32,7 +32,7 @@ module "kv" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 2.1"
 
   keyvault = module.kv.vault.id
 
@@ -48,17 +48,13 @@ module "aks" {
       type = "UserAssigned"
     }
 
-    node_pools = {
+    default_node_pool = {
       cache = {
         name       = "npdemo"
         vm_size    = "Standard_DS2_v2"
         node_count = 2
         os_type    = "Windows"
       }
-    }
-
-    network_profile = {
-      network_plugin = "azure"
     }
   }
 }

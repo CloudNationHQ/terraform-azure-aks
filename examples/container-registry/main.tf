@@ -30,7 +30,7 @@ module "kv" {
   }
 }
 
-module "registry" {
+module "acr" {
   source  = "cloudnationhq/acr/azure"
   version = "~> 3.0"
 
@@ -44,7 +44,7 @@ module "registry" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 2.1"
 
   keyvault = module.kv.vault.id
 
@@ -61,7 +61,7 @@ module "aks" {
     }
 
     registry = {
-      role_assignment_scope = module.registry.acr.id
+      role_assignment_scope = module.acr.registry.id
     }
 
     default_node_pool = {

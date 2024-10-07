@@ -47,8 +47,7 @@ module "kv" {
 
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
-
+  version = "~> 2.1"
   cluster = {
     name               = "${module.naming.kubernetes_cluster.name}1"
     location           = module.rg.groups.demo.location
@@ -64,10 +63,6 @@ module "aks-windows" {
       type = "UserAssigned"
     }
 
-    network_profile = {
-      network_plugin = "azure"
-    }
-
     default_node_pool = {
       upgrade_settings = {
         max_surge = "10%"
@@ -78,7 +73,7 @@ module "aks-windows" {
 
 module "aks-linux" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 2.0"
+  version = "~> 2.1"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"
