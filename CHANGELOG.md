@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.1.1...v3.2.0) (2024-10-09)
+
+
+### Features
+
+* allow custom user assigned identity name ([#105](https://github.com/CloudNationHQ/terraform-azure-aks/issues/105)) ([dcfbebe](https://github.com/CloudNationHQ/terraform-azure-aks/commit/dcfbebee63578d934beecd8e80b828954618aa70))
+
 ## [3.1.1](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.1.0...v3.1.1) (2024-10-07)
 
 
