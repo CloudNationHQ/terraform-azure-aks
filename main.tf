@@ -713,7 +713,7 @@ resource "azurerm_role_assignment" "role" {
 resource "azurerm_user_assigned_identity" "cluster_identity" {
   for_each = var.cluster.identity.type == "UserAssigned" && length(lookup(var.cluster.identity, "identity_ids", [])) == 0 ? { "cluster" = true } : {}
 
-  name                = "uai-${var.cluster.name}-cluster"
+  name                = try(var.cluster.identity.name, "uai-${var.cluster.name}-cluster")
   resource_group_name = var.cluster.resource_group
   location            = var.cluster.location
   tags                = try(var.cluster.tags, null)
