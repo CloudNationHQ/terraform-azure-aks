@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.3.0...v3.4.0) (2024-10-16)
+
+
+### Features
+
+* add identity output ([#112](https://github.com/CloudNationHQ/terraform-azure-aks/issues/112)) ([94501c2](https://github.com/CloudNationHQ/terraform-azure-aks/commit/94501c2067c96e1d468b11f12c83b54dc242fe46))
+
 ## [3.3.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.2.1...v3.3.0) (2024-10-11)
 
 
