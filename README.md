@@ -79,6 +79,7 @@ End-to-end testing is not conducted on these modules, as they are individual com
 | Name | Description |
 |------|-------------|
 | <a name="output_cluster"></a> [cluster](#output\_cluster) | contains all aks configuration |
+| <a name="output_identity"></a> [identity](#output\_identity) | contains the user assigned identity configuration |
 | <a name="output_subscription_id"></a> [subscription\_id](#output\_subscription\_id) | contains the current subscription id |
 <!-- END_TF_DOCS -->
 
