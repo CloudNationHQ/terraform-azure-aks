@@ -8,3 +8,8 @@ output "cluster" {
   value       = azurerm_kubernetes_cluster.aks
   sensitive   = true
 }
+
+output "identity" {
+  description = "contains the user assigned identity configuration"
+  value       = azurerm_kubernetes_cluster.aks.identity[0].type == "UserAssigned" ? azurerm_user_assigned_identity.cluster_identity["cluster"] : null
+}
