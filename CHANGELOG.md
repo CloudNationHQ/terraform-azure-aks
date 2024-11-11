@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.4.0...v3.5.0) (2024-11-11)
+
+
+### Features
+
+* enhance testing with sequential, parallel modes and flags for exceptions and skip-destroy ([#114](https://github.com/CloudNationHQ/terraform-azure-aks/issues/114)) ([f10f51a](https://github.com/CloudNationHQ/terraform-azure-aks/commit/f10f51aca126c6b9497304742799e337d21e99d1))
+
 ## [3.4.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.3.0...v3.4.0) (2024-10-16)
 
 
