@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.6.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.5.0...v3.6.0) (2025-01-20)
+
+
+### Features
+
+* **deps:** bump github.com/gruntwork-io/terratest in /tests ([#118](https://github.com/CloudNationHQ/terraform-azure-aks/issues/118)) ([cbb1532](https://github.com/CloudNationHQ/terraform-azure-aks/commit/cbb153296afa2eb25088ea413c91fd4533a5d4a0))
+* **deps:** bump golang.org/x/net from 0.31.0 to 0.33.0 in /tests ([#121](https://github.com/CloudNationHQ/terraform-azure-aks/issues/121)) ([2cef183](https://github.com/CloudNationHQ/terraform-azure-aks/commit/2cef18325b4ef2340c638e9ec14a69ac73f70edc))
+* remove temporary files when deployment tests fails ([#119](https://github.com/CloudNationHQ/terraform-azure-aks/issues/119)) ([1dfa021](https://github.com/CloudNationHQ/terraform-azure-aks/commit/1dfa0214cc10dc407119175b9de21f9773aae276))
+
 ## [3.5.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.4.0...v3.5.0) (2024-11-11)
 
 
