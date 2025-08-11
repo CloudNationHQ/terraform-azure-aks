@@ -1,11 +1,11 @@
 locals {
   cluster = {
-    name                = module.naming.kubernetes_cluster.name_unique
-    location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
-    depends_on          = [module.kv]
-    dns_prefix          = "demo"
-    profile             = "linux"
+    name           = module.naming.kubernetes_cluster.name_unique
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
+    depends_on     = [module.kv]
+    dns_prefix     = "demo"
+    profile        = "linux"
 
     default_node_pool = {
       vm_size        = "Standard_DS2_v2"

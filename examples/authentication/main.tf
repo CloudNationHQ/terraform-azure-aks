@@ -52,7 +52,7 @@ module "aks-windows" {
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}1"
     location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
+    resource_group      = module.rg.groups.demo.name
     node_resource_group = "${module.rg.groups.demo.name}n1"
     depends_on          = [module.kv]
     profile             = "windows"
@@ -79,7 +79,7 @@ module "aks-linux" {
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"
     location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
+    resource_group      = module.rg.groups.demo.name
     node_resource_group = "${module.rg.groups.demo.name}n2"
     depends_on          = [module.kv]
     profile             = "linux"
