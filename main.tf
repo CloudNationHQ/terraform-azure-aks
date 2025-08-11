@@ -5,7 +5,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   name                                = var.cluster.name
   location                            = coalesce(lookup(var.cluster, "location", null), var.location)
-  resource_group_name                 = coalesce(lookup(var.cluster, "resource_group", null), var.resource_group)
+  resource_group_name                 = coalesce(lookup(var.cluster, "resource_group_name", null), var.resource_group_name)
   dns_prefix                          = try(var.cluster.dns_prefix, null)
   dns_prefix_private_cluster          = try(var.cluster.dns_prefix_private_cluster, null)
   automatic_upgrade_channel           = try(var.cluster.automatic_upgrade_channel, null)
@@ -19,7 +19,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version                  = try(var.cluster.kubernetes_version, null)
   local_account_disabled              = try(var.cluster.local_account_disabled, null)
   node_os_upgrade_channel             = try(var.cluster.node_os_upgrade_channel, null)
-  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group}-nodepool")
+  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group_name}-nodepool")
   oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, null)
   open_service_mesh_enabled           = try(var.cluster.open_service_mesh_enabled, null)
   private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
@@ -191,23 +191,26 @@ resource "azurerm_kubernetes_cluster" "aks" {
     for_each = lookup(var.cluster, "auto_scaler_profile", null) != null ? { "default" = var.cluster.auto_scaler_profile } : {}
 
     content {
-      balance_similar_node_groups      = try(auto_scaler_profile.value.balance_similar_node_groups, false)
-      expander                         = try(auto_scaler_profile.value.expander, "random")
-      max_graceful_termination_sec     = try(auto_scaler_profile.value.max_graceful_termination_sec, "600")
-      max_node_provisioning_time       = try(auto_scaler_profile.value.max_node_provisioning_time, "15m")
-      max_unready_nodes                = try(auto_scaler_profile.value.max_unready_nodes, "3")
-      max_unready_percentage           = try(auto_scaler_profile.value.max_unready_percentage, "45")
-      new_pod_scale_up_delay           = try(auto_scaler_profile.value.new_pod_scale_up_delay, "10s")
-      scale_down_delay_after_add       = try(auto_scaler_profile.value.scale_down_delay_after_add, "10m")
-      scale_down_delay_after_delete    = try(auto_scaler_profile.value.scale_down_delay_after_delete, "10s")
-      scale_down_delay_after_failure   = try(auto_scaler_profile.value.scale_down_delay_after_failure, "3m")
-      scan_interval                    = try(auto_scaler_profile.value.scan_interval, "10s")
-      scale_down_unneeded              = try(auto_scaler_profile.value.scale_down_unneeded, "10m")
-      scale_down_unready               = try(auto_scaler_profile.value.scale_down_unready, "20m")
-      scale_down_utilization_threshold = try(auto_scaler_profile.value.scale_down_utilization_threshold, "0.5")
-      empty_bulk_delete_max            = try(auto_scaler_profile.value.empty_bulk_delete_max, "10")
-      skip_nodes_with_local_storage    = try(auto_scaler_profile.value.skip_nodes_with_local_storage, true)
-      skip_nodes_with_system_pods      = try(auto_scaler_profile.value.skip_nodes_with_system_pods, true)
+      balance_similar_node_groups                   = try(auto_scaler_profile.value.balance_similar_node_groups, false)
+      expander                                      = try(auto_scaler_profile.value.expander, "random")
+      daemonset_eviction_for_empty_nodes_enabled    = try(auto_scaler_profile.value.daemonset_eviction_for_empty_nodes_enabled, false)
+      daemonset_eviction_for_occupied_nodes_enabled = try(auto_scaler_profile.value.daemonset_eviction_for_occupied_nodes_enabled, true)
+      ignore_daemonsets_utilization_enabled         = try(auto_scaler_profile.value.ignore_daemonsets_utilization_enabled, false)
+      max_graceful_termination_sec                  = try(auto_scaler_profile.value.max_graceful_termination_sec, "600")
+      max_node_provisioning_time                    = try(auto_scaler_profile.value.max_node_provisioning_time, "15m")
+      max_unready_nodes                             = try(auto_scaler_profile.value.max_unready_nodes, "3")
+      max_unready_percentage                        = try(auto_scaler_profile.value.max_unready_percentage, "45")
+      new_pod_scale_up_delay                        = try(auto_scaler_profile.value.new_pod_scale_up_delay, "10s")
+      scale_down_delay_after_add                    = try(auto_scaler_profile.value.scale_down_delay_after_add, "10m")
+      scale_down_delay_after_delete                 = try(auto_scaler_profile.value.scale_down_delay_after_delete, "10s")
+      scale_down_delay_after_failure                = try(auto_scaler_profile.value.scale_down_delay_after_failure, "3m")
+      scan_interval                                 = try(auto_scaler_profile.value.scan_interval, "10s")
+      scale_down_unneeded                           = try(auto_scaler_profile.value.scale_down_unneeded, "10m")
+      scale_down_unready                            = try(auto_scaler_profile.value.scale_down_unready, "20m")
+      scale_down_utilization_threshold              = try(auto_scaler_profile.value.scale_down_utilization_threshold, "0.5")
+      empty_bulk_delete_max                         = try(auto_scaler_profile.value.empty_bulk_delete_max, "10")
+      skip_nodes_with_local_storage                 = try(auto_scaler_profile.value.skip_nodes_with_local_storage, true)
+      skip_nodes_with_system_pods                   = try(auto_scaler_profile.value.skip_nodes_with_system_pods, true)
     }
   }
 
@@ -332,14 +335,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
         }
       }
 
-      frequency   = maintenance_window_auto_upgrade.value.frequency
-      interval    = maintenance_window_auto_upgrade.value.interval
-      duration    = maintenance_window_auto_upgrade.value.duration
-      day_of_week = try(maintenance_window_auto_upgrade.value.day_of_week, null)
-      week_index  = try(maintenance_window_auto_upgrade.value.week_index, null)
-      start_time  = try(maintenance_window_auto_upgrade.value.start_time, null)
-      utc_offset  = try(maintenance_window_auto_upgrade.value.utc_offset, null)
-      start_date  = try(maintenance_window_auto_upgrade.value.start_date, null)
+      frequency    = maintenance_window_auto_upgrade.value.frequency
+      interval     = maintenance_window_auto_upgrade.value.interval
+      duration     = maintenance_window_auto_upgrade.value.duration
+      day_of_week  = try(maintenance_window_auto_upgrade.value.day_of_week, null)
+      day_of_month = try(maintenance_window_auto_upgrade.value.day_of_month, null)
+      week_index   = try(maintenance_window_auto_upgrade.value.week_index, null)
+      start_time   = try(maintenance_window_auto_upgrade.value.start_time, null)
+      utc_offset   = try(maintenance_window_auto_upgrade.value.utc_offset, null)
+      start_date   = try(maintenance_window_auto_upgrade.value.start_date, null)
     }
   }
 
@@ -357,14 +361,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
         }
       }
 
-      frequency   = maintenance_window_node_os.value.frequency
-      interval    = maintenance_window_node_os.value.interval
-      duration    = maintenance_window_node_os.value.duration
-      day_of_week = try(maintenance_window_node_os.value.day_of_week, null)
-      week_index  = try(maintenance_window_node_os.value.week_index, null)
-      start_time  = try(maintenance_window_node_os.value.start_time, null)
-      utc_offset  = try(maintenance_window_node_os.value.utc_offset, null)
-      start_date  = try(maintenance_window_node_os.value.start_date, null)
+      frequency    = maintenance_window_node_os.value.frequency
+      interval     = maintenance_window_node_os.value.interval
+      duration     = maintenance_window_node_os.value.duration
+      day_of_week  = try(maintenance_window_node_os.value.day_of_week, null)
+      day_of_month = try(maintenance_window_node_os.value.day_of_month, null)
+      week_index   = try(maintenance_window_node_os.value.week_index, null)
+      start_time   = try(maintenance_window_node_os.value.start_time, null)
+      utc_offset   = try(maintenance_window_node_os.value.utc_offset, null)
+      start_date   = try(maintenance_window_node_os.value.start_date, null)
     }
   }
 
@@ -411,6 +416,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
           outbound_ip_prefix_ids      = try(load_balancer_profile.value.outbound_ip_prefix_ids, null)
           outbound_ip_address_ids     = try(load_balancer_profile.value.outbound_ip_address_ids, null)
           outbound_ports_allocated    = try(load_balancer_profile.value.outbound_ports_allocated, null)
+          backend_pool_type           = try(load_balancer_profile.value.backend_pool_type, "NodeIPConfiguration")
           idle_timeout_in_minutes     = try(load_balancer_profile.value.idle_timeout_in_minutes, null)
           managed_outbound_ipv6_count = try(load_balancer_profile.value.managed_outbound_ipv6_count, null)
         }
@@ -444,6 +450,18 @@ resource "azurerm_kubernetes_cluster" "aks" {
       mode                             = try(service_mesh_profile.value.mode, false)
       internal_ingress_gateway_enabled = try(service_mesh_profile.value.internal_ingress_gateway_enabled, false)
       external_ingress_gateway_enabled = try(service_mesh_profile.value.external_ingress_gateway_enabled, false)
+
+      dynamic "certificate_authority" {
+        for_each = lookup(service_mesh_profile.value, "certificate_authority", null) != null ? { "default" = service_mesh_profile.value.certificate_authority } : {}
+
+        content {
+          key_vault_id           = certificate_authority.value.key_vault_id
+          root_cert_object_name  = certificate_authority.value.root_cert_object_name
+          cert_chain_object_name = certificate_authority.value.cert_chain_object_name
+          cert_object_name       = certificate_authority.value.cert_object_name
+          key_object_name        = certificate_authority.value.key_object_name
+        }
+      }
     }
   }
 
@@ -467,6 +485,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
       disk_driver_enabled         = try(storage_profile.value.disk_driver_enabled, true)
       file_driver_enabled         = try(storage_profile.value.file_driver_enabled, true)
       snapshot_controller_enabled = try(storage_profile.value.snapshot_controller_enabled, true)
+    }
+  }
+
+  dynamic "upgrade_override" {
+    for_each = lookup(var.cluster, "upgrade_override", null) != null ? { "default" = var.cluster.upgrade_override } : {}
+
+    content {
+      force_upgrade_enabled = try(upgrade_override.value.force_upgrade_enabled, false)
+      effective_until       = try(upgrade_override.value.effective_until, null)
     }
   }
 
@@ -500,8 +527,9 @@ resource "tls_private_key" "tls_key" {
     "default" = var.cluster.name
   } : {}
 
-  algorithm = try(var.cluster.encryption.algorithm, "RSA")
-  rsa_bits  = try(var.cluster.encryption.rsa_bits, 4096)
+  algorithm   = try(var.cluster.encryption.algorithm, "RSA")
+  rsa_bits    = try(var.cluster.encryption.rsa_bits, 4096)
+  ecdsa_curve = try(var.cluster.encryption.ecdsa_curve, "P224")
 }
 
 resource "azurerm_key_vault_secret" "tls_public_key_secret" {
@@ -566,6 +594,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   node_public_ip_enabled        = try(each.value.node_public_ip_enabled, false)
   fips_enabled                  = try(each.value.enable.fips, false)
   eviction_policy               = try(each.value.eviction_policy, null)
+  gpu_instance                  = try(each.value.gpu_instance, null)
   kubelet_disk_type             = try(each.value.kubelet_disk_type, null)
   os_disk_size_gb               = try(each.value.os_disk_size_gb, null)
   os_disk_type                  = try(each.value.os_disk_type, null)
@@ -575,6 +604,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   pod_subnet_id                 = try(each.value.pod_subnet_id, null)
   spot_max_price                = try(each.value.spot_max_price, null)
   scale_down_mode               = try(each.value.scale_down_mode, null)
+  temporary_name_for_rotation   = try(each.value.temporary_name_for_rotation, null)
   node_public_ip_prefix_id      = try(each.value.node_public_ip_prefix_id, null)
   proximity_placement_group_id  = try(each.value.proximity_placement_group_id, null)
   capacity_reservation_group_id = try(each.value.capacity_reservation_group_id, null)
@@ -590,6 +620,23 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   vnet_subnet_id                = try(each.value.vnet_subnet_id, null)
   tags                          = try(each.value.tags, var.cluster.tags, null)
 
+  dynamic "node_network_profile" {
+    for_each = try(each.value.node_network_profile, null) != null ? [each.value.node_network_profile] : []
+
+    content {
+      dynamic "allowed_host_ports" {
+        for_each = try(node_network_profile.value.allowed_host_ports, null) != null ? [node_network_profile.value.allowed_host_ports] : []
+
+        content {
+          port_start = try(allowed_host_ports.value.port_start, null)
+          port_end   = try(allowed_host_ports.value.port_end, null)
+          protocol   = try(allowed_host_ports.value.protocol, null)
+        }
+      }
+      application_security_group_ids = try(node_network_profile.value.application_security_group_ids, [])
+      node_public_ip_tags            = try(node_network_profile.value.node_public_ip_tags, null)
+    }
+  }
 
   dynamic "upgrade_settings" {
     for_each = try(each.value.upgrade_settings, null) != null ? [each.value.upgrade_settings] : []
@@ -687,14 +734,17 @@ resource "azurerm_kubernetes_cluster_extension" "ext" {
   release_namespace                = try(each.value.release_namespace, null)
   configuration_settings           = try(each.value.configuration_settings, null)
   configuration_protected_settings = try(each.value.configuration_protected_settings, null)
+  version                          = try(each.value.version, null)
 
   dynamic "plan" {
     for_each = try(each.value.plan, {})
 
     content {
-      name      = plan.value.name
-      publisher = plan.value.publisher
-      product   = plan.value.product
+      name           = plan.value.name
+      publisher      = plan.value.publisher
+      product        = plan.value.product
+      promotion_code = try(plan.value.promotion_code, null)
+      version        = try(plan.value.version, null)
     }
   }
 }
@@ -714,7 +764,7 @@ resource "azurerm_user_assigned_identity" "cluster_identity" {
   for_each = var.cluster.identity.type == "UserAssigned" && length(lookup(var.cluster.identity, "identity_ids", [])) == 0 ? { "cluster" = true } : {}
 
   name                = try(var.cluster.identity.name, "uai-${var.cluster.name}-cluster")
-  resource_group_name = var.cluster.resource_group
+  resource_group_name = var.cluster.resource_group_name
   location            = var.cluster.location
   tags                = try(var.cluster.tags, null)
 }
