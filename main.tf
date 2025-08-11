@@ -5,7 +5,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   name                                = var.cluster.name
   location                            = coalesce(lookup(var.cluster, "location", null), var.location)
-  resource_group_name                 = coalesce(lookup(var.cluster, "resource_group_name", null), var.resource_group_name)
+  resource_group_name                 = coalesce(lookup(var.cluster, "resource_group", null), var.resource_group)
   dns_prefix                          = try(var.cluster.dns_prefix, null)
   dns_prefix_private_cluster          = try(var.cluster.dns_prefix_private_cluster, null)
   automatic_upgrade_channel           = try(var.cluster.automatic_upgrade_channel, null)
@@ -19,7 +19,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version                  = try(var.cluster.kubernetes_version, null)
   local_account_disabled              = try(var.cluster.local_account_disabled, null)
   node_os_upgrade_channel             = try(var.cluster.node_os_upgrade_channel, null)
-  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group_name}-nodepool")
+  node_resource_group                 = try(var.cluster.node_resource_group, "${var.cluster.resource_group}-nodepool")
   oidc_issuer_enabled                 = try(var.cluster.oidc_issuer_enabled, null)
   open_service_mesh_enabled           = try(var.cluster.open_service_mesh_enabled, null)
   private_cluster_enabled             = try(var.cluster.private_cluster_enabled, false)
@@ -764,7 +764,7 @@ resource "azurerm_user_assigned_identity" "cluster_identity" {
   for_each = var.cluster.identity.type == "UserAssigned" && length(lookup(var.cluster.identity, "identity_ids", [])) == 0 ? { "cluster" = true } : {}
 
   name                = try(var.cluster.identity.name, "uai-${var.cluster.name}-cluster")
-  resource_group_name = var.cluster.resource_group_name
+  resource_group_name = var.cluster.resource_group
   location            = var.cluster.location
   tags                = try(var.cluster.tags, null)
 }
