@@ -24,10 +24,10 @@ module "network" {
   naming = local.naming
 
   vnet = {
-    name           = module.naming.virtual_network.name
-    location       = module.rg.groups.demo.location
-    resource_group = module.rg.groups.demo.name
-    address_space  = ["10.18.0.0/16"]
+    name                = module.naming.virtual_network.name
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
+    address_space       = ["10.18.0.0/16"]
 
     subnets = {
       db = {
@@ -60,13 +60,13 @@ module "aks" {
   keyvault = module.kv.vault.id
 
   cluster = {
-    name                = module.naming.kubernetes_cluster.name_unique
-    location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
-    depends_on          = [module.kv]
-    node_pools          = local.node_pools
-    dns_prefix          = "demo"
-    profile             = "linux"
+    name           = module.naming.kubernetes_cluster.name_unique
+    location       = module.rg.groups.demo.location
+    resource_group = module.rg.groups.demo.name
+    depends_on     = [module.kv]
+    node_pools     = local.node_pools
+    dns_prefix     = "demo"
+    profile        = "linux"
 
     identity = {
       type = "UserAssigned"
