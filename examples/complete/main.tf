@@ -44,12 +44,12 @@ module "network" {
 
     subnets = {
       db = {
-        nsg              = {}
-        address_prefixes = ["10.18.1.0/24"]
+        network_security_group = {}
+        address_prefixes       = ["10.18.1.0/24"]
       }
       cache = {
-        nsg              = {}
-        address_prefixes = ["10.18.2.0/24"]
+        network_security_group = {}
+        address_prefixes       = ["10.18.2.0/24"]
       }
     }
   }
