@@ -13,7 +13,6 @@ locals {
       upgrade_settings = {
         max_surge = 50
       }
-      temporary_name_for_rotation = "default"
     }
 
     monitor_metrics = {
