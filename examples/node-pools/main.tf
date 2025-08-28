@@ -12,7 +12,7 @@ module "rg" {
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "germanywestcentral"
+      location = "westeurope"
     }
   }
 }
@@ -40,6 +40,17 @@ module "network" {
   }
 }
 
+module "identity" {
+  source  = "cloudnationhq/uai/azure"
+  version = "~> 2.0"
+
+  config = {
+    name                = module.naming.user_assigned_identity.name
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
+  }
+}
+
 module "kv" {
   source  = "cloudnationhq/kv/azure"
   version = "~> 4.0"
@@ -55,21 +66,25 @@ module "kv" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   keyvault = module.kv.vault.id
 
   cluster = {
-    name           = module.naming.kubernetes_cluster.name_unique
-    location       = module.rg.groups.demo.location
-    resource_group = module.rg.groups.demo.name
-    depends_on     = [module.kv]
-    node_pools     = local.node_pools
-    dns_prefix     = "demo"
-    profile        = "linux"
+    name                = module.naming.kubernetes_cluster.name_unique
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
+    node_pools          = local.node_pools
+    dns_prefix          = "demo"
+    profile             = "linux"
+
+    generate_ssh_key = {
+      enable = true
+    }
 
     identity = {
-      type = "UserAssigned"
+      type         = "UserAssigned"
+      identity_ids = [module.identity.config.id]
     }
 
     default_node_pool = {
@@ -79,4 +94,5 @@ module "aks" {
       }
     }
   }
+  depends_on = [module.kv]
 }

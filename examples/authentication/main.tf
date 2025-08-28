@@ -12,8 +12,19 @@ module "rg" {
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "germanywestcentral"
+      location = "westeurope"
     }
+  }
+}
+
+module "identity" {
+  source  = "cloudnationhq/uai/azure"
+  version = "~> 2.0"
+
+  config = {
+    name                = module.naming.user_assigned_identity.name
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
   }
 }
 
@@ -32,7 +43,6 @@ module "kv" {
       tls_keys = {
         tls = {
           algorithm = "RSA"
-          key_size  = 2048
         }
       }
       random_string = {
@@ -52,16 +62,16 @@ module "aks-windows" {
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}1"
     location            = module.rg.groups.demo.location
-    resource_group      = module.rg.groups.demo.name
+    resource_group_name = module.rg.groups.demo.name
     node_resource_group = "${module.rg.groups.demo.name}n1"
-    depends_on          = [module.kv]
     profile             = "windows"
     dns_prefix          = "demo1"
     sku_tier            = "Standard"
     password            = module.kv.secrets.password.value
 
     identity = {
-      type = "UserAssigned"
+      type         = "UserAssigned"
+      identity_ids = [module.identity.config.id]
     }
 
     default_node_pool = {
@@ -74,21 +84,21 @@ module "aks-windows" {
 
 module "aks-linux" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"
     location            = module.rg.groups.demo.location
-    resource_group      = module.rg.groups.demo.name
+    resource_group_name = module.rg.groups.demo.name
     node_resource_group = "${module.rg.groups.demo.name}n2"
-    depends_on          = [module.kv]
     profile             = "linux"
     dns_prefix          = "demo2"
     sku_tier            = "Standard"
     public_key          = module.kv.tls_public_keys.tls.value
 
     identity = {
-      type = "UserAssigned"
+      type         = "UserAssigned"
+      identity_ids = [module.identity.config.id]
     }
 
     default_node_pool = {
@@ -97,4 +107,5 @@ module "aks-linux" {
       }
     }
   }
+  depends_on = [module.kv]
 }

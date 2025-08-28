@@ -1,27 +1,4 @@
-# Default
-
 This example illustrates the default setup, in its simplest form.
-
-## Types
-
-```hcl
-cluster = object({
-  name           = string
-  location       = string
-  resource_group = string
-  depends_on     = list(any)
-  profile        = string
-  dns_prefix     = string
-  identity = object({
-    type = string
-  })
-  default_node_pool = object({
-    upgrade_settings = object({
-      max_surge = string
-    })
-  })
-})
-```
 
 ## Notes
 

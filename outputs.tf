@@ -10,6 +10,6 @@ output "cluster" {
 }
 
 output "identity" {
-  description = "contains the user assigned identity configuration"
-  value       = azurerm_kubernetes_cluster.aks.identity[0].type == "UserAssigned" && length(lookup(var.cluster.identity, "identity_ids", [])) == 0 ? azurerm_user_assigned_identity.cluster_identity["cluster"] : null
+  description = "contains the cluster identity configuration"
+  value       = try(azurerm_kubernetes_cluster.aks.identity[0], null)
 }
