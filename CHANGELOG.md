@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.7.0...v4.0.0) (2025-08-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* this change causes recreates
+
+### Features
+
+* add type definitions and changed data structure ([#130](https://github.com/CloudNationHQ/terraform-azure-aks/issues/130)) ([6d54751](https://github.com/CloudNationHQ/terraform-azure-aks/commit/6d547513bb5ed6b66af8046d52e66605bbe79a4f))
+
 ## [3.7.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.6.0...v3.7.0) (2025-08-11)
 
 
