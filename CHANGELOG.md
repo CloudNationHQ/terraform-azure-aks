@@ -11,6 +11,13 @@
 
 * add type definitions and changed data structure ([#130](https://github.com/CloudNationHQ/terraform-azure-aks/issues/130)) ([6d54751](https://github.com/CloudNationHQ/terraform-azure-aks/commit/6d547513bb5ed6b66af8046d52e66605bbe79a4f))
 
+### Upgrade from v3.7.0 to v4.0.0:
+
+- Update module reference to: `version = "~> 4.0"`
+- The property and variable resource_group is renamed to resource_group_name
+- The user assigned identity resource is moved to a dedicated module
+- The use of credentials changed in the data structure. See the examples for more details
+
 ## [3.7.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.6.0...v3.7.0) (2025-08-11)
 
 
