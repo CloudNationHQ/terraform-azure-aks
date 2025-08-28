@@ -2,8 +2,8 @@ locals {
   node_pools = {
     db = {
       vnet_subnet_id = module.network.subnets.db.id
-      node_count     = 2
-      zones          = [1, 2]
+      node_count     = 1
+      zones          = [1]
       mode           = "User"
       os_type        = "Linux"
 
@@ -17,7 +17,7 @@ locals {
     }
     cache = {
       vnet_subnet_id = module.network.subnets.cache.id
-      node_count     = 2
+      node_count     = 1
       zones          = [1]
       os_type        = "Linux"
       node_labels = {

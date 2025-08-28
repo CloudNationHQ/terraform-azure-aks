@@ -12,8 +12,19 @@ module "rg" {
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "germanywestcentral"
+      location = "westeurope"
     }
+  }
+}
+
+module "identity" {
+  source  = "cloudnationhq/uai/azure"
+  version = "~> 2.0"
+
+  config = {
+    name                = module.naming.user_assigned_identity.name
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
   }
 }
 
@@ -68,8 +79,9 @@ module "analytics" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
-  keyvault = module.kv.vault.id
-  cluster  = local.cluster
+  keyvault   = module.kv.vault.id
+  cluster    = local.cluster
+  depends_on = [module.kv]
 }

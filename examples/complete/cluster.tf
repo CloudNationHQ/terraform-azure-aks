@@ -1,11 +1,14 @@
 locals {
   cluster = {
-    name           = module.naming.kubernetes_cluster.name_unique
-    location       = module.rg.groups.demo.location
-    resource_group = module.rg.groups.demo.name
-    depends_on     = [module.kv]
-    dns_prefix     = "demo"
-    profile        = "linux"
+    name                = module.naming.kubernetes_cluster.name_unique
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
+    dns_prefix          = "demo"
+    profile             = "linux"
+
+    generate_ssh_key = {
+      enable = true
+    }
 
     default_node_pool = {
       vm_size        = "Standard_DS2_v2"
@@ -34,7 +37,8 @@ locals {
     }
 
     identity = {
-      type = "UserAssigned"
+      type         = "UserAssigned"
+      identity_ids = [module.identity.config.id]
     }
 
     oms_agent = {

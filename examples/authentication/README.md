@@ -1,30 +1,4 @@
-# Authentication
-
 This displays authentication settings available for deployment.
-
-## Types
-
-```hcl
-cluster = object({
-  name               = string
-  location           = string
-  resourcegroup      = string
-  node_resourcegroup = optional(string)
-  depends_on         = optional(list(any))
-  profile            = optional(string)
-  dns_prefix         = optional(string)
-  sku_tier           = optional(string)
-  public_key         = optional(string)
-  identity = optional(object({
-    type = string
-  }))
-  default_node_pool = optional(object({
-    upgrade_settings = optional(object({
-      max_surge = optional(string)
-    }))
-  }))
-})
-```
 
 ## Notes
 
