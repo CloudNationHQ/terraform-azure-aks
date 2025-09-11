@@ -322,7 +322,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "linux_profile" {
-    for_each = try(var.cluster.linux_profile, null) != null ? { "default" = var.cluster.linux_profile } : try(var.cluster.generate_ssh_key.enable, false) || try(var.cluster.public_key, null) != null ? { "default" = {} } : {}
+    for_each = try(var.cluster.linux_profile, null) != null || try(var.cluster.generate_ssh_key.enable, false) || try(var.cluster.public_key, null) != null ? { "default" = var.cluster.linux_profile } : {}
 
     content {
       admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
