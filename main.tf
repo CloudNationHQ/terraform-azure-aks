@@ -327,7 +327,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
       ssh_key {
-        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), tls_private_key.tls_key["ssh_key"].public_key_openssh)
+        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), try(tls_private_key.tls_key["ssh_key"].public_key_openssh, null))
       }
     }
   }
