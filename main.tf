@@ -273,11 +273,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "identity" {
-    for_each = var.cluster.identity != null ? [var.cluster.identity] : []
+    for_each = var.cluster.identity != null ? [var.cluster.identity] : var.cluster.service_principal == null ? [{
+      type = "SystemAssigned"
+    }] : []
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.identity_ids
+      identity_ids = try(identity.value.identity_ids, null)
     }
   }
 
@@ -320,12 +322,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "linux_profile" {
-    for_each = try(var.cluster.linux_profile, null) != null ? { "default" = var.cluster.linux_profile } : {}
+    for_each = try(var.cluster.linux_profile, null) != null ? { "default" = var.cluster.linux_profile } : try(var.cluster.generate_ssh_key.enable, false) || try(var.cluster.public_key, null) != null ? { "default" = {} } : {}
 
     content {
-      admin_username = coalesce(var.cluster.username, linux_profile.value.admin_username, "nodeadmin")
+      admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
       ssh_key {
-        key_data = coalesce(var.cluster.public_key, linux_profile.value.ssh_key.key_data, tls_private_key.tls_key["default"].public_key_openssh)
+        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), tls_private_key.tls_key["default"].public_key_openssh)
       }
     }
   }
@@ -555,7 +557,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 # secrets
 resource "tls_private_key" "tls_key" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
 
   algorithm   = var.cluster.generate_ssh_key.algorithm
   rsa_bits    = var.cluster.generate_ssh_key.rsa_bits
@@ -563,10 +565,10 @@ resource "tls_private_key" "tls_key" {
 }
 
 resource "azurerm_key_vault_secret" "tls_public_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
 
   name             = format("%s-%s-%s", "kvs", var.cluster.name, "pub")
-  value            = tls_private_key.tls_key["ssh_key"].public_key_openssh
+  value            = tls_private_key.tls_key["default"].public_key_openssh
   key_vault_id     = var.keyvault
   expiration_date  = var.cluster.generate_ssh_key.expiration_date
   not_before_date  = var.cluster.generate_ssh_key.not_before_date
@@ -580,10 +582,10 @@ resource "azurerm_key_vault_secret" "tls_public_key_secret" {
 }
 
 resource "azurerm_key_vault_secret" "tls_private_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
 
   name             = format("%s-%s-%s", "kvs", var.cluster.name, "priv")
-  value            = tls_private_key.tls_key["ssh_key"].private_key_pem
+  value            = tls_private_key.tls_key["default"].private_key_pem
   key_vault_id     = var.keyvault
   expiration_date  = var.cluster.generate_ssh_key.expiration_date
   not_before_date  = var.cluster.generate_ssh_key.not_before_date
