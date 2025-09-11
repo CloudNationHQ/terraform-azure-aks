@@ -327,7 +327,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     content {
       admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
       ssh_key {
-        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), tls_private_key.tls_key["default"].public_key_openssh)
+        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), tls_private_key.tls_key["ssh_key"].public_key_openssh)
       }
     }
   }
@@ -557,7 +557,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
 # secrets
 resource "tls_private_key" "tls_key" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
 
   algorithm   = var.cluster.generate_ssh_key.algorithm
   rsa_bits    = var.cluster.generate_ssh_key.rsa_bits
@@ -565,10 +565,10 @@ resource "tls_private_key" "tls_key" {
 }
 
 resource "azurerm_key_vault_secret" "tls_public_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
 
   name             = format("%s-%s-%s", "kvs", var.cluster.name, "pub")
-  value            = tls_private_key.tls_key["default"].public_key_openssh
+  value            = tls_private_key.tls_key["ssh_key"].public_key_openssh
   key_vault_id     = var.keyvault
   expiration_date  = var.cluster.generate_ssh_key.expiration_date
   not_before_date  = var.cluster.generate_ssh_key.not_before_date
@@ -582,10 +582,10 @@ resource "azurerm_key_vault_secret" "tls_public_key_secret" {
 }
 
 resource "azurerm_key_vault_secret" "tls_private_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "default" = true } : {}
+  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
 
   name             = format("%s-%s-%s", "kvs", var.cluster.name, "priv")
-  value            = tls_private_key.tls_key["default"].private_key_pem
+  value            = tls_private_key.tls_key["ssh_key"].private_key_pem
   key_vault_id     = var.keyvault
   expiration_date  = var.cluster.generate_ssh_key.expiration_date
   not_before_date  = var.cluster.generate_ssh_key.not_before_date
