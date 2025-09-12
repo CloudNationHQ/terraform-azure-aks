@@ -232,9 +232,9 @@ variable "cluster" {
     }))
     linux_profile = optional(object({
       admin_username = optional(string)
-      ssh_key = object({
+      ssh_key = optional(object({
         key_data = string
-      })
+      }))
     }))
     maintenance_window = optional(object({
       allowed = optional(map(object({
@@ -509,10 +509,10 @@ variable "cluster" {
     error_message = "Windows clusters must have either generate_password configured or password provided."
   }
 
-  validation {
-    condition     = var.cluster.profile != "linux" || var.cluster.generate_ssh_key != null || var.cluster.public_key != null
-    error_message = "Linux clusters must have either generate_ssh_key configured or public_key provided."
-  }
+  # validation {
+  #   condition     = var.cluster.profile != "linux" || var.cluster.generate_ssh_key != null || var.cluster.public_key != null
+  #   error_message = "Linux clusters must have either generate_ssh_key configured or public_key provided."
+  # }
 
   validation {
     condition     = var.cluster.private_cluster_enabled != true || var.cluster.private_dns_zone_id != null || var.cluster.dns_prefix != null
@@ -532,10 +532,10 @@ variable "cluster" {
     error_message = "Application Gateway ingress must specify either existing gateway_id OR new gateway configuration (gateway_name/subnet_cidr/subnet_id), not both."
   }
 
-  validation {
-    condition     = var.cluster.service_principal != null || var.cluster.identity != null
-    error_message = "AKS cluster must specify either service_principal or identity block for authentication."
-  }
+  # validation {
+  #   condition     = var.cluster.service_principal != null || var.cluster.identity != null
+  #   error_message = "AKS cluster must specify either service_principal or identity block for authentication."
+  # }
 }
 
 variable "keyvault" {

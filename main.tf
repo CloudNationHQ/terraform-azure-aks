@@ -273,11 +273,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "identity" {
-    for_each = var.cluster.identity != null ? [var.cluster.identity] : []
+    for_each = var.cluster.identity != null ? [var.cluster.identity] : var.cluster.service_principal == null ? [{
+      type         = "SystemAssigned"
+      identity_ids = null
+    }] : []
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.identity_ids
+      identity_ids = try(identity.value.identity_ids, null)
     }
   }
 
@@ -320,12 +323,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "linux_profile" {
-    for_each = try(var.cluster.linux_profile, null) != null ? { "default" = var.cluster.linux_profile } : {}
+    for_each = try(var.cluster.linux_profile, null) != null || try(var.cluster.generate_ssh_key.enable, false) || try(var.cluster.public_key, null) != null ? { "default" = var.cluster.linux_profile } : {}
 
     content {
-      admin_username = coalesce(var.cluster.username, linux_profile.value.admin_username, "nodeadmin")
+      admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
       ssh_key {
-        key_data = coalesce(var.cluster.public_key, linux_profile.value.ssh_key.key_data, tls_private_key.tls_key["default"].public_key_openssh)
+        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), try(tls_private_key.tls_key["ssh_key"].public_key_openssh, null))
       }
     }
   }
@@ -639,7 +642,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   name                          = each.value.name != null ? each.value.name : (each.value.os_type == "Linux" ? "npl${each.key}" : "npw${each.key}")
   kubernetes_cluster_id         = azurerm_kubernetes_cluster.aks.id
   vm_size                       = each.value.vm_size
-  node_count                    = each.value.node_count
+  node_count                    = each.value.auto_scaling_enabled ? null : each.value.node_count
   max_count                     = each.value.max_count
   min_count                     = each.value.min_count
   zones                         = each.value.zones
