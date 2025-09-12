@@ -642,7 +642,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   name                          = each.value.name != null ? each.value.name : (each.value.os_type == "Linux" ? "npl${each.key}" : "npw${each.key}")
   kubernetes_cluster_id         = azurerm_kubernetes_cluster.aks.id
   vm_size                       = each.value.vm_size
-  node_count                    = each.value.node_count
+  node_count                    = each.value.auto_scaling_enabled ? null : each.value.node_count
   max_count                     = each.value.max_count
   min_count                     = each.value.min_count
   zones                         = each.value.zones
