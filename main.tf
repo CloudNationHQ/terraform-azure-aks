@@ -274,7 +274,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   dynamic "identity" {
     for_each = var.cluster.identity != null ? [var.cluster.identity] : var.cluster.service_principal == null ? [{
-      type = "SystemAssigned"
+      type         = "SystemAssigned"
+      identity_ids = null
     }] : []
 
     content {
