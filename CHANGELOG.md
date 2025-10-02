@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.0.0...v4.0.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* Bugfix for ssh key passing ([#136](https://github.com/CloudNationHQ/terraform-azure-aks/issues/136)) ([f1552ba](https://github.com/CloudNationHQ/terraform-azure-aks/commit/f1552bad6770262b9f7bea52e490be2ac1a93319))
+
 ## [4.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v3.7.0...v4.0.0) (2025-08-28)
 
 
