@@ -173,8 +173,8 @@ variable "cluster" {
       }))
     }), {})
     api_server_access_profile = optional(object({
-      authorized_ip_ranges = optional(list(string), [])
-      subnet_id = optional(string)
+      authorized_ip_ranges                = optional(list(string), [])
+      subnet_id                           = optional(string)
       virtual_network_integration_enabled = optional(bool, false)
     }))
     auto_scaler_profile = optional(object({
