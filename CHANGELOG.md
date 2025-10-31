@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.0.1...v4.1.0) (2025-10-31)
+
+
+### Features
+
+* add missing properties api server access profile ([#141](https://github.com/CloudNationHQ/terraform-azure-aks/issues/141)) ([f390be9](https://github.com/CloudNationHQ/terraform-azure-aks/commit/f390be9a4c417f93ec3a1dcf4269eb9ec60b1c5b))
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#138](https://github.com/CloudNationHQ/terraform-azure-aks/issues/138)) ([380de0f](https://github.com/CloudNationHQ/terraform-azure-aks/commit/380de0f5bac6cc65447c30feef63919d1d58e03a))
+* **deps:** bump github.com/ulikunitz/xz from 0.5.10 to 0.5.14 in /tests ([#132](https://github.com/CloudNationHQ/terraform-azure-aks/issues/132)) ([8bc8f3c](https://github.com/CloudNationHQ/terraform-azure-aks/commit/8bc8f3c1fd3550e6921f899f2be3a88b6287c76a))
+
 ## [4.0.1](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.0.0...v4.0.1) (2025-10-02)
 
 
