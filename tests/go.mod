@@ -2,7 +2,7 @@ module github.com/terraform-azure-aks
 
 go 1.25.0
 
-require github.com/cloudnationhq/az-cn-go-validor v1.16.0
+require github.com/cloudnationhq/az-cn-go-validor v1.17.0
 
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect
