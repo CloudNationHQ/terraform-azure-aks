@@ -60,11 +60,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size                       = var.cluster.default_node_pool.vm_size
     capacity_reservation_group_id = var.cluster.default_node_pool.capacity_reservation_group_id
     auto_scaling_enabled          = var.cluster.default_node_pool.auto_scaling_enabled
-<<<<<<< feat/schema-validation-items
     node_count                    = var.cluster.default_node_pool.auto_scaling_enabled == true ? null : var.cluster.default_node_pool.node_count
-=======
-    node_count                    = var.cluster.default_node_pool.auto_scaling_enabled ? null : var.cluster.default_node_pool.node_count
->>>>>>> main
     min_count                     = var.cluster.default_node_pool.min_count
     max_count                     = var.cluster.default_node_pool.max_count
     host_encryption_enabled       = var.cluster.default_node_pool.host_encryption_enabled
