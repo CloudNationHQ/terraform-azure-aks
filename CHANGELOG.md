@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.2.0...v4.3.0) (2026-02-23)
+
+
+### Features
+
+* added missing properties ([#151](https://github.com/CloudNationHQ/terraform-azure-aks/issues/151)) ([22de409](https://github.com/CloudNationHQ/terraform-azure-aks/commit/22de4096f405841c8630fc96abd941d74622612b))
+
 ## [4.2.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.1.0...v4.2.0) (2026-02-23)
 
 
