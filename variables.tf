@@ -8,6 +8,7 @@ variable "cluster" {
     dns_prefix                          = optional(string)
     dns_prefix_private_cluster          = optional(string)
     automatic_upgrade_channel           = optional(string)
+    ai_toolchain_operator_enabled       = optional(bool, false)
     azure_policy_enabled                = optional(bool, false)
     cost_analysis_enabled               = optional(bool, false)
     disk_encryption_set_id              = optional(string)
@@ -170,6 +171,7 @@ variable "cluster" {
         max_surge                     = optional(string, "1")
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
+        undrainable_node_behavior     = optional(string)
       }))
     }), {})
     api_server_access_profile = optional(object({
@@ -198,6 +200,10 @@ variable "cluster" {
       empty_bulk_delete_max                         = optional(string, "10")
       skip_nodes_with_local_storage                 = optional(bool, true)
       skip_nodes_with_system_pods                   = optional(bool, true)
+    }))
+    bootstrap_profile = optional(object({
+      artifact_source       = optional(string, "Direct")
+      container_registry_id = optional(string)
     }))
     azure_active_directory_role_based_access_control = optional(object({
       tenant_id              = optional(string)
@@ -285,6 +291,10 @@ variable "cluster" {
       annotations_allowed = optional(string)
       labels_allowed      = optional(string)
     }))
+    node_provisioning_profile = optional(object({
+      mode               = optional(string, "Manual")
+      default_node_pools = optional(string, "Auto")
+    }))
     network_profile = optional(object({
       network_plugin      = optional(string, "azure")
       network_mode        = optional(string)
@@ -299,6 +309,10 @@ variable "cluster" {
       network_data_plane  = optional(string)
       service_cidrs       = optional(list(string))
       network_plugin_mode = optional(string, "overlay")
+      advanced_networking = optional(object({
+        observability_enabled = optional(bool, false)
+        security_enabled      = optional(bool, false)
+      }))
       load_balancer_profile = optional(object({
         managed_outbound_ip_count   = optional(number)
         outbound_ip_prefix_ids      = optional(list(string))
@@ -371,6 +385,7 @@ variable "cluster" {
       node_public_ip_enabled        = optional(bool, false)
       eviction_policy               = optional(string)
       gpu_instance                  = optional(string)
+      gpu_driver                    = optional(string)
       kubelet_disk_type             = optional(string)
       os_disk_size_gb               = optional(number)
       os_disk_type                  = optional(string)
@@ -408,9 +423,11 @@ variable "cluster" {
         node_public_ip_tags            = optional(map(string))
       }))
       upgrade_settings = optional(object({
-        max_surge                     = optional(string, "1")
+        max_surge                     = optional(string)
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
+        max_unavailable               = optional(number)
+        undrainable_node_behavior     = optional(string)
       }))
       linux_os_config = optional(object({
         swap_file_size_mb             = optional(number)
@@ -532,6 +549,24 @@ variable "cluster" {
       (var.cluster.ingress_application_gateway.gateway_name != null || var.cluster.ingress_application_gateway.subnet_cidr != null || var.cluster.ingress_application_gateway.subnet_id != null)
     )
     error_message = "Application Gateway ingress must specify either existing gateway_id OR new gateway configuration (gateway_name/subnet_cidr/subnet_id), not both."
+  }
+
+  validation {
+    condition = alltrue([
+      for _, pools in var.cluster.node_pools :
+      pools.upgrade_settings == null || pools.upgrade_settings.max_surge == null || pools.upgrade_settings.max_unavailable == null
+    ])
+    error_message = "For node_pools upgrade_settings, only one of max_surge or max_unavailable can be specified."
+  }
+
+  validation {
+    condition     = var.cluster.network_profile == null || var.cluster.network_profile.advanced_networking == null || var.cluster.network_profile.network_data_plane == "cilium"
+    error_message = "network_profile.advanced_networking requires network_profile.network_data_plane to be set to 'cilium'."
+  }
+
+  validation {
+    condition     = var.cluster.network_profile == null || var.cluster.network_profile.advanced_networking == null || try(var.cluster.network_profile.advanced_networking.observability_enabled, false) || try(var.cluster.network_profile.advanced_networking.security_enabled, false)
+    error_message = "When network_profile.advanced_networking is configured, set at least one of observability_enabled or security_enabled to true."
   }
 
   # validation {
