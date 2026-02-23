@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.2.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.1.0...v4.2.0) (2026-02-23)
+
+
+### Features
+
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#147](https://github.com/CloudNationHQ/terraform-azure-aks/issues/147)) ([a7c87fa](https://github.com/CloudNationHQ/terraform-azure-aks/commit/a7c87fade27b35f2a033e4cb18d248646b0df734))
+* **deps:** bump golang.org/x/crypto from 0.36.0 to 0.45.0 in /tests ([#145](https://github.com/CloudNationHQ/terraform-azure-aks/issues/145)) ([45ba79a](https://github.com/CloudNationHQ/terraform-azure-aks/commit/45ba79abe14bc964f2f62c5070ec1827e8be7f2f))
+
+
+### Bug Fixes
+
+* correct node_count assignment logic for AKS auto-scaling ([#150](https://github.com/CloudNationHQ/terraform-azure-aks/issues/150)) ([6cb4e20](https://github.com/CloudNationHQ/terraform-azure-aks/commit/6cb4e20dbbd55a8f41fa4b107cf7865f3be1feea))
+
 ## [4.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.0.1...v4.1.0) (2025-10-31)
 
 
