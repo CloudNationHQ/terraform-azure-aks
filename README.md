@@ -71,6 +71,7 @@ object({
     dns_prefix                          = optional(string)
     dns_prefix_private_cluster          = optional(string)
     automatic_upgrade_channel           = optional(string)
+    ai_toolchain_operator_enabled       = optional(bool, false)
     azure_policy_enabled                = optional(bool, false)
     cost_analysis_enabled               = optional(bool, false)
     disk_encryption_set_id              = optional(string)
@@ -233,11 +234,12 @@ object({
         max_surge                     = optional(string, "1")
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
+        undrainable_node_behavior     = optional(string)
       }))
     }), {})
     api_server_access_profile = optional(object({
-      authorized_ip_ranges = list(string)
-      subnet_id = optional(string)
+      authorized_ip_ranges                = optional(list(string), [])
+      subnet_id                           = optional(string)
       virtual_network_integration_enabled = optional(bool, false)
     }))
     auto_scaler_profile = optional(object({
@@ -261,6 +263,10 @@ object({
       empty_bulk_delete_max                         = optional(string, "10")
       skip_nodes_with_local_storage                 = optional(bool, true)
       skip_nodes_with_system_pods                   = optional(bool, true)
+    }))
+    bootstrap_profile = optional(object({
+      artifact_source       = optional(string, "Direct")
+      container_registry_id = optional(string)
     }))
     azure_active_directory_role_based_access_control = optional(object({
       tenant_id              = optional(string)
@@ -297,9 +303,9 @@ object({
     }))
     linux_profile = optional(object({
       admin_username = optional(string)
-      ssh_key = object({
+      ssh_key = optional(object({
         key_data = string
-      })
+      }))
     }))
     maintenance_window = optional(object({
       allowed = optional(map(object({
@@ -348,6 +354,10 @@ object({
       annotations_allowed = optional(string)
       labels_allowed      = optional(string)
     }))
+    node_provisioning_profile = optional(object({
+      mode               = optional(string, "Manual")
+      default_node_pools = optional(string, "Auto")
+    }))
     network_profile = optional(object({
       network_plugin      = optional(string, "azure")
       network_mode        = optional(string)
@@ -362,6 +372,10 @@ object({
       network_data_plane  = optional(string)
       service_cidrs       = optional(list(string))
       network_plugin_mode = optional(string, "overlay")
+      advanced_networking = optional(object({
+        observability_enabled = optional(bool, false)
+        security_enabled      = optional(bool, false)
+      }))
       load_balancer_profile = optional(object({
         managed_outbound_ip_count   = optional(number)
         outbound_ip_prefix_ids      = optional(list(string))
@@ -434,6 +448,7 @@ object({
       node_public_ip_enabled        = optional(bool, false)
       eviction_policy               = optional(string)
       gpu_instance                  = optional(string)
+      gpu_driver                    = optional(string)
       kubelet_disk_type             = optional(string)
       os_disk_size_gb               = optional(number)
       os_disk_type                  = optional(string)
@@ -471,9 +486,11 @@ object({
         node_public_ip_tags            = optional(map(string))
       }))
       upgrade_settings = optional(object({
-        max_surge                     = optional(string, "1")
+        max_surge                     = optional(string)
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
+        max_unavailable               = optional(number)
+        undrainable_node_behavior     = optional(string)
       }))
       linux_os_config = optional(object({
         swap_file_size_mb             = optional(number)
