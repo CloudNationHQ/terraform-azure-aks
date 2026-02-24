@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.4.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.3.0...v4.4.0) (2026-02-24)
+
+
+### Features
+
+* add optional parameters for AKS configuration in README ([#155](https://github.com/CloudNationHQ/terraform-azure-aks/issues/155)) ([b0f2ef2](https://github.com/CloudNationHQ/terraform-azure-aks/commit/b0f2ef2f711fcb6d54137f5e5619710ce92e1f57))
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#153](https://github.com/CloudNationHQ/terraform-azure-aks/issues/153)) ([05a1904](https://github.com/CloudNationHQ/terraform-azure-aks/commit/05a190435fa0647a8c5a6f9b0bacf62e0e5b251f))
+
 ## [4.3.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.2.0...v4.3.0) (2026-02-23)
 
 
