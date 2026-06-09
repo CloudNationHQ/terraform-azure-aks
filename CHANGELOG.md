@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.4.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.3.0...v4.4.0) (2026-06-09)
+
+
+### Features
+
+* add container_log_max_files to kubelet_config ([#161](https://github.com/CloudNationHQ/terraform-azure-aks/issues/161)) ([f14eef6](https://github.com/CloudNationHQ/terraform-azure-aks/commit/f14eef6b849df5dde400b163c531d55df1de0790)), closes [#160](https://github.com/CloudNationHQ/terraform-azure-aks/issues/160)
+* add optional parameters for AKS configuration in README ([#155](https://github.com/CloudNationHQ/terraform-azure-aks/issues/155)) ([b0f2ef2](https://github.com/CloudNationHQ/terraform-azure-aks/commit/b0f2ef2f711fcb6d54137f5e5619710ce92e1f57))
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#153](https://github.com/CloudNationHQ/terraform-azure-aks/issues/153)) ([05a1904](https://github.com/CloudNationHQ/terraform-azure-aks/commit/05a190435fa0647a8c5a6f9b0bacf62e0e5b251f))
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#158](https://github.com/CloudNationHQ/terraform-azure-aks/issues/158)) ([4d5b131](https://github.com/CloudNationHQ/terraform-azure-aks/commit/4d5b1316aa16584156441a857df8a8e8fc9c7556))
+* **deps:** bump github.com/cloudnationhq/az-cn-go-validor in /tests ([#159](https://github.com/CloudNationHQ/terraform-azure-aks/issues/159)) ([715e941](https://github.com/CloudNationHQ/terraform-azure-aks/commit/715e941b6d5f14d14c7066ebcb17c5731faef546))
+
 ## [4.3.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.2.0...v4.3.0) (2026-02-23)
 
 
