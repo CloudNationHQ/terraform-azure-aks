@@ -175,6 +175,7 @@ object({
       }))
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
+        container_log_max_files   = optional(number)
         container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)
@@ -530,6 +531,7 @@ object({
       }))
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
+        container_log_max_files   = optional(number)
         container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)

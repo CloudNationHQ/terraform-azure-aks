@@ -102,6 +102,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
       content {
         allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
+        container_log_max_files   = kubelet_config.value.container_log_max_files
         container_log_max_line    = kubelet_config.value.container_log_max_line
         container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
         cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
@@ -793,6 +794,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
 
     content {
       allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
+      container_log_max_files   = kubelet_config.value.container_log_max_files
       container_log_max_line    = kubelet_config.value.container_log_max_line
       container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
       cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
