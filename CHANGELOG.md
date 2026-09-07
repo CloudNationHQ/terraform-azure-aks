@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.4.0...v5.0.0) (2026-09-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* this change causes recreates
+
+### Features
+
+* azurerm provider 5 upgrade ([#166](https://github.com/CloudNationHQ/terraform-azure-aks/issues/166)) ([b5ad4c8](https://github.com/CloudNationHQ/terraform-azure-aks/commit/b5ad4c8e77adac676d3537aa771ede249967e976))
+* **deps:** bump golang.org/x/crypto from 0.45.0 to 0.52.0 in /tests ([#163](https://github.com/CloudNationHQ/terraform-azure-aks/issues/163)) ([59f60e4](https://github.com/CloudNationHQ/terraform-azure-aks/commit/59f60e4f46ac50ece5716aeb19a752c782311c12))
+
 ## [4.4.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.3.0...v4.4.0) (2026-06-09)
 
 
