@@ -1,17 +1,18 @@
-data "azurerm_subscription" "current" {}
+data "azurerm_subscription" "this" {}
 
 # aks cluster
-resource "azurerm_kubernetes_cluster" "aks" {
+resource "azurerm_kubernetes_cluster" "this" {
   resource_group_name = coalesce(
-    lookup(
-      var.cluster, "resource_group_name", null
-    ), var.resource_group_name
+    var.cluster.resource_group_name, var.resource_group_name
   )
 
   location = coalesce(
-    lookup(
-      var.cluster, "location", null
-    ), var.location
+    var.cluster.location, var.location
+  )
+
+  node_resource_group = coalesce(
+    var.cluster.node_resource_group,
+    "${coalesce(var.cluster.resource_group_name, var.resource_group_name)}-node"
   )
 
   name                                = var.cluster.name
@@ -29,7 +30,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version                  = var.cluster.kubernetes_version
   local_account_disabled              = var.cluster.local_account_disabled
   node_os_upgrade_channel             = var.cluster.node_os_upgrade_channel
-  node_resource_group                 = var.cluster.node_resource_group != null ? var.cluster.node_resource_group : "${coalesce(var.cluster.resource_group_name, var.resource_group_name)}-nodepool"
   oidc_issuer_enabled                 = var.cluster.oidc_issuer_enabled
   open_service_mesh_enabled           = var.cluster.open_service_mesh_enabled
   private_cluster_enabled             = var.cluster.private_cluster_enabled
@@ -47,7 +47,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   )
 
   dynamic "service_principal" {
-    for_each = try(var.cluster.service_principal, null) != null ? { "default" = var.cluster.service_principal } : {}
+    for_each = var.cluster.service_principal != null ? { "this" = var.cluster.service_principal } : {}
 
     content {
       client_id     = service_principal.value.client_id
@@ -94,16 +94,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     )
 
     dynamic "kubelet_config" {
-      for_each = (
-        try(var.cluster.default_node_pool.kubelet_config, null) != null
-        ? { "default" = var.cluster.default_node_pool.kubelet_config }
-        : {}
-      )
+      for_each = var.cluster.default_node_pool.kubelet_config != null ? { "this" = var.cluster.default_node_pool.kubelet_config } : {}
 
       content {
         allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
         container_log_max_files   = kubelet_config.value.container_log_max_files
-        container_log_max_line    = kubelet_config.value.container_log_max_line
         container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
         cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
         cpu_cfs_quota_period      = kubelet_config.value.cpu_cfs_quota_period
@@ -116,18 +111,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
 
     dynamic "linux_os_config" {
-      for_each = (
-        try(var.cluster.default_node_pool.linux_os_config, null) != null
-        ? { "default" = var.cluster.default_node_pool.linux_os_config }
-        : {}
-      )
+      for_each = var.cluster.default_node_pool.linux_os_config != null ? { "this" = var.cluster.default_node_pool.linux_os_config } : {}
 
       content {
         swap_file_size_mb     = linux_os_config.value.swap_file_size_mb
         transparent_huge_page = linux_os_config.value.transparent_huge_page
 
         dynamic "sysctl_config" {
-          for_each = try(linux_os_config.value.sysctl_config, null) != null ? { "default" = linux_os_config.value.sysctl_config } : {}
+          for_each = linux_os_config.value.sysctl_config != null ? { "this" = linux_os_config.value.sysctl_config } : {}
 
           content {
             fs_aio_max_nr                      = sysctl_config.value.fs_aio_max_nr
@@ -166,15 +157,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
 
     dynamic "node_network_profile" {
-      for_each = (
-        try(var.cluster.default_node_pool.node_network_profile, null) != null
-        ? { "default" = var.cluster.default_node_pool.node_network_profile }
-        : {}
-      )
+      for_each = var.cluster.default_node_pool.node_network_profile != null ? { "this" = var.cluster.default_node_pool.node_network_profile } : {}
 
       content {
         dynamic "allowed_host_ports" {
-          for_each = try(node_network_profile.value.allowed_host_ports, null) != null ? { "default" = node_network_profile.value.allowed_host_ports } : {}
+          for_each = node_network_profile.value.allowed_host_ports
 
           content {
             port_start = allowed_host_ports.value.port_start
@@ -188,11 +175,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
 
     dynamic "upgrade_settings" {
-      for_each = (
-        try(var.cluster.default_node_pool.upgrade_settings, null) != null
-        ? { "default" = var.cluster.default_node_pool.upgrade_settings }
-        : {}
-      )
+      for_each = var.cluster.default_node_pool.upgrade_settings != null ? { "this" = var.cluster.default_node_pool.upgrade_settings } : {}
 
       content {
         max_surge                     = upgrade_settings.value.max_surge
@@ -204,14 +187,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "aci_connector_linux" {
-    for_each = try(var.cluster.default_node_pool.aci_connector_linux, null) != null ? { "default" = var.cluster.default_node_pool.aci_connector_linux } : {}
+    for_each = var.cluster.default_node_pool.aci_connector_linux != null ? { "this" = var.cluster.default_node_pool.aci_connector_linux } : {}
+
     content {
       subnet_name = aci_connector_linux.value.subnet_name
     }
   }
 
   dynamic "api_server_access_profile" {
-    for_each = try(var.cluster.api_server_access_profile, null) != null ? { "default" = var.cluster.api_server_access_profile } : {}
+    for_each = var.cluster.api_server_access_profile != null ? { "this" = var.cluster.api_server_access_profile } : {}
+
     content {
       authorized_ip_ranges                = api_server_access_profile.value.authorized_ip_ranges
       subnet_id                           = api_server_access_profile.value.subnet_id
@@ -220,7 +205,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "auto_scaler_profile" {
-    for_each = try(var.cluster.auto_scaler_profile, null) != null ? { "default" = var.cluster.auto_scaler_profile } : {}
+    for_each = var.cluster.auto_scaler_profile != null ? { "this" = var.cluster.auto_scaler_profile } : {}
 
     content {
       balance_similar_node_groups                   = auto_scaler_profile.value.balance_similar_node_groups
@@ -247,7 +232,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "bootstrap_profile" {
-    for_each = try(var.cluster.bootstrap_profile, null) != null ? { "default" = var.cluster.bootstrap_profile } : {}
+    for_each = var.cluster.bootstrap_profile != null ? { "this" = var.cluster.bootstrap_profile } : {}
 
     content {
       artifact_source       = bootstrap_profile.value.artifact_source
@@ -256,11 +241,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "azure_active_directory_role_based_access_control" {
-    for_each = try(var.cluster.azure_active_directory_role_based_access_control, null) != null ? { "default" = var.cluster.azure_active_directory_role_based_access_control } : {}
+    for_each = var.cluster.azure_active_directory_role_based_access_control != null ? { "this" = var.cluster.azure_active_directory_role_based_access_control } : {}
 
     content {
       tenant_id = coalesce(
-        azure_active_directory_role_based_access_control.value.tenant_id, data.azurerm_subscription.current.tenant_id
+        azure_active_directory_role_based_access_control.value.tenant_id, data.azurerm_subscription.this.tenant_id
       )
 
       admin_group_object_ids = azure_active_directory_role_based_access_control.value.admin_group_object_ids
@@ -269,7 +254,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "confidential_computing" {
-    for_each = try(var.cluster.confidential_computing, null) != null ? { "default" = var.cluster.confidential_computing } : {}
+    for_each = var.cluster.confidential_computing != null ? { "this" = var.cluster.confidential_computing } : {}
 
     content {
       sgx_quote_helper_enabled = confidential_computing.value.sgx_quote_helper_enabled
@@ -277,7 +262,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "http_proxy_config" {
-    for_each = try(var.cluster.http_proxy_config, null) != null ? { "default" = var.cluster.http_proxy_config } : {}
+    for_each = var.cluster.http_proxy_config != null ? { "this" = var.cluster.http_proxy_config } : {}
 
     content {
       http_proxy  = http_proxy_config.value.http
@@ -288,19 +273,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "identity" {
-    for_each = var.cluster.identity != null ? [var.cluster.identity] : var.cluster.service_principal == null ? [{
-      type         = "SystemAssigned"
-      identity_ids = null
-    }] : []
+    for_each = var.cluster.identity != null ? { "this" = var.cluster.identity } : {}
 
     content {
       type         = identity.value.type
-      identity_ids = try(identity.value.identity_ids, null)
+      identity_ids = identity.value.identity_ids
     }
   }
 
   dynamic "ingress_application_gateway" {
-    for_each = try(var.cluster.ingress_application_gateway, null) != null ? { "default" = var.cluster.ingress_application_gateway } : {}
+    for_each = var.cluster.ingress_application_gateway != null ? { "this" = var.cluster.ingress_application_gateway } : {}
 
     content {
       gateway_id   = ingress_application_gateway.value.gateway_id
@@ -311,7 +293,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "key_management_service" {
-    for_each = try(var.cluster.key_management_service, null) != null ? { "default" = var.cluster.key_management_service } : {}
+    for_each = var.cluster.key_management_service != null ? { "this" = var.cluster.key_management_service } : {}
 
     content {
       key_vault_key_id         = key_management_service.value.key_vault_key_id
@@ -320,7 +302,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "key_vault_secrets_provider" {
-    for_each = try(var.cluster.key_vault_secrets_provider, null) != null ? { "default" = var.cluster.key_vault_secrets_provider } : {}
+    for_each = var.cluster.key_vault_secrets_provider != null ? { "this" = var.cluster.key_vault_secrets_provider } : {}
 
     content {
       secret_rotation_enabled  = key_vault_secrets_provider.value.secret_rotation_enabled
@@ -329,7 +311,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "kubelet_identity" {
-    for_each = try(var.cluster.kubelet_identity, null) != null ? [var.cluster.kubelet_identity] : []
+    for_each = var.cluster.kubelet_identity != null ? { "this" = var.cluster.kubelet_identity } : {}
+
     content {
       user_assigned_identity_id = kubelet_identity.value.user_assigned_identity_id
       client_id                 = kubelet_identity.value.client_id
@@ -338,33 +321,39 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "linux_profile" {
-    for_each = try(var.cluster.linux_profile, null) != null || try(var.cluster.generate_ssh_key.enable, false) || try(var.cluster.public_key, null) != null ? { "default" = var.cluster.linux_profile } : {}
+    for_each = var.cluster.generate_ssh_key.enable || var.cluster.public_key != null || var.cluster.linux_profile.ssh_key.key_data != null ? { "this" = var.cluster.linux_profile } : {}
 
     content {
-      admin_username = coalesce(var.cluster.username, try(linux_profile.value.admin_username, null), "nodeadmin")
+      admin_username = coalesce(
+        var.cluster.admin_username, linux_profile.value.admin_username
+      )
+
       ssh_key {
-        key_data = coalesce(var.cluster.public_key, try(linux_profile.value.ssh_key.key_data, null), try(tls_private_key.tls_key["ssh_key"].public_key_openssh, null))
+        key_data = coalesce(
+          var.cluster.public_key,
+          linux_profile.value.ssh_key.key_data,
+          one([for key in values(tls_private_key.this) : key.public_key_openssh])
+        )
       }
     }
   }
 
   dynamic "maintenance_window" {
-    for_each = try(var.cluster.maintenance_window, null) != null ? { "default" = var.cluster.maintenance_window } : {}
+    for_each = var.cluster.maintenance_window != null ? { "this" = var.cluster.maintenance_window } : {}
 
     content {
       dynamic "allowed" {
-        for_each = {
-          for k, v in var.cluster.maintenance_window.allowed != null ? var.cluster.maintenance_window.allowed : {} : k => v
-        }
+        for_each = maintenance_window.value.allowed
+
         content {
           day   = allowed.value.day
           hours = allowed.value.hours
         }
       }
+
       dynamic "not_allowed" {
-        for_each = {
-          for k, v in var.cluster.maintenance_window.not_allowed != null ? var.cluster.maintenance_window.not_allowed : {} : k => v
-        }
+        for_each = maintenance_window.value.not_allowed
+
         content {
           end   = not_allowed.value.end
           start = not_allowed.value.start
@@ -374,13 +363,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "maintenance_window_auto_upgrade" {
-    for_each = try(var.cluster.maintenance_window_auto_upgrade, null) != null ? { "default" = var.cluster.maintenance_window_auto_upgrade } : {}
+    for_each = var.cluster.maintenance_window_auto_upgrade != null ? { "this" = var.cluster.maintenance_window_auto_upgrade } : {}
 
     content {
       dynamic "not_allowed" {
-        for_each = {
-          for k, v in var.cluster.maintenance_window_auto_upgrade.not_allowed != null ? var.cluster.maintenance_window_auto_upgrade.not_allowed : {} : k => v
-        }
+        for_each = maintenance_window_auto_upgrade.value.not_allowed
+
         content {
           end   = not_allowed.value.end
           start = not_allowed.value.start
@@ -400,13 +388,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "maintenance_window_node_os" {
-    for_each = try(var.cluster.maintenance_window_node_os, null) != null ? { "default" = var.cluster.maintenance_window_node_os } : {}
+    for_each = var.cluster.maintenance_window_node_os != null ? { "this" = var.cluster.maintenance_window_node_os } : {}
 
     content {
       dynamic "not_allowed" {
-        for_each = {
-          for k, v in var.cluster.maintenance_window_node_os.not_allowed != null ? var.cluster.maintenance_window_node_os.not_allowed : {} : k => v
-        }
+        for_each = maintenance_window_node_os.value.not_allowed
+
         content {
           end   = not_allowed.value.end
           start = not_allowed.value.start
@@ -426,7 +413,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "microsoft_defender" {
-    for_each = try(var.cluster.microsoft_defender, null) != null ? { "default" = var.cluster.microsoft_defender } : {}
+    for_each = var.cluster.microsoft_defender != null ? { "this" = var.cluster.microsoft_defender } : {}
 
     content {
       log_analytics_workspace_id = microsoft_defender.value.log_analytics_workspace_id
@@ -434,7 +421,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "monitor_metrics" {
-    for_each = try(var.cluster.monitor_metrics, null) != null ? { "default" = var.cluster.monitor_metrics } : {}
+    for_each = var.cluster.monitor_metrics != null ? { "this" = var.cluster.monitor_metrics } : {}
 
     content {
       annotations_allowed = monitor_metrics.value.annotations_allowed
@@ -443,7 +430,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "network_profile" {
-    for_each = try(var.cluster.network_profile, null) != null ? { "default" = var.cluster.network_profile } : {}
+    for_each = var.cluster.network_profile != null ? { "this" = var.cluster.network_profile } : {}
 
     content {
       network_plugin      = network_profile.value.network_plugin
@@ -461,7 +448,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       network_plugin_mode = network_profile.value.network_plugin_mode
 
       dynamic "advanced_networking" {
-        for_each = try(network_profile.value.advanced_networking, null) != null ? { "default" = network_profile.value.advanced_networking } : {}
+        for_each = network_profile.value.advanced_networking != null ? { "this" = network_profile.value.advanced_networking } : {}
 
         content {
           observability_enabled = advanced_networking.value.observability_enabled
@@ -470,7 +457,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
 
       dynamic "load_balancer_profile" {
-        for_each = try(network_profile.value.load_balancer_profile, null) != null ? { "default" = network_profile.value.load_balancer_profile } : {}
+        for_each = network_profile.value.load_balancer_profile != null ? { "this" = network_profile.value.load_balancer_profile } : {}
 
         content {
           managed_outbound_ip_count   = load_balancer_profile.value.managed_outbound_ip_count
@@ -484,7 +471,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
 
       dynamic "nat_gateway_profile" {
-        for_each = try(network_profile.value.nat_gateway_profile, null) != null ? { "default" = network_profile.value.nat_gateway_profile } : {}
+        for_each = network_profile.value.nat_gateway_profile != null ? { "this" = network_profile.value.nat_gateway_profile } : {}
 
         content {
           idle_timeout_in_minutes   = nat_gateway_profile.value.idle_timeout_in_minutes
@@ -495,25 +482,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "oms_agent" {
-    for_each = try(var.cluster.oms_agent, null) != null ? { "default" = var.cluster.oms_agent } : {}
+    for_each = var.cluster.oms_agent != null ? { "this" = var.cluster.oms_agent } : {}
 
     content {
       log_analytics_workspace_id      = oms_agent.value.log_analytics_workspace_id
       msi_auth_for_monitoring_enabled = oms_agent.value.enable.msi_auth_for_monitoring
+      retina_flow_logs_enabled        = oms_agent.value.retina_flow_logs_enabled
     }
   }
 
-  dynamic "node_provisioning_profile" {
-    for_each = try(var.cluster.node_provisioning_profile, null) != null ? { "default" = var.cluster.node_provisioning_profile } : {}
-
-    content {
-      mode               = node_provisioning_profile.value.mode
-      default_node_pools = node_provisioning_profile.value.default_node_pools
-    }
+  node_provisioning_profile {
+    mode               = var.cluster.node_provisioning_profile.mode
+    default_node_pools = var.cluster.node_provisioning_profile.default_node_pools
   }
 
   dynamic "service_mesh_profile" {
-    for_each = try(var.cluster.service_mesh_profile, null) != null ? { "default" = var.cluster.service_mesh_profile } : {}
+    for_each = var.cluster.service_mesh_profile != null ? { "this" = var.cluster.service_mesh_profile } : {}
 
     content {
       revisions                        = service_mesh_profile.value.revisions
@@ -522,7 +506,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
       external_ingress_gateway_enabled = service_mesh_profile.value.external_ingress_gateway_enabled
 
       dynamic "certificate_authority" {
-        for_each = try(service_mesh_profile.value.certificate_authority, null) != null ? { "default" = service_mesh_profile.value.certificate_authority } : {}
+        for_each = service_mesh_profile.value.certificate_authority != null ? { "this" = service_mesh_profile.value.certificate_authority } : {}
 
         content {
           key_vault_id           = certificate_authority.value.key_vault_id
@@ -536,7 +520,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "workload_autoscaler_profile" {
-    for_each = try(var.cluster.workload_autoscaler_profile, null) != null ? { default = var.cluster.workload_autoscaler_profile } : {}
+    for_each = var.cluster.workload_autoscaler_profile != null ? { "this" = var.cluster.workload_autoscaler_profile } : {}
 
     content {
       keda_enabled                    = workload_autoscaler_profile.value.keda_enabled
@@ -545,7 +529,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "storage_profile" {
-    for_each = try(var.cluster.storage_profile, null) != null ? { "default" = var.cluster.storage_profile } : {}
+    for_each = var.cluster.storage_profile != null ? { "this" = var.cluster.storage_profile } : {}
 
     content {
       blob_driver_enabled         = storage_profile.value.blob_driver_enabled
@@ -556,7 +540,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "upgrade_override" {
-    for_each = try(var.cluster.upgrade_override, null) != null ? { "default" = var.cluster.upgrade_override } : {}
+    for_each = var.cluster.upgrade_override != null ? { "this" = var.cluster.upgrade_override } : {}
 
     content {
       force_upgrade_enabled = upgrade_override.value.force_upgrade_enabled
@@ -565,7 +549,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "web_app_routing" {
-    for_each = try(var.cluster.web_app_routing, null) != null ? { "default" = var.cluster.web_app_routing } : {}
+    for_each = var.cluster.web_app_routing != null ? { "this" = var.cluster.web_app_routing } : {}
+
     content {
       dns_zone_ids             = web_app_routing.value.dns_zone_ids
       default_nginx_controller = web_app_routing.value.default_nginx_controller
@@ -573,13 +558,24 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   dynamic "windows_profile" {
-    for_each = try(var.cluster.windows_profile, null) != null ? { "default" = var.cluster.windows_profile } : {}
+    for_each = var.cluster.windows_profile != null ? { "this" = var.cluster.windows_profile } : {}
+
     content {
-      admin_username = coalesce(var.cluster.username, windows_profile.value.admin_username, "nodeadmin")
-      admin_password = coalesce(var.cluster.password, windows_profile.value.admin_password, azurerm_key_vault_secret.secret["default"].value)
-      license        = windows_profile.value.license
+      admin_username = coalesce(
+        var.cluster.admin_username, windows_profile.value.admin_username
+      )
+
+      admin_password = coalesce(
+        var.cluster.admin_password,
+        windows_profile.value.admin_password,
+        one([for password in values(random_password.this) : password.result])
+      )
+
+      license = windows_profile.value.license
+
       dynamic "gmsa" {
-        for_each = try(windows_profile.value.gmsa, null) != null ? { "default" = windows_profile.value.gmsa } : {}
+        for_each = windows_profile.value.gmsa != null ? { "this" = windows_profile.value.gmsa } : {}
+
         content {
           dns_server  = gmsa.value.dns_server
           root_domain = gmsa.value.root_domain
@@ -590,36 +586,25 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
 # secrets
-resource "tls_private_key" "tls_key" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+resource "tls_private_key" "this" {
+  for_each = var.cluster.profile == "linux" && var.cluster.generate_ssh_key.enable ? { "this" = true } : {}
 
   algorithm   = var.cluster.generate_ssh_key.algorithm
   rsa_bits    = var.cluster.generate_ssh_key.rsa_bits
   ecdsa_curve = var.cluster.generate_ssh_key.ecdsa_curve
 }
 
-resource "azurerm_key_vault_secret" "tls_public_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+resource "azurerm_key_vault_secret" "tls" {
+  for_each = var.cluster.profile == "linux" && var.cluster.generate_ssh_key.enable ? toset(["pub", "priv"]) : []
 
-  name             = format("%s-%s-%s", "kvs", var.cluster.name, "pub")
-  value            = tls_private_key.tls_key["ssh_key"].public_key_openssh
-  key_vault_id     = var.keyvault
-  expiration_date  = var.cluster.generate_ssh_key.expiration_date
-  not_before_date  = var.cluster.generate_ssh_key.not_before_date
-  value_wo_version = var.cluster.generate_ssh_key.value_wo_version
-  value_wo         = var.cluster.generate_ssh_key.value_wo
-  content_type     = var.cluster.generate_ssh_key.content_type
-
-  tags = coalesce(
-    var.cluster.tags, var.tags, {}
+  name = format(
+    "%s-%s", coalesce(var.cluster.generate_ssh_key.name, "kvs-${var.cluster.name}"), each.key
   )
-}
 
-resource "azurerm_key_vault_secret" "tls_private_key_secret" {
-  for_each = var.cluster.profile == "linux" && try(var.cluster.generate_ssh_key.enable, false) == true ? { "ssh_key" = true } : {}
+  value = each.key == "pub" ? (
+    tls_private_key.this["this"].public_key_openssh
+  ) : tls_private_key.this["this"].private_key_pem
 
-  name             = format("%s-%s-%s", "kvs", var.cluster.name, "priv")
-  value            = tls_private_key.tls_key["ssh_key"].private_key_pem
   key_vault_id     = var.keyvault
   expiration_date  = var.cluster.generate_ssh_key.expiration_date
   not_before_date  = var.cluster.generate_ssh_key.not_before_date
@@ -632,9 +617,8 @@ resource "azurerm_key_vault_secret" "tls_private_key_secret" {
   )
 }
 
-# random password
-resource "random_password" "password" {
-  for_each = var.cluster.profile == "windows" && try(var.cluster.generate_password.enable, false) == true ? { "password" = true } : {}
+resource "random_password" "this" {
+  for_each = var.cluster.profile == "windows" && var.cluster.generate_password.enable ? { "this" = true } : {}
 
   length           = var.cluster.generate_password.length
   special          = var.cluster.generate_password.special
@@ -649,14 +633,17 @@ resource "random_password" "password" {
   keepers          = var.cluster.generate_password.keepers
 }
 
-resource "azurerm_key_vault_secret" "secret" {
-  for_each = var.cluster.profile == "windows" && try(var.cluster.generate_password.enable, false) == true ? { "password" = true } : {}
+resource "azurerm_key_vault_secret" "this" {
+  for_each = var.cluster.profile == "windows" && var.cluster.generate_password.enable ? { "this" = true } : {}
 
-  name             = format("%s-%s", "kvs", var.cluster.name)
-  value            = random_password.password["password"].result
+  name = coalesce(
+    var.cluster.generate_password.name, "kvs-${var.cluster.name}"
+  )
+
+  value            = random_password.this["this"].result
   key_vault_id     = var.keyvault
-  value_wo_version = var.cluster.generate_password.value_wo_version
   value_wo         = var.cluster.generate_password.value_wo
+  value_wo_version = var.cluster.generate_password.value_wo_version
   content_type     = var.cluster.generate_password.content_type
   not_before_date  = var.cluster.generate_password.not_before_date
   expiration_date  = var.cluster.generate_password.expiration_date
@@ -667,13 +654,13 @@ resource "azurerm_key_vault_secret" "secret" {
 }
 
 # node pools
-resource "azurerm_kubernetes_cluster_node_pool" "pools" {
+resource "azurerm_kubernetes_cluster_node_pool" "this" {
   for_each = {
-    for pools_key, pools in lookup(var.cluster, "node_pools", {}) : pools_key => pools
+    for pools_key, pools in var.cluster.node_pools : pools_key => pools
   }
 
   name                          = each.value.name != null ? each.value.name : (each.value.os_type == "Linux" ? "npl${each.key}" : "npw${each.key}")
-  kubernetes_cluster_id         = azurerm_kubernetes_cluster.aks.id
+  kubernetes_cluster_id         = azurerm_kubernetes_cluster.this.id
   vm_size                       = each.value.vm_size
   node_count                    = each.value.auto_scaling_enabled ? null : each.value.node_count
   max_count                     = each.value.max_count
@@ -715,11 +702,11 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   )
 
   dynamic "node_network_profile" {
-    for_each = each.value.node_network_profile != null ? [each.value.node_network_profile] : []
+    for_each = each.value.node_network_profile != null ? { "this" = each.value.node_network_profile } : {}
 
     content {
       dynamic "allowed_host_ports" {
-        for_each = node_network_profile.value.allowed_host_ports != null ? [node_network_profile.value.allowed_host_ports] : []
+        for_each = node_network_profile.value.allowed_host_ports
 
         content {
           port_start = allowed_host_ports.value.port_start
@@ -733,19 +720,22 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   }
 
   dynamic "upgrade_settings" {
-    for_each = each.value.upgrade_settings != null ? [each.value.upgrade_settings] : []
+    for_each = each.value.upgrade_settings != null ? { "this" = each.value.upgrade_settings } : {}
 
     content {
-      max_surge                     = upgrade_settings.value.max_unavailable != null ? null : coalesce(upgrade_settings.value.max_surge, "1")
+      max_surge = upgrade_settings.value.max_unavailable == null ? coalesce(
+        upgrade_settings.value.max_surge, "1"
+      ) : null
+
+      max_unavailable               = upgrade_settings.value.max_unavailable
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
       node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
-      max_unavailable               = upgrade_settings.value.max_unavailable != null ? tostring(upgrade_settings.value.max_unavailable) : null
       undrainable_node_behavior     = upgrade_settings.value.undrainable_node_behavior
     }
   }
 
   dynamic "linux_os_config" {
-    for_each = each.value.os_type == "Linux" && each.value.linux_os_config != null ? [each.value.linux_os_config] : []
+    for_each = each.value.os_type == "Linux" && each.value.linux_os_config != null ? { "this" = each.value.linux_os_config } : {}
 
     content {
       swap_file_size_mb            = linux_os_config.value.swap_file_size_mb
@@ -753,7 +743,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
       transparent_huge_page        = linux_os_config.value.transparent_huge_page
 
       dynamic "sysctl_config" {
-        for_each = linux_os_config.value.sysctl_config != null ? [linux_os_config.value.sysctl_config] : []
+        for_each = linux_os_config.value.sysctl_config != null ? { "this" = each.value.linux_os_config.sysctl_config } : {}
+
         content {
           fs_aio_max_nr                      = sysctl_config.value.fs_aio_max_nr
           fs_file_max                        = sysctl_config.value.fs_file_max
@@ -790,12 +781,11 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   }
 
   dynamic "kubelet_config" {
-    for_each = each.value.os_type == "Linux" && each.value.kubelet_config != null ? [each.value.kubelet_config] : []
+    for_each = each.value.os_type == "Linux" && each.value.kubelet_config != null ? { "this" = each.value.kubelet_config } : {}
 
     content {
       allowed_unsafe_sysctls    = kubelet_config.value.allowed_unsafe_sysctls
       container_log_max_files   = kubelet_config.value.container_log_max_files
-      container_log_max_line    = kubelet_config.value.container_log_max_line
       container_log_max_size_mb = kubelet_config.value.container_log_max_size_mb
       cpu_cfs_quota_enabled     = kubelet_config.value.cpu_cfs_quota_enabled
       cpu_cfs_quota_period      = kubelet_config.value.cpu_cfs_quota_period
@@ -808,7 +798,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   }
 
   dynamic "windows_profile" {
-    for_each = each.value.os_type == "Windows" && each.value.windows_profile != null ? [each.value.windows_profile] : []
+    for_each = each.value.os_type == "Windows" && each.value.windows_profile != null ? { "this" = each.value.windows_profile } : {}
 
     content {
       outbound_nat_enabled = windows_profile.value.outbound_nat_enabled
@@ -816,11 +806,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "pools" {
   }
 }
 
-resource "azurerm_kubernetes_cluster_extension" "ext" {
-  for_each = var.cluster.extensions != null ? var.cluster.extensions : {}
+resource "azurerm_kubernetes_cluster_extension" "this" {
+  for_each = var.cluster.extensions
 
-  name                             = "ext-${each.key}"
-  cluster_id                       = azurerm_kubernetes_cluster.aks.id
+  name = coalesce(
+    each.value.name, "ext-${each.key}"
+  )
+
+  cluster_id                       = azurerm_kubernetes_cluster.this.id
   extension_type                   = each.value.extension_type
   release_train                    = each.value.release_train
   target_namespace                 = each.value.target_namespace
@@ -830,7 +823,7 @@ resource "azurerm_kubernetes_cluster_extension" "ext" {
   version                          = each.value.version
 
   dynamic "plan" {
-    for_each = each.value.plan != null ? each.value.plan : {}
+    for_each = each.value.plan != null ? { "this" = each.value.plan } : {}
 
     content {
       name           = plan.value.name
@@ -842,12 +835,21 @@ resource "azurerm_kubernetes_cluster_extension" "ext" {
   }
 }
 
-# role assignment
-resource "azurerm_role_assignment" "role" {
-  for_each = lookup(var.cluster, "registry", null) != null ? { "default" = var.cluster.registry } : {}
+resource "azurerm_role_assignment" "this" {
+  for_each = var.cluster.role_assignments
 
-  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  role_definition_name             = "AcrPull"
-  scope                            = var.cluster.registry.role_assignment_scope
-  skip_service_principal_aad_check = var.cluster.registry.skip_service_principal_aad_check
+  principal_id = coalesce(
+    each.value.principal_id, azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
+  )
+
+  name                                   = each.value.name
+  scope                                  = each.value.scope
+  role_definition_name                   = each.value.role_definition_name
+  role_definition_id                     = each.value.role_definition_id
+  description                            = each.value.description
+  principal_type                         = each.value.principal_type
+  condition                              = each.value.condition
+  condition_version                      = each.value.condition_version
+  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
+  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
 }

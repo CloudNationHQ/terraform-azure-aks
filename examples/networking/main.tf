@@ -1,13 +1,13 @@
 module "naming" {
   source  = "cloudnationhq/naming/azure"
-  version = "~> 0.24"
+  version = "~> 0.32"
 
   suffix = ["demo", "dev"]
 }
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   groups = {
     demo = {
@@ -19,9 +19,9 @@ module "rg" {
 
 module "identity" {
   source  = "cloudnationhq/uai/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  config = {
+  identity = {
     name                = module.naming.user_assigned_identity.name
     location            = module.rg.groups.demo.location
     resource_group_name = module.rg.groups.demo.name
@@ -30,9 +30,7 @@ module "identity" {
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 4.0"
-
-  naming = local.naming
+  version = "~> 6.0"
 
   vault = {
     name                = module.naming.key_vault.name_unique
@@ -43,9 +41,7 @@ module "kv" {
 
 module "network" {
   source  = "cloudnationhq/vnet/azure"
-  version = "~> 9.0"
-
-  naming = local.naming
+  version = "~> 10.0"
 
   vnet = {
     name                = module.naming.virtual_network.name
@@ -54,34 +50,51 @@ module "network" {
     address_space       = ["10.18.0.0/16"]
 
     subnets = {
-      db = {
+      nodes = {
         network_security_group = {}
         address_prefixes       = ["10.18.1.0/24"]
-      }
-      cache = {
-        network_security_group = {}
-        address_prefixes       = ["10.18.2.0/24"]
       }
     }
   }
 }
 
-module "analytics" {
-  source  = "cloudnationhq/law/azure"
-  version = "~> 3.0"
-
-  workspace = {
-    name                = module.naming.log_analytics_workspace.name
-    location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
-  }
-}
-
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
-  keyvault   = module.kv.vault.id
-  cluster    = local.cluster
+  keyvault = module.kv.vault.id
+
+  cluster = {
+    name                = module.naming.kubernetes_cluster.name_unique
+    location            = module.rg.groups.demo.location
+    resource_group_name = module.rg.groups.demo.name
+    profile             = "linux"
+    dns_prefix          = "demo"
+
+    generate_ssh_key = {
+      enable = true
+    }
+
+    identity = {
+      type         = "UserAssigned"
+      identity_ids = [module.identity.identity.id]
+    }
+
+    default_node_pool = {
+      vm_size        = "Standard_DS2_v2"
+      vnet_subnet_id = module.network.subnets.nodes.id
+    }
+
+    network_profile = {
+      network_plugin      = "azure"
+      network_plugin_mode = "overlay"
+      outbound_type       = "loadBalancer"
+
+      load_balancer_profile = {
+        managed_outbound_ip_count = 2
+        idle_timeout_in_minutes   = 10
+      }
+    }
+  }
   depends_on = [module.kv]
 }

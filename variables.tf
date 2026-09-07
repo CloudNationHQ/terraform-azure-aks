@@ -8,9 +8,9 @@ variable "cluster" {
     dns_prefix                          = optional(string)
     dns_prefix_private_cluster          = optional(string)
     automatic_upgrade_channel           = optional(string)
-    ai_toolchain_operator_enabled       = optional(bool, false)
+    ai_toolchain_operator_enabled       = optional(bool)
     azure_policy_enabled                = optional(bool, false)
-    cost_analysis_enabled               = optional(bool, false)
+    cost_analysis_enabled               = optional(bool)
     disk_encryption_set_id              = optional(string)
     edge_zone                           = optional(string)
     http_application_routing_enabled    = optional(bool)
@@ -22,25 +22,26 @@ variable "cluster" {
     node_resource_group                 = optional(string)
     oidc_issuer_enabled                 = optional(bool)
     open_service_mesh_enabled           = optional(bool)
-    private_cluster_enabled             = optional(bool, false)
+    private_cluster_enabled             = optional(bool)
     private_dns_zone_id                 = optional(string)
-    private_cluster_public_fqdn_enabled = optional(bool, false)
+    private_cluster_public_fqdn_enabled = optional(bool)
     custom_ca_trust_certificates_base64 = optional(list(string), [])
-    workload_identity_enabled           = optional(bool, false)
-    role_based_access_control_enabled   = optional(bool, true)
-    run_command_enabled                 = optional(bool, true)
-    sku_tier                            = optional(string, "Free")
-    support_plan                        = optional(string, "KubernetesOfficial")
+    workload_identity_enabled           = optional(bool)
+    role_based_access_control_enabled   = optional(bool)
+    run_command_enabled                 = optional(bool)
+    sku_tier                            = optional(string)
+    support_plan                        = optional(string)
     tags                                = optional(map(string))
-    username                            = optional(string)
-    password                            = optional(string)
+    admin_username                      = optional(string)
+    admin_password                      = optional(string)
     public_key                          = optional(string)
     service_principal = optional(object({
       client_id     = string
       client_secret = string
     }))
     generate_password = optional(object({
-      enable           = bool
+      enable           = optional(bool, false)
+      name             = optional(string)
       length           = optional(number, 24)
       special          = optional(bool, true)
       min_lower        = optional(number, 5)
@@ -57,9 +58,10 @@ variable "cluster" {
       content_type     = optional(string)
       not_before_date  = optional(string)
       expiration_date  = optional(string)
-    }))
+    }), {})
     generate_ssh_key = optional(object({
-      enable           = bool
+      enable           = optional(bool, false)
+      name             = optional(string)
       algorithm        = optional(string, "RSA")
       rsa_bits         = optional(number, 4096)
       ecdsa_curve      = optional(string, "P224")
@@ -68,14 +70,14 @@ variable "cluster" {
       value_wo_version = optional(string)
       value_wo         = optional(string)
       content_type     = optional(string)
-    }))
+    }), {})
     identity = optional(object({
-      type         = string
-      identity_ids = list(string)
+      type         = optional(string, "SystemAssigned")
+      identity_ids = optional(list(string))
     }))
     default_node_pool = optional(object({
       name                          = optional(string, "default")
-      vm_size                       = optional(string, "Standard_D2as_v5")
+      vm_size                       = optional(string)
       capacity_reservation_group_id = optional(string)
       auto_scaling_enabled          = optional(bool)
       node_count                    = optional(number, 2)
@@ -89,7 +91,7 @@ variable "cluster" {
       kubelet_disk_type             = optional(string)
       max_pods                      = optional(number)
       node_public_ip_prefix_id      = optional(string)
-      node_labels                   = optional(map(string), {})
+      node_labels                   = optional(map(string))
       only_critical_addons_enabled  = optional(bool, false)
       orchestrator_version          = optional(string)
       os_disk_size_gb               = optional(number)
@@ -97,12 +99,12 @@ variable "cluster" {
       os_sku                        = optional(string)
       pod_subnet_id                 = optional(string)
       proximity_placement_group_id  = optional(string)
-      scale_down_mode               = optional(string, "Delete")
+      scale_down_mode               = optional(string)
       snapshot_id                   = optional(string)
       temporary_name_for_rotation   = optional(string)
-      type                          = optional(string, "VirtualMachineScaleSets")
+      type                          = optional(string)
       tags                          = optional(map(string))
-      ultra_ssd_enabled             = optional(bool, false)
+      ultra_ssd_enabled             = optional(bool)
       vnet_subnet_id                = optional(string)
       workload_runtime              = optional(string)
       zones                         = optional(list(number), [1, 2, 3])
@@ -113,7 +115,6 @@ variable "cluster" {
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
         container_log_max_files   = optional(number)
-        container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)
         cpu_cfs_quota_period      = optional(string)
@@ -160,11 +161,11 @@ variable "cluster" {
         }))
       }))
       node_network_profile = optional(object({
-        allowed_host_ports = optional(object({
+        allowed_host_ports = optional(map(object({
           port_start = optional(number)
           port_end   = optional(number)
           protocol   = optional(string)
-        }))
+        })), {})
         application_security_group_ids = optional(list(string), [])
         node_public_ip_tags            = optional(map(string))
       }))
@@ -178,32 +179,32 @@ variable "cluster" {
     api_server_access_profile = optional(object({
       authorized_ip_ranges                = optional(list(string), [])
       subnet_id                           = optional(string)
-      virtual_network_integration_enabled = optional(bool, false)
+      virtual_network_integration_enabled = optional(bool)
     }))
     auto_scaler_profile = optional(object({
-      balance_similar_node_groups                   = optional(bool, false)
-      expander                                      = optional(string, "random")
-      daemonset_eviction_for_empty_nodes_enabled    = optional(bool, false)
-      daemonset_eviction_for_occupied_nodes_enabled = optional(bool, true)
-      ignore_daemonsets_utilization_enabled         = optional(bool, false)
-      max_graceful_termination_sec                  = optional(string, "600")
-      max_node_provisioning_time                    = optional(string, "15m")
-      max_unready_nodes                             = optional(string, "3")
-      max_unready_percentage                        = optional(string, "45")
-      new_pod_scale_up_delay                        = optional(string, "10s")
-      scale_down_delay_after_add                    = optional(string, "10m")
-      scale_down_delay_after_delete                 = optional(string, "10s")
-      scale_down_delay_after_failure                = optional(string, "3m")
-      scan_interval                                 = optional(string, "10s")
-      scale_down_unneeded                           = optional(string, "10m")
-      scale_down_unready                            = optional(string, "20m")
-      scale_down_utilization_threshold              = optional(string, "0.5")
-      empty_bulk_delete_max                         = optional(string, "10")
-      skip_nodes_with_local_storage                 = optional(bool, true)
-      skip_nodes_with_system_pods                   = optional(bool, true)
+      balance_similar_node_groups                   = optional(bool)
+      expander                                      = optional(string)
+      daemonset_eviction_for_empty_nodes_enabled    = optional(bool)
+      daemonset_eviction_for_occupied_nodes_enabled = optional(bool)
+      ignore_daemonsets_utilization_enabled         = optional(bool)
+      max_graceful_termination_sec                  = optional(string)
+      max_node_provisioning_time                    = optional(string)
+      max_unready_nodes                             = optional(string)
+      max_unready_percentage                        = optional(string)
+      new_pod_scale_up_delay                        = optional(string)
+      scale_down_delay_after_add                    = optional(string)
+      scale_down_delay_after_delete                 = optional(string)
+      scale_down_delay_after_failure                = optional(string)
+      scan_interval                                 = optional(string)
+      scale_down_unneeded                           = optional(string)
+      scale_down_unready                            = optional(string)
+      scale_down_utilization_threshold              = optional(string)
+      empty_bulk_delete_max                         = optional(string)
+      skip_nodes_with_local_storage                 = optional(bool)
+      skip_nodes_with_system_pods                   = optional(bool)
     }))
     bootstrap_profile = optional(object({
-      artifact_source       = optional(string, "Direct")
+      artifact_source       = optional(string)
       container_registry_id = optional(string)
     }))
     azure_active_directory_role_based_access_control = optional(object({
@@ -228,11 +229,11 @@ variable "cluster" {
     }))
     key_management_service = optional(object({
       key_vault_key_id         = string
-      key_vault_network_access = optional(string, "Public")
+      key_vault_network_access = optional(string)
     }))
     key_vault_secrets_provider = optional(object({
       secret_rotation_enabled  = optional(bool, false)
-      secret_rotation_interval = optional(string, "2m")
+      secret_rotation_interval = optional(string)
     }))
     kubelet_identity = optional(object({
       user_assigned_identity_id = string
@@ -240,11 +241,11 @@ variable "cluster" {
       object_id                 = string
     }))
     linux_profile = optional(object({
-      admin_username = optional(string)
+      admin_username = optional(string, "nodeadmin")
       ssh_key = optional(object({
-        key_data = string
-      }))
-    }))
+        key_data = optional(string)
+      }), {})
+    }), {})
     maintenance_window = optional(object({
       allowed = optional(map(object({
         day   = string
@@ -294,8 +295,8 @@ variable "cluster" {
     }))
     node_provisioning_profile = optional(object({
       mode               = optional(string, "Manual")
-      default_node_pools = optional(string, "Auto")
-    }))
+      default_node_pools = optional(string)
+    }), {})
     network_profile = optional(object({
       network_plugin      = optional(string, "azure")
       network_mode        = optional(string)
@@ -304,27 +305,27 @@ variable "cluster" {
       outbound_type       = optional(string)
       pod_cidr            = optional(string)
       service_cidr        = optional(string)
-      load_balancer_sku   = optional(string, "standard")
+      load_balancer_sku   = optional(string)
       pod_cidrs           = optional(list(string))
       ip_versions         = optional(list(string))
       network_data_plane  = optional(string)
       service_cidrs       = optional(list(string))
       network_plugin_mode = optional(string, "overlay")
       advanced_networking = optional(object({
-        observability_enabled = optional(bool, false)
-        security_enabled      = optional(bool, false)
+        observability_enabled = optional(bool)
+        security_enabled      = optional(bool)
       }))
       load_balancer_profile = optional(object({
         managed_outbound_ip_count   = optional(number)
         outbound_ip_prefix_ids      = optional(list(string))
         outbound_ip_address_ids     = optional(list(string))
         outbound_ports_allocated    = optional(number)
-        backend_pool_type           = optional(string, "NodeIPConfiguration")
+        backend_pool_type           = optional(string)
         idle_timeout_in_minutes     = optional(number)
         managed_outbound_ipv6_count = optional(number)
       }))
       nat_gateway_profile = optional(object({
-        idle_timeout_in_minutes   = optional(string, "4")
+        idle_timeout_in_minutes   = optional(string)
         managed_outbound_ip_count = optional(number)
       }))
     }))
@@ -333,6 +334,7 @@ variable "cluster" {
       enable = optional(object({
         msi_auth_for_monitoring = optional(bool, false)
       }), {})
+      retina_flow_logs_enabled = optional(bool)
     }))
     service_mesh_profile = optional(object({
       revisions                        = optional(list(string))
@@ -348,10 +350,10 @@ variable "cluster" {
       }))
     }))
     storage_profile = optional(object({
-      blob_driver_enabled         = optional(bool, false)
-      disk_driver_enabled         = optional(bool, true)
-      file_driver_enabled         = optional(bool, true)
-      snapshot_controller_enabled = optional(bool, true)
+      blob_driver_enabled         = optional(bool)
+      disk_driver_enabled         = optional(bool)
+      file_driver_enabled         = optional(bool)
+      snapshot_controller_enabled = optional(bool)
     }))
     upgrade_override = optional(object({
       force_upgrade_enabled = optional(bool, false)
@@ -362,7 +364,7 @@ variable "cluster" {
       default_nginx_controller = optional(string)
     }))
     windows_profile = optional(object({
-      admin_username = optional(string)
+      admin_username = optional(string, "nodeadmin")
       admin_password = optional(string)
       license        = optional(string)
       gmsa = optional(object({
@@ -376,8 +378,8 @@ variable "cluster" {
     }))
     node_pools = optional(map(object({
       name                          = optional(string)
-      vm_size                       = optional(string, "Standard_D2as_v5")
-      node_count                    = optional(number, 1)
+      vm_size                       = optional(string)
+      node_count                    = optional(number)
       max_count                     = optional(number)
       min_count                     = optional(number)
       zones                         = optional(list(number))
@@ -391,7 +393,7 @@ variable "cluster" {
       os_disk_size_gb               = optional(number)
       os_disk_type                  = optional(string)
       orchestrator_version          = optional(string)
-      ultra_ssd_enabled             = optional(bool, false)
+      ultra_ssd_enabled             = optional(bool)
       host_group_id                 = optional(string)
       pod_subnet_id                 = optional(string)
       spot_max_price                = optional(number)
@@ -400,12 +402,12 @@ variable "cluster" {
       node_public_ip_prefix_id      = optional(string)
       proximity_placement_group_id  = optional(string)
       capacity_reservation_group_id = optional(string)
-      max_pods                      = optional(number, 30)
-      mode                          = optional(string, "User")
-      node_labels                   = optional(map(string), {})
+      max_pods                      = optional(number)
+      mode                          = optional(string)
+      node_labels                   = optional(map(string))
       node_taints                   = optional(list(string), [])
       os_sku                        = optional(string)
-      os_type                       = optional(string, "Linux")
+      os_type                       = optional(string)
       priority                      = optional(string)
       snapshot_id                   = optional(string)
       workload_runtime              = optional(string)
@@ -415,11 +417,11 @@ variable "cluster" {
         fips = optional(bool, false)
       }), {})
       node_network_profile = optional(object({
-        allowed_host_ports = optional(object({
+        allowed_host_ports = optional(map(object({
           port_start = optional(number)
           port_end   = optional(number)
           protocol   = optional(string)
-        }))
+        })), {})
         application_security_group_ids = optional(list(string), [])
         node_public_ip_tags            = optional(map(string))
       }))
@@ -427,7 +429,7 @@ variable "cluster" {
         max_surge                     = optional(string)
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
-        max_unavailable               = optional(number)
+        max_unavailable               = optional(string)
         undrainable_node_behavior     = optional(string)
       }))
       linux_os_config = optional(object({
@@ -469,7 +471,6 @@ variable "cluster" {
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
         container_log_max_files   = optional(number)
-        container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)
         cpu_cfs_quota_period      = optional(string)
@@ -480,10 +481,11 @@ variable "cluster" {
         topology_manager_policy   = optional(string)
       }))
       windows_profile = optional(object({
-        outbound_nat_enabled = optional(bool, true)
+        outbound_nat_enabled = optional(bool)
       }))
     })), {})
     extensions = optional(map(object({
+      name                             = optional(string)
       extension_type                   = string
       release_train                    = optional(string)
       target_namespace                 = optional(string)
@@ -499,10 +501,19 @@ variable "cluster" {
         version        = optional(string)
       }))
     })), {})
-    registry = optional(object({
-      role_assignment_scope            = string
-      skip_service_principal_aad_check = optional(bool, false)
-    }))
+    role_assignments = optional(map(object({
+      scope                                  = string
+      principal_id                           = optional(string)
+      name                                   = optional(string)
+      role_definition_name                   = optional(string)
+      role_definition_id                     = optional(string)
+      description                            = optional(string)
+      principal_type                         = optional(string)
+      condition                              = optional(string)
+      condition_version                      = optional(string)
+      delegated_managed_identity_resource_id = optional(string)
+      skip_service_principal_aad_check       = optional(bool)
+    })), {})
   })
 
   validation {
@@ -511,70 +522,9 @@ variable "cluster" {
   }
 
   validation {
-    condition = var.cluster.default_node_pool.auto_scaling_enabled != true || (
-      var.cluster.default_node_pool.min_count != null &&
-      var.cluster.default_node_pool.max_count != null
-    )
-    error_message = "When auto_scaling_enabled is true, both min_count and max_count must be specified for default_node_pool."
+    condition     = var.cluster.profile != "windows" || var.cluster.generate_password != null || var.cluster.admin_password != null
+    error_message = "Windows clusters must have either generate_password configured or admin_password provided."
   }
-
-  validation {
-    condition = var.cluster.default_node_pool.min_count == null || var.cluster.default_node_pool.max_count == null || (
-      var.cluster.default_node_pool.min_count <= var.cluster.default_node_pool.max_count
-    )
-    error_message = "min_count must be less than or equal to max_count in default_node_pool."
-  }
-
-  validation {
-    condition     = var.cluster.profile != "windows" || var.cluster.generate_password != null || var.cluster.password != null
-    error_message = "Windows clusters must have either generate_password configured or password provided."
-  }
-
-  # validation {
-  #   condition     = var.cluster.profile != "linux" || var.cluster.generate_ssh_key != null || var.cluster.public_key != null
-  #   error_message = "Linux clusters must have either generate_ssh_key configured or public_key provided."
-  # }
-
-  validation {
-    condition     = var.cluster.private_cluster_enabled != true || var.cluster.private_dns_zone_id != null || var.cluster.dns_prefix != null
-    error_message = "Private clusters require either private_dns_zone_id or dns_prefix to be specified."
-  }
-
-  validation {
-    condition     = var.cluster.workload_identity_enabled != true || var.cluster.oidc_issuer_enabled == true
-    error_message = "Workload Identity requires OIDC Issuer to be enabled."
-  }
-
-  validation {
-    condition = var.cluster.ingress_application_gateway == null || (
-      (var.cluster.ingress_application_gateway.gateway_id != null) !=
-      (var.cluster.ingress_application_gateway.gateway_name != null || var.cluster.ingress_application_gateway.subnet_cidr != null || var.cluster.ingress_application_gateway.subnet_id != null)
-    )
-    error_message = "Application Gateway ingress must specify either existing gateway_id OR new gateway configuration (gateway_name/subnet_cidr/subnet_id), not both."
-  }
-
-  validation {
-    condition = alltrue([
-      for _, pools in var.cluster.node_pools :
-      pools.upgrade_settings == null || pools.upgrade_settings.max_surge == null || pools.upgrade_settings.max_unavailable == null
-    ])
-    error_message = "For node_pools upgrade_settings, only one of max_surge or max_unavailable can be specified."
-  }
-
-  validation {
-    condition     = var.cluster.network_profile == null || var.cluster.network_profile.advanced_networking == null || var.cluster.network_profile.network_data_plane == "cilium"
-    error_message = "network_profile.advanced_networking requires network_profile.network_data_plane to be set to 'cilium'."
-  }
-
-  validation {
-    condition     = var.cluster.network_profile == null || var.cluster.network_profile.advanced_networking == null || try(var.cluster.network_profile.advanced_networking.observability_enabled, false) || try(var.cluster.network_profile.advanced_networking.security_enabled, false)
-    error_message = "When network_profile.advanced_networking is configured, set at least one of observability_enabled or security_enabled to true."
-  }
-
-  # validation {
-  #   condition     = var.cluster.service_principal != null || var.cluster.identity != null
-  #   error_message = "AKS cluster must specify either service_principal or identity block for authentication."
-  # }
 }
 
 variable "keyvault" {
