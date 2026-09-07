@@ -21,7 +21,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 5.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.0)
 
@@ -31,7 +31,7 @@ The following requirements are needed by this module:
 
 The following providers are used by this module:
 
-- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 4.0)
+- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 5.0)
 
 - <a name="provider_random"></a> [random](#provider\_random) (~> 3.0)
 
@@ -41,16 +41,15 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
-- [azurerm_key_vault_secret.secret](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) (resource)
-- [azurerm_key_vault_secret.tls_private_key_secret](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) (resource)
-- [azurerm_key_vault_secret.tls_public_key_secret](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) (resource)
-- [azurerm_kubernetes_cluster.aks](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) (resource)
-- [azurerm_kubernetes_cluster_extension.ext](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_extension) (resource)
-- [azurerm_kubernetes_cluster_node_pool.pools](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) (resource)
-- [azurerm_role_assignment.role](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
-- [random_password.password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) (resource)
-- [tls_private_key.tls_key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
-- [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) (data source)
+- [azurerm_key_vault_secret.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) (resource)
+- [azurerm_key_vault_secret.tls](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret) (resource)
+- [azurerm_kubernetes_cluster.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) (resource)
+- [azurerm_kubernetes_cluster_extension.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_extension) (resource)
+- [azurerm_kubernetes_cluster_node_pool.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster_node_pool) (resource)
+- [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
+- [random_password.this](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) (resource)
+- [tls_private_key.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) (resource)
+- [azurerm_subscription.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) (data source)
 
 ## Required Inputs
 
@@ -71,9 +70,9 @@ object({
     dns_prefix                          = optional(string)
     dns_prefix_private_cluster          = optional(string)
     automatic_upgrade_channel           = optional(string)
-    ai_toolchain_operator_enabled       = optional(bool, false)
+    ai_toolchain_operator_enabled       = optional(bool)
     azure_policy_enabled                = optional(bool, false)
-    cost_analysis_enabled               = optional(bool, false)
+    cost_analysis_enabled               = optional(bool)
     disk_encryption_set_id              = optional(string)
     edge_zone                           = optional(string)
     http_application_routing_enabled    = optional(bool)
@@ -85,25 +84,26 @@ object({
     node_resource_group                 = optional(string)
     oidc_issuer_enabled                 = optional(bool)
     open_service_mesh_enabled           = optional(bool)
-    private_cluster_enabled             = optional(bool, false)
+    private_cluster_enabled             = optional(bool)
     private_dns_zone_id                 = optional(string)
-    private_cluster_public_fqdn_enabled = optional(bool, false)
+    private_cluster_public_fqdn_enabled = optional(bool)
     custom_ca_trust_certificates_base64 = optional(list(string), [])
-    workload_identity_enabled           = optional(bool, false)
-    role_based_access_control_enabled   = optional(bool, true)
-    run_command_enabled                 = optional(bool, true)
-    sku_tier                            = optional(string, "Free")
-    support_plan                        = optional(string, "KubernetesOfficial")
+    workload_identity_enabled           = optional(bool)
+    role_based_access_control_enabled   = optional(bool)
+    run_command_enabled                 = optional(bool)
+    sku_tier                            = optional(string)
+    support_plan                        = optional(string)
     tags                                = optional(map(string))
-    username                            = optional(string)
-    password                            = optional(string)
+    admin_username                      = optional(string)
+    admin_password                      = optional(string)
     public_key                          = optional(string)
     service_principal = optional(object({
       client_id     = string
       client_secret = string
     }))
     generate_password = optional(object({
-      enable           = bool
+      enable           = optional(bool, false)
+      name             = optional(string)
       length           = optional(number, 24)
       special          = optional(bool, true)
       min_lower        = optional(number, 5)
@@ -120,9 +120,10 @@ object({
       content_type     = optional(string)
       not_before_date  = optional(string)
       expiration_date  = optional(string)
-    }))
+    }), {})
     generate_ssh_key = optional(object({
-      enable           = bool
+      enable           = optional(bool, false)
+      name             = optional(string)
       algorithm        = optional(string, "RSA")
       rsa_bits         = optional(number, 4096)
       ecdsa_curve      = optional(string, "P224")
@@ -131,14 +132,14 @@ object({
       value_wo_version = optional(string)
       value_wo         = optional(string)
       content_type     = optional(string)
-    }))
+    }), {})
     identity = optional(object({
-      type         = string
-      identity_ids = list(string)
+      type         = optional(string, "SystemAssigned")
+      identity_ids = optional(list(string))
     }))
     default_node_pool = optional(object({
       name                          = optional(string, "default")
-      vm_size                       = optional(string, "Standard_D2as_v5")
+      vm_size                       = optional(string)
       capacity_reservation_group_id = optional(string)
       auto_scaling_enabled          = optional(bool)
       node_count                    = optional(number, 2)
@@ -152,7 +153,7 @@ object({
       kubelet_disk_type             = optional(string)
       max_pods                      = optional(number)
       node_public_ip_prefix_id      = optional(string)
-      node_labels                   = optional(map(string), {})
+      node_labels                   = optional(map(string))
       only_critical_addons_enabled  = optional(bool, false)
       orchestrator_version          = optional(string)
       os_disk_size_gb               = optional(number)
@@ -160,12 +161,12 @@ object({
       os_sku                        = optional(string)
       pod_subnet_id                 = optional(string)
       proximity_placement_group_id  = optional(string)
-      scale_down_mode               = optional(string, "Delete")
+      scale_down_mode               = optional(string)
       snapshot_id                   = optional(string)
       temporary_name_for_rotation   = optional(string)
-      type                          = optional(string, "VirtualMachineScaleSets")
+      type                          = optional(string)
       tags                          = optional(map(string))
-      ultra_ssd_enabled             = optional(bool, false)
+      ultra_ssd_enabled             = optional(bool)
       vnet_subnet_id                = optional(string)
       workload_runtime              = optional(string)
       zones                         = optional(list(number), [1, 2, 3])
@@ -176,7 +177,6 @@ object({
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
         container_log_max_files   = optional(number)
-        container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)
         cpu_cfs_quota_period      = optional(string)
@@ -223,11 +223,11 @@ object({
         }))
       }))
       node_network_profile = optional(object({
-        allowed_host_ports = optional(object({
+        allowed_host_ports = optional(map(object({
           port_start = optional(number)
           port_end   = optional(number)
           protocol   = optional(string)
-        }))
+        })), {})
         application_security_group_ids = optional(list(string), [])
         node_public_ip_tags            = optional(map(string))
       }))
@@ -241,32 +241,32 @@ object({
     api_server_access_profile = optional(object({
       authorized_ip_ranges                = optional(list(string), [])
       subnet_id                           = optional(string)
-      virtual_network_integration_enabled = optional(bool, false)
+      virtual_network_integration_enabled = optional(bool)
     }))
     auto_scaler_profile = optional(object({
-      balance_similar_node_groups                   = optional(bool, false)
-      expander                                      = optional(string, "random")
-      daemonset_eviction_for_empty_nodes_enabled    = optional(bool, false)
-      daemonset_eviction_for_occupied_nodes_enabled = optional(bool, true)
-      ignore_daemonsets_utilization_enabled         = optional(bool, false)
-      max_graceful_termination_sec                  = optional(string, "600")
-      max_node_provisioning_time                    = optional(string, "15m")
-      max_unready_nodes                             = optional(string, "3")
-      max_unready_percentage                        = optional(string, "45")
-      new_pod_scale_up_delay                        = optional(string, "10s")
-      scale_down_delay_after_add                    = optional(string, "10m")
-      scale_down_delay_after_delete                 = optional(string, "10s")
-      scale_down_delay_after_failure                = optional(string, "3m")
-      scan_interval                                 = optional(string, "10s")
-      scale_down_unneeded                           = optional(string, "10m")
-      scale_down_unready                            = optional(string, "20m")
-      scale_down_utilization_threshold              = optional(string, "0.5")
-      empty_bulk_delete_max                         = optional(string, "10")
-      skip_nodes_with_local_storage                 = optional(bool, true)
-      skip_nodes_with_system_pods                   = optional(bool, true)
+      balance_similar_node_groups                   = optional(bool)
+      expander                                      = optional(string)
+      daemonset_eviction_for_empty_nodes_enabled    = optional(bool)
+      daemonset_eviction_for_occupied_nodes_enabled = optional(bool)
+      ignore_daemonsets_utilization_enabled         = optional(bool)
+      max_graceful_termination_sec                  = optional(string)
+      max_node_provisioning_time                    = optional(string)
+      max_unready_nodes                             = optional(string)
+      max_unready_percentage                        = optional(string)
+      new_pod_scale_up_delay                        = optional(string)
+      scale_down_delay_after_add                    = optional(string)
+      scale_down_delay_after_delete                 = optional(string)
+      scale_down_delay_after_failure                = optional(string)
+      scan_interval                                 = optional(string)
+      scale_down_unneeded                           = optional(string)
+      scale_down_unready                            = optional(string)
+      scale_down_utilization_threshold              = optional(string)
+      empty_bulk_delete_max                         = optional(string)
+      skip_nodes_with_local_storage                 = optional(bool)
+      skip_nodes_with_system_pods                   = optional(bool)
     }))
     bootstrap_profile = optional(object({
-      artifact_source       = optional(string, "Direct")
+      artifact_source       = optional(string)
       container_registry_id = optional(string)
     }))
     azure_active_directory_role_based_access_control = optional(object({
@@ -291,11 +291,11 @@ object({
     }))
     key_management_service = optional(object({
       key_vault_key_id         = string
-      key_vault_network_access = optional(string, "Public")
+      key_vault_network_access = optional(string)
     }))
     key_vault_secrets_provider = optional(object({
       secret_rotation_enabled  = optional(bool, false)
-      secret_rotation_interval = optional(string, "2m")
+      secret_rotation_interval = optional(string)
     }))
     kubelet_identity = optional(object({
       user_assigned_identity_id = string
@@ -303,11 +303,11 @@ object({
       object_id                 = string
     }))
     linux_profile = optional(object({
-      admin_username = optional(string)
+      admin_username = optional(string, "nodeadmin")
       ssh_key = optional(object({
-        key_data = string
-      }))
-    }))
+        key_data = optional(string)
+      }), {})
+    }), {})
     maintenance_window = optional(object({
       allowed = optional(map(object({
         day   = string
@@ -357,8 +357,8 @@ object({
     }))
     node_provisioning_profile = optional(object({
       mode               = optional(string, "Manual")
-      default_node_pools = optional(string, "Auto")
-    }))
+      default_node_pools = optional(string)
+    }), {})
     network_profile = optional(object({
       network_plugin      = optional(string, "azure")
       network_mode        = optional(string)
@@ -367,27 +367,27 @@ object({
       outbound_type       = optional(string)
       pod_cidr            = optional(string)
       service_cidr        = optional(string)
-      load_balancer_sku   = optional(string, "standard")
+      load_balancer_sku   = optional(string)
       pod_cidrs           = optional(list(string))
       ip_versions         = optional(list(string))
       network_data_plane  = optional(string)
       service_cidrs       = optional(list(string))
       network_plugin_mode = optional(string, "overlay")
       advanced_networking = optional(object({
-        observability_enabled = optional(bool, false)
-        security_enabled      = optional(bool, false)
+        observability_enabled = optional(bool)
+        security_enabled      = optional(bool)
       }))
       load_balancer_profile = optional(object({
         managed_outbound_ip_count   = optional(number)
         outbound_ip_prefix_ids      = optional(list(string))
         outbound_ip_address_ids     = optional(list(string))
         outbound_ports_allocated    = optional(number)
-        backend_pool_type           = optional(string, "NodeIPConfiguration")
+        backend_pool_type           = optional(string)
         idle_timeout_in_minutes     = optional(number)
         managed_outbound_ipv6_count = optional(number)
       }))
       nat_gateway_profile = optional(object({
-        idle_timeout_in_minutes   = optional(string, "4")
+        idle_timeout_in_minutes   = optional(string)
         managed_outbound_ip_count = optional(number)
       }))
     }))
@@ -396,6 +396,7 @@ object({
       enable = optional(object({
         msi_auth_for_monitoring = optional(bool, false)
       }), {})
+      retina_flow_logs_enabled = optional(bool)
     }))
     service_mesh_profile = optional(object({
       revisions                        = optional(list(string))
@@ -411,10 +412,10 @@ object({
       }))
     }))
     storage_profile = optional(object({
-      blob_driver_enabled         = optional(bool, false)
-      disk_driver_enabled         = optional(bool, true)
-      file_driver_enabled         = optional(bool, true)
-      snapshot_controller_enabled = optional(bool, true)
+      blob_driver_enabled         = optional(bool)
+      disk_driver_enabled         = optional(bool)
+      file_driver_enabled         = optional(bool)
+      snapshot_controller_enabled = optional(bool)
     }))
     upgrade_override = optional(object({
       force_upgrade_enabled = optional(bool, false)
@@ -425,7 +426,7 @@ object({
       default_nginx_controller = optional(string)
     }))
     windows_profile = optional(object({
-      admin_username = optional(string)
+      admin_username = optional(string, "nodeadmin")
       admin_password = optional(string)
       license        = optional(string)
       gmsa = optional(object({
@@ -439,8 +440,8 @@ object({
     }))
     node_pools = optional(map(object({
       name                          = optional(string)
-      vm_size                       = optional(string, "Standard_D2as_v5")
-      node_count                    = optional(number, 1)
+      vm_size                       = optional(string)
+      node_count                    = optional(number)
       max_count                     = optional(number)
       min_count                     = optional(number)
       zones                         = optional(list(number))
@@ -454,7 +455,7 @@ object({
       os_disk_size_gb               = optional(number)
       os_disk_type                  = optional(string)
       orchestrator_version          = optional(string)
-      ultra_ssd_enabled             = optional(bool, false)
+      ultra_ssd_enabled             = optional(bool)
       host_group_id                 = optional(string)
       pod_subnet_id                 = optional(string)
       spot_max_price                = optional(number)
@@ -463,12 +464,12 @@ object({
       node_public_ip_prefix_id      = optional(string)
       proximity_placement_group_id  = optional(string)
       capacity_reservation_group_id = optional(string)
-      max_pods                      = optional(number, 30)
-      mode                          = optional(string, "User")
-      node_labels                   = optional(map(string), {})
+      max_pods                      = optional(number)
+      mode                          = optional(string)
+      node_labels                   = optional(map(string))
       node_taints                   = optional(list(string), [])
       os_sku                        = optional(string)
-      os_type                       = optional(string, "Linux")
+      os_type                       = optional(string)
       priority                      = optional(string)
       snapshot_id                   = optional(string)
       workload_runtime              = optional(string)
@@ -478,11 +479,11 @@ object({
         fips = optional(bool, false)
       }), {})
       node_network_profile = optional(object({
-        allowed_host_ports = optional(object({
+        allowed_host_ports = optional(map(object({
           port_start = optional(number)
           port_end   = optional(number)
           protocol   = optional(string)
-        }))
+        })), {})
         application_security_group_ids = optional(list(string), [])
         node_public_ip_tags            = optional(map(string))
       }))
@@ -490,7 +491,7 @@ object({
         max_surge                     = optional(string)
         drain_timeout_in_minutes      = optional(number)
         node_soak_duration_in_minutes = optional(number)
-        max_unavailable               = optional(number)
+        max_unavailable               = optional(string)
         undrainable_node_behavior     = optional(string)
       }))
       linux_os_config = optional(object({
@@ -532,7 +533,6 @@ object({
       kubelet_config = optional(object({
         allowed_unsafe_sysctls    = optional(list(string))
         container_log_max_files   = optional(number)
-        container_log_max_line    = optional(number)
         container_log_max_size_mb = optional(number)
         cpu_cfs_quota_enabled     = optional(bool)
         cpu_cfs_quota_period      = optional(string)
@@ -543,10 +543,11 @@ object({
         topology_manager_policy   = optional(string)
       }))
       windows_profile = optional(object({
-        outbound_nat_enabled = optional(bool, true)
+        outbound_nat_enabled = optional(bool)
       }))
     })), {})
     extensions = optional(map(object({
+      name                             = optional(string)
       extension_type                   = string
       release_train                    = optional(string)
       target_namespace                 = optional(string)
@@ -562,10 +563,19 @@ object({
         version        = optional(string)
       }))
     })), {})
-    registry = optional(object({
-      role_assignment_scope            = string
-      skip_service_principal_aad_check = optional(bool, false)
-    }))
+    role_assignments = optional(map(object({
+      scope                                  = string
+      principal_id                           = optional(string)
+      name                                   = optional(string)
+      role_definition_name                   = optional(string)
+      role_definition_id                     = optional(string)
+      description                            = optional(string)
+      principal_type                         = optional(string)
+      condition                              = optional(string)
+      condition_version                      = optional(string)
+      delegated_managed_identity_resource_id = optional(string)
+      skip_service_principal_aad_check       = optional(bool)
+    })), {})
   })
 ```
 
@@ -642,11 +652,7 @@ To update the module's documentation run `make doc`
 
 We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or submitting a pull request, your input is highly valued.
 
-For more information, please see our contribution [guidelines](./CONTRIBUTING.md). <br><br>
-
-<a href="https://github.com/cloudnationhq/terraform-azure-aks/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=cloudnationhq/terraform-azure-aks" />
-</a>
+For more information, please see our contribution [guidelines](./CONTRIBUTING.md).
 
 ## License
 

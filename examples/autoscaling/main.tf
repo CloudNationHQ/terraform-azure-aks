@@ -17,28 +17,6 @@ module "rg" {
   }
 }
 
-module "network" {
-  source  = "cloudnationhq/vnet/azure"
-  version = "~> 10.0"
-
-
-  vnet = {
-    name                = module.naming.virtual_network.name
-    location            = module.rg.groups.demo.location
-    resource_group_name = module.rg.groups.demo.name
-    address_space       = ["10.18.0.0/16"]
-
-    subnets = {
-      db = {
-        address_prefixes = ["10.18.1.0/24"]
-      }
-      cache = {
-        address_prefixes = ["10.18.2.0/24"]
-      }
-    }
-  }
-}
-
 module "identity" {
   source  = "cloudnationhq/uai/azure"
   version = "~> 3.0"
@@ -71,8 +49,8 @@ module "aks" {
     name                = module.naming.kubernetes_cluster.name_unique
     location            = module.rg.groups.demo.location
     resource_group_name = module.rg.groups.demo.name
-    dns_prefix          = "demo"
     profile             = "linux"
+    dns_prefix          = "demo"
 
     generate_ssh_key = {
       enable = true
@@ -84,38 +62,31 @@ module "aks" {
     }
 
     default_node_pool = {
-      vnet_subnet_id = module.network.subnets.db.id
-      upgrade_settings = {
-        max_surge = "10%"
-      }
+      vm_size              = "Standard_DS2_v2"
+      auto_scaling_enabled = true
+      min_count            = 1
+      max_count            = 3
     }
 
-    node_pools = {
-      db = {
-        vnet_subnet_id = module.network.subnets.db.id
-        node_count     = 1
-        zones          = [1]
-        mode           = "User"
-        os_type        = "Linux"
+    auto_scaler_profile = {
+      balance_similar_node_groups      = true
+      expander                         = "random"
+      max_graceful_termination_sec     = "600"
+      scale_down_delay_after_add       = "10m"
+      scale_down_unneeded              = "10m"
+      scan_interval                    = "10s"
+      skip_nodes_with_local_storage    = false
+      skip_nodes_with_system_pods      = true
+      empty_bulk_delete_max            = "10"
+      new_pod_scale_up_delay           = "10s"
+      max_unready_nodes                = 3
+      max_unready_percentage           = 45
+      scale_down_utilization_threshold = "0.5"
+    }
 
-        kubelet_config = {
-          pod_max_pid = 110
-        }
-
-        node_labels = {
-          "workload" = "database"
-        }
-      }
-      cache = {
-        vnet_subnet_id = module.network.subnets.cache.id
-        node_count     = 1
-        zones          = [1]
-        os_type        = "Linux"
-
-        node_labels = {
-          "workload" = "cache"
-        }
-      }
+    workload_autoscaler_profile = {
+      keda_enabled                    = true
+      vertical_pod_autoscaler_enabled = true
     }
   }
   depends_on = [module.kv]

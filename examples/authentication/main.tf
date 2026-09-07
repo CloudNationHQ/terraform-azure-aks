@@ -1,13 +1,13 @@
 module "naming" {
   source  = "cloudnationhq/naming/azure"
-  version = "~> 0.24"
+  version = "~> 0.32"
 
   suffix = ["demo", "dev"]
 }
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   groups = {
     demo = {
@@ -19,9 +19,9 @@ module "rg" {
 
 module "identity" {
   source  = "cloudnationhq/uai/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  config = {
+  identity = {
     name                = module.naming.user_assigned_identity.name
     location            = module.rg.groups.demo.location
     resource_group_name = module.rg.groups.demo.name
@@ -30,9 +30,8 @@ module "identity" {
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 4.0"
+  version = "~> 6.0"
 
-  naming = local.naming
 
   vault = {
     name                = module.naming.key_vault.name_unique
@@ -57,7 +56,7 @@ module "kv" {
 
 module "aks-windows" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 3.0"
+  version = "~> 5.0"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}1"
@@ -67,11 +66,11 @@ module "aks-windows" {
     profile             = "windows"
     dns_prefix          = "demo1"
     sku_tier            = "Standard"
-    password            = module.kv.secrets.password.value
+    admin_password      = module.kv.secrets.password.value
 
     identity = {
       type         = "UserAssigned"
-      identity_ids = [module.identity.config.id]
+      identity_ids = [module.identity.identity.id]
     }
 
     default_node_pool = {
@@ -84,7 +83,7 @@ module "aks-windows" {
 
 module "aks-linux" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   cluster = {
     name                = "${module.naming.kubernetes_cluster.name}2"
@@ -98,7 +97,7 @@ module "aks-linux" {
 
     identity = {
       type         = "UserAssigned"
-      identity_ids = [module.identity.config.id]
+      identity_ids = [module.identity.identity.id]
     }
 
     default_node_pool = {

@@ -1,13 +1,13 @@
 module "naming" {
   source  = "cloudnationhq/naming/azure"
-  version = "~> 0.24"
+  version = "~> 0.32"
 
   suffix = ["demo", "dev"]
 }
 
 module "rg" {
   source  = "cloudnationhq/rg/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   groups = {
     demo = {
@@ -19,9 +19,9 @@ module "rg" {
 
 module "identity" {
   source  = "cloudnationhq/uai/azure"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
-  config = {
+  identity = {
     name                = module.naming.user_assigned_identity.name
     location            = module.rg.groups.demo.location
     resource_group_name = module.rg.groups.demo.name
@@ -30,9 +30,8 @@ module "identity" {
 
 module "kv" {
   source  = "cloudnationhq/kv/azure"
-  version = "~> 4.0"
+  version = "~> 6.0"
 
-  naming = local.naming
 
   vault = {
     name                = module.naming.key_vault.name_unique
@@ -43,7 +42,7 @@ module "kv" {
 
 module "acr" {
   source  = "cloudnationhq/acr/azure"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   registry = {
     name                = module.naming.container_registry.name_unique
@@ -55,7 +54,7 @@ module "acr" {
 
 module "aks" {
   source  = "cloudnationhq/aks/azure"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   keyvault = module.kv.vault.id
 
@@ -72,11 +71,14 @@ module "aks" {
 
     identity = {
       type         = "UserAssigned"
-      identity_ids = [module.identity.config.id]
+      identity_ids = [module.identity.identity.id]
     }
 
-    registry = {
-      role_assignment_scope = module.acr.registry.id
+    role_assignments = {
+      acr-pull = {
+        scope                = module.acr.registry.id
+        role_definition_name = "AcrPull"
+      }
     }
 
     default_node_pool = {

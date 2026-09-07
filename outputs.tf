@@ -1,15 +1,15 @@
 output "subscription_id" {
   description = "contains the current subscription id"
-  value       = data.azurerm_subscription.current.subscription_id
+  value       = data.azurerm_subscription.this.subscription_id
 }
 
 output "cluster" {
   description = "contains all aks configuration"
-  value       = azurerm_kubernetes_cluster.aks
+  value       = azurerm_kubernetes_cluster.this
   sensitive   = true
 }
 
 output "identity" {
   description = "contains the cluster identity configuration"
-  value       = try(azurerm_kubernetes_cluster.aks.identity[0], null)
+  value       = one(azurerm_kubernetes_cluster.this.identity)
 }
