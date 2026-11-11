@@ -297,6 +297,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
     content {
       key_vault_key_id         = key_management_service.value.key_vault_key_id
+      key_vault_id             = key_management_service.value.key_vault_id
       key_vault_network_access = key_management_service.value.key_vault_network_access
     }
   }
