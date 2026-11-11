@@ -229,6 +229,7 @@ variable "cluster" {
     }))
     key_management_service = optional(object({
       key_vault_key_id         = string
+      key_vault_id             = optional(string)
       key_vault_network_access = optional(string)
     }))
     key_vault_secrets_provider = optional(object({
