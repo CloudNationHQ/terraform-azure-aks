@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.1.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v5.0.0...v5.1.0) (2026-11-25)
+
+
+### Features
+
+* add key_vault_id to key management service and security block to node pools ([#173](https://github.com/CloudNationHQ/terraform-azure-aks/issues/173)) ([a90bf6d](https://github.com/CloudNationHQ/terraform-azure-aks/commit/a90bf6d5b705573823df5bef6898a35ea618099d))
+* **deps:** bump github.com/klauspost/compress in /tests ([#168](https://github.com/CloudNationHQ/terraform-azure-aks/issues/168)) ([4bb5718](https://github.com/CloudNationHQ/terraform-azure-aks/commit/4bb571807b31174e27f16d59bf2e86366585c506))
+
 ## [5.0.0](https://github.com/CloudNationHQ/terraform-azure-aks/compare/v4.4.0...v5.0.0) (2026-09-07)
 
 
