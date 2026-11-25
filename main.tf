@@ -184,6 +184,15 @@ resource "azurerm_kubernetes_cluster" "this" {
         undrainable_node_behavior     = upgrade_settings.value.undrainable_node_behavior
       }
     }
+
+    dynamic "security" {
+      for_each = var.cluster.default_node_pool.security != null ? { "this" = var.cluster.default_node_pool.security } : {}
+
+      content {
+        secure_boot_enabled = security.value.secure_boot_enabled
+        vtpm_enabled        = security.value.vtpm_enabled
+      }
+    }
   }
 
   dynamic "aci_connector_linux" {
@@ -732,6 +741,15 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
       drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
       node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
       undrainable_node_behavior     = upgrade_settings.value.undrainable_node_behavior
+    }
+  }
+
+  dynamic "security" {
+    for_each = each.value.security != null ? { "this" = each.value.security } : {}
+
+    content {
+      secure_boot_enabled = security.value.secure_boot_enabled
+      vtpm_enabled        = security.value.vtpm_enabled
     }
   }
 

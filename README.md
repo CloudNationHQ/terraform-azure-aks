@@ -237,6 +237,10 @@ object({
         node_soak_duration_in_minutes = optional(number)
         undrainable_node_behavior     = optional(string)
       }))
+      security = optional(object({
+        secure_boot_enabled = optional(bool)
+        vtpm_enabled        = optional(bool)
+      }))
     }), {})
     api_server_access_profile = optional(object({
       authorized_ip_ranges                = optional(list(string), [])
@@ -494,6 +498,10 @@ object({
         node_soak_duration_in_minutes = optional(number)
         max_unavailable               = optional(string)
         undrainable_node_behavior     = optional(string)
+      }))
+      security = optional(object({
+        secure_boot_enabled = optional(bool)
+        vtpm_enabled        = optional(bool)
       }))
       linux_os_config = optional(object({
         swap_file_size_mb             = optional(number)
