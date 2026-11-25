@@ -237,6 +237,10 @@ object({
         node_soak_duration_in_minutes = optional(number)
         undrainable_node_behavior     = optional(string)
       }))
+      security = optional(object({
+        secure_boot_enabled = optional(bool)
+        vtpm_enabled        = optional(bool)
+      }))
     }), {})
     api_server_access_profile = optional(object({
       authorized_ip_ranges                = optional(list(string), [])
@@ -291,6 +295,7 @@ object({
     }))
     key_management_service = optional(object({
       key_vault_key_id         = string
+      key_vault_id             = optional(string)
       key_vault_network_access = optional(string)
     }))
     key_vault_secrets_provider = optional(object({
@@ -493,6 +498,10 @@ object({
         node_soak_duration_in_minutes = optional(number)
         max_unavailable               = optional(string)
         undrainable_node_behavior     = optional(string)
+      }))
+      security = optional(object({
+        secure_boot_enabled = optional(bool)
+        vtpm_enabled        = optional(bool)
       }))
       linux_os_config = optional(object({
         swap_file_size_mb             = optional(number)
